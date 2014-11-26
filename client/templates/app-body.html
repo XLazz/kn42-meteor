@@ -1,0 +1,81 @@
+<template name="appBody">
+  <div class="wrapper-welcome">
+    <div class="title-welcome">Kn42 personal companion</div>
+    <div class="description-welcome">Kn42 was made by <a href="http://xlazz.com" target="_blank" class="js-open">Xlazz Inc</a>. This is a cross platform mobile app built in <a href="https://www.meteor.com" target="_blank" class="js-open">Meteor</a>.
+    </div>
+    
+    <div class="description-welcome">
+    The app is designed to run on a physical device, where it uses the hardware's native camera and GPS support.
+    </div>
+
+    <div class="description-welcome">
+    You can also run it in a simulator, or in a desktop browser as a convenience (what you're looking at right now).
+    </div>
+
+    <div class="description-welcome">
+
+    </div>
+  </div>
+
+  <div id="container" class="{{menuOpen}} {{overlayOpen}}">
+    <section id="menu" class="overthrow">
+      <a href="{{pathFor 'home'}}" class="{{activePage 'home'}}">
+        <span class="wrapper-menu-item">
+          <span class="icon-home"></span>
+          <span class="title-menu">Home</span>
+        </span>
+      </a>
+      <a href="{{pathFor 'profile'}}" class="{{activePage 'profile'}}">
+        <span class="wrapper-menu-item">
+          <span class="icon-rss"></span>
+          <span class="title-menu">Profile</span>
+        </span>
+      </a>
+      <a href="{{pathFor 'geolog'}}" class="{{activePage 'geolog'}}">
+        <span class="wrapper-menu-item">
+          <span class="icon-category"></span>
+          <span class="title-menu">Geolog</span>
+        </span>
+      </a>
+      <a href="{{pathFor 'locations'}}" class="{{activePage 'location'}}">
+        <span class="wrapper-menu-item">
+          <span class="icon-bookmark-hollow"></span>
+          <span class="title-menu">Lifelog</span>
+        </span>
+      </a>
+      <a href="{{pathFor 'temp'}}" class="{{activePage 'temp'}}">
+        <span class="wrapper-menu-item">
+          <span class="icon-question"></span>
+          <span class="title-menu">Fitness</span>
+        </span>
+      </a>
+    </section>
+
+      <div class="notifications">
+        {{#unless connected}}
+          <div class="notification">
+            <span class="icon-sync"></span>
+            <div class="title-notification">Trying to connect</div>
+          </div>
+        {{/unless}}
+        {{#each notifications}}
+          <div class="notification">
+            <a class="btn-primary js-notification-action">{{action}}</a>
+            <div class="title-notification">{{title}}</div>
+          </div>
+        {{/each}}
+				<div class="notification">
+					<div class="title-notification">service: {{status}}</div>
+				</div>
+      </div>
+
+    {{> overlay}}
+
+    <div class="content-overlay"></div>
+
+    <div id="content-container">
+      {{> yield}}
+    </div>
+
+  </div>
+</template>
