@@ -16,7 +16,7 @@ launch-screen
 
 # Packages from Atmosphere:
 tmeasday:publish-counts@0.3.1
-iron:router@0.9.4
+iron:router
 percolate:velocityjs
 percolate:wireframing
 mdg:camera
@@ -26,4 +26,6 @@ mdg:geolocation
 request
 accounts-ui
 houston:admin
+insecure
+autopublish
 

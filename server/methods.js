@@ -165,11 +165,18 @@ Meteor.methods({
 		var got_location;
 		var url;
 		var api_key2 = Meteor.users.find({_id: userId}, {api_key:1, _id:0}).fetch();
-		var api_key = api_key2[0].api_key;
+		console.log('submitCoords got_location ', api_key2); 
+		if (!api_key2) {
+			var user_email = Meteor.users.find({_id: userId}).emails[0].address;
+			Meteor.call('getKey', user_email, Meteor.userId());
+			var api_key2 = Meteor.users.find({_id: userId}, {api_key:1, _id:0}).fetch();
+			console.log('submitCoords got_location ', api_key2, user_email, userId); 
+		}
+/* 		var api_key = api_key2[0].api_key;
 		var url = 'http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&location=list&lat=' + coords.latitude + '&long=' + coords.longitude + '&alt=' + coords.altitude + '&speed=' + coords.speed + '&accuracy=' + coords.accuracy + '&timestamp=' + timestamp;
 		var myJSON = Meteor.http.call('GET',url);
 		got_location = JSON.parse(myJSON.content);
-		console.log('submitCoords got_location ', api_key, coords, got_location, url);
+		console.log('submitCoords got_location ', api_key, coords, got_location, url); */
 		return got_location;
 	}
 });

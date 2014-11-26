@@ -14,7 +14,7 @@ Template.activity.rendered = function() {
 }
 
 Template.activity.helpers({
-  firstName: function() {
+/*   firstName: function() {
     return this.userName.split(' ')[0];
   },
   recipeTitle: function() {
@@ -23,5 +23,5 @@ Template.activity.helpers({
   path: function() {
     return Router.path('recipe', { name: this.recipeName },
       { query: { activityId: this._id } })
-  }
+  } */
 })
