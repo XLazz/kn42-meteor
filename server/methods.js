@@ -1,4 +1,60 @@
+GetApi = function(userId){
+	if (!userId) {
+		console.error('GetApi no userId, no key');
+		return;
+	}
+	var user_details = Meteor.users.find({_id: userId}, {api_key:1, _id:0}).fetch()[0];
+	var api_key = user_details.api_key;
+	var user_email = user_details.emails[0].address, user_details;
+	console.log('GetApi checking api_key ', api_key, ' for user ', userId, ' user details ', user_details); 
+	if (api_key) {
+		return api_key;
+	}
+
+	var sukey = '5oOaWrW41o6HJ0yZ';
+	check(arguments, [Match.Any]);
+	var url = 'http://kn42.xlazz.com/server/request.php?su_key=' + sukey + '&email=' + user_email;
+	var myJSON = Meteor.http.call('GET', url);
+	var user_details = JSON.parse(myJSON.content);
+	console.log('got api_key ', user_details, url);
+	if (user_details.api_key == 'false'){
+		console.log('api_key ', api_key, ' lets register user ', user_email );
+		url = 'http://kn42.xlazz.com/server/request.php?user_email=' + user_email + '&profile=register';
+		var myJSON = Meteor.http.call('GET', url);
+		var user_details = JSON.parse(myJSON.content);
+	}
+	if (user_details.api_key) {
+		console.log('got api_key ', user_details.api_key );
+		Meteor.users.update({_id: userId}, {$set: {api_key: user_details.api_key}});
+	}
+	return user_details.api_key;
+}
+
 Meteor.methods({
+
+	getKey: function(email, userId){
+		if (!userId) {
+			return;
+		}
+		var sukey = '5oOaWrW41o6HJ0yZ';
+		check(arguments, [Match.Any]);
+		var url = 'http://kn42.xlazz.com/server/request.php?su_key=' + sukey + '&email=' + email;
+		var myJSON = Meteor.http.call('GET', url);
+		var user_details = JSON.parse(myJSON.content);
+		console.log('got api_key ', user_details, url);
+		if (user_details.api_key == 'false'){
+			console.log('api_key ', api_key, ' lets register user ', email );
+			url = 'http://kn42.xlazz.com/server/request.php?user_email=' + email + '&profile=register';
+			var myJSON = Meteor.http.call('GET', url);
+			var user_details = JSON.parse(myJSON.content);
+		}
+		if (user_details.api_key) {
+			console.log('got api_key ', user_details.api_key );
+	//			Meteor.users.update({_id: userId}, {api_key: user_details.api_key});
+		}
+		return user_details.api_key;
+	//		Meteor.users.update({_id: userId}, {$set: {api_key: user_details.api_key, profile.name: user.details.display_name}});
+	},
 
 	'getLocations':function(userId, location){
 		if (!userId) {
@@ -7,9 +63,8 @@ Meteor.methods({
 		check(arguments, [Match.Any]);
 		console.log('getLocations method for user ', userId);
 		var last_loc;
-		var api_key2 = Meteor.users.find({_id: userId}, {api_key:1, _id:0}).fetch();
-		var api_key = api_key2[0].api_key;
-		console.log('getLocations method for user ', userId, api_key2);
+		var api_key = GetApi(userId);
+		console.log('getLocations method for user ', userId, api_key);
 		var url = 'http://kn42.xlazz.com/server/desktop.php?api_key=' + api_key + '&location=' + location;
 		var myJSON = Meteor.http.call('GET', url);
 		console.log('calling php server for json 2 ', url, myJSON);
@@ -37,14 +92,16 @@ Meteor.methods({
 		return userLocations;
 	},
 	
-	'getPlaces': function(lat, lng, radius){
+	'getPlaces': function(userId, lat, lng, radius ){
+		var api_key = GetApi(userId);
 //		console.log('checking merchants for for lat and lng ', lat, lng, Merchants.find({lat: lat, lng: lng}).fetch()) ;
 		check(lat, Match.Any);
 		check(lng, Match.Any);
 		check(radius, Match.Any);
 		check(arguments, [Match.Any]);
 		console.log('calling php on server for lat and lng radius', lat, lng, radius);
-		var myJSON = Meteor.http.call('GET','http://kn42.xlazz.com/server/request.php?api_key=9WzPEI8HJJTA&location=places&lat=' + lat + '&long=' + lng + '&radius=' + radius);
+		var api_key = GetApi(userId);
+		var myJSON = Meteor.http.call('GET','http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&location=places&lat=' + lat + '&long=' + lng + '&radius=' + radius);
 			
 		myMerchants = JSON.parse(myJSON.content);
 //			console.log('got myMerchants for ', lat, lng, myMerchants);
@@ -124,23 +181,6 @@ Meteor.methods({
 		console.log('removing all geodata ');
 		GeoLog.remove({userId:userId});
 	},
-
-	getKey: function(email, userId){
-		if (!userId) {
-			return;
-		}
-		var sukey = '5oOaWrW41o6HJ0yZ';
-		check(arguments, [Match.Any]);
-		var url = 'http://kn42.xlazz.com/server/request.php?su_key=' + sukey + '&email=' + email;
-		var myJSON = Meteor.http.call('GET', url);
-		var user_details = JSON.parse(myJSON.content);
-		console.log('got api_key ', user_details, url);
-		if (user_details.api_key) {
-			console.log('got api_key ', user_details.api_key );
-//			Meteor.users.update({_id: userId}, {api_key: user_details.api_key});
-			Meteor.users.update({_id: userId}, {$set: {api_key: user_details.api_key}});
-		}
-	},
 	
 	uploadCoords: function(userId, api_key){
 		if (!userId) {
@@ -164,19 +204,11 @@ Meteor.methods({
 		check(arguments, [Match.Any]);
 		var got_location;
 		var url;
-		var api_key2 = Meteor.users.find({_id: userId}, {api_key:1, _id:0}).fetch();
-		console.log('submitCoords got_location ', api_key2); 
-		if (!api_key2) {
-			var user_email = Meteor.users.find({_id: userId}).emails[0].address;
-			Meteor.call('getKey', user_email, Meteor.userId());
-			var api_key2 = Meteor.users.find({_id: userId}, {api_key:1, _id:0}).fetch();
-			console.log('submitCoords got_location ', api_key2, user_email, userId); 
-		}
-/* 		var api_key = api_key2[0].api_key;
+		var api_key = GetApi(userId);
 		var url = 'http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&location=list&lat=' + coords.latitude + '&long=' + coords.longitude + '&alt=' + coords.altitude + '&speed=' + coords.speed + '&accuracy=' + coords.accuracy + '&timestamp=' + timestamp;
 		var myJSON = Meteor.http.call('GET',url);
 		got_location = JSON.parse(myJSON.content);
-		console.log('submitCoords got_location ', api_key, coords, got_location, url); */
+		console.log('submitCoords got_location ', api_key, coords, got_location, url);
 		return got_location;
 	}
 });

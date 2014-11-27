@@ -172,7 +172,7 @@ Template.selectPlace.helpers({
 				console.log(' running selectPlace.helper places location', Session.get('locationId'), Session.get('radius'), Session.get('lat'), Session.get('lng'), ' merchantes ',  Merchants.find({lat: Session.get('lat'), lng: Session.get('lng')}).fetch());
 				if ((Merchants.find({lat: Session.get('lat'), lng: Session.get('lng')}).count() === 0) || (getplaces)) {
 					console.log('calling php for places from client ', Session.get('lat'), Session.get('lng'), Session.get('radius'), Session.get('getplaces'));
-					Meteor.call('getPlaces', Session.get('lat'), Session.get('lng'), Session.get('radius'), Session.get('getplaces'), function(err,results){
+					Meteor.call('getPlaces', Meteor.userId(), Session.get('lat'), Session.get('lng'), Session.get('radius'), Session.get('getplaces'), function(err,results){
 						gotPlaces = results;
 						Session.set('gotPlaces', gotPlaces);
 						Session.set('getplaces', '');
@@ -187,7 +187,7 @@ Template.selectPlace.helpers({
 					gotPlaces = Merchants.find({lat: Session.get('lat'), lng: Session.get('lng')}).fetch();
 					Session.set('gotPlaces', gotPlaces);					
 				}
-				console.log(' call result  selectPlace.helper places location', gotPlaces);
+				console.log(' call result selectPlace.helper places location', gotPlaces);
 				Session.set('oldlocation', locationId);
 				Session.set('havePlaces', 1);
 			} else  {
