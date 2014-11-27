@@ -89,31 +89,35 @@
 
 <template name="selectPlace">
 	<p> Select place for location {{locationId}}</p>
-	{{#each places}}
+	{{#if places}}
+		{{#each places}}
+			<div class="kn-container">
+				<div class="kn-leftcol">{{#if name}} {{name}} {{else}} Unknown {{/if}}</div>
+				<div class="kn-rightcol">
+					<form class="form-inline" >
+						<div class="form-group">
+							<input type="button" class="button setlocations btn btn-primary" id="{{place_id}}" value="Set" />
+							<input type="hidden" id="place-{{place_id}}" value="{{name}}">
+						</div>
+					</form>	
+				</div>
+			</div>	
+		{{/each}}
 		<div class="kn-container">
-			<div class="kn-leftcol">{{#if name}} {{name}} {{else}} Unknown {{/if}}</div>
+		<div class="kn-leftcol">Elsewhere</div>
 			<div class="kn-rightcol">
 				<form class="form-inline" >
 					<div class="form-group">
-						<input type="button" class="button setlocations btn btn-primary" id="{{place_id}}" value="Set" />
-						<input type="hidden" id="place-{{place_id}}" value="{{name}}">
+						<input type="button" class="button setlocations btn btn-primary" id="0" value="Set" />
+						<input type="hidden" id="place-0" value="else">
 					</div>
 				</form>	
 			</div>
-		</div>	
-	{{/each}}
-	<div class="kn-container">
-	<div class="kn-leftcol">Elsewhere</div>
-		<div class="kn-rightcol">
-			<form class="form-inline" >
-				<div class="form-group">
-					<input type="button" class="button setlocations btn btn-primary" id="0" value="Set" />
-					<input type="hidden" id="place-0" value="else">
-				</div>
-			</form>	
 		</div>
-	</div>
-	<hr>
+		<hr>
+	{{else}}
+		wait...
+	{{/if}}
 </template>
 
 

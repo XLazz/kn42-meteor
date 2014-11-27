@@ -167,6 +167,7 @@ Template.selectPlace.helpers({
 			var gotPlaces = Places.find({locationId: locationId}).fetch();
 			console.log(' got places already? 1 ', gotPlaces, Session.get('locationId'), Session.get('gotPlaces'), 'get places ', Session.get('getplaces'));
 			if (Places.find({locationId: locationId}).count() === 0 ) {
+				gotPlaces = '';
 				var myRadius = Session.get('radius');
 				var getplaces = Session.get('getplaces');
 				console.log(' running selectPlace.helper places location', Session.get('locationId'), Session.get('radius'), Session.get('lat'), Session.get('lng'), ' merchantes ',  Merchants.find({lat: Session.get('lat'), lng: Session.get('lng')}).fetch());
