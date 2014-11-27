@@ -129,7 +129,15 @@ Template.appBody.helpers({
   
   notifications: function() {
     return notifications.find();
-  }
+  },
+	
+	status: function() {
+		if (Session.get('geoback')) {
+			return 'running';
+		} else {
+			return 'stopped';
+		}
+	},
 });
 
 Template.appBody.events({
@@ -172,4 +180,10 @@ Template.appBody.events({
       notifications.remove(this._id);
     }
   }
+});
+
+Template.Appsetnews.helpers({
+  isAdmin: function() {
+    return Meteor.user() && Meteor.user().admin;
+  },
 });

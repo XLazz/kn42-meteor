@@ -6,7 +6,7 @@
     <div class="content-scrollable">
       <div class="bg-image home">
         <h1 class="title-home">
-          <img src="img/app/logo-local.svg" alt="Local Market"/>
+          <img src="img/app/dolphin-kn42-1000x500.png" alt="Local Market"/>
         </h1>
         <span class="hours"><span class="title-callout">Hours</span>
         Mon–Fri 9-6pm, Sat 10-5pm</span>
@@ -18,21 +18,34 @@
         {{latestNews.text}}
       </div>
 
+      <h2 class="list-title">You are at:</h2>
+      <div class="list-subtitle">See more</div>
+      <div class="list-activities">
+				{{#if currentplaces}}
+					{{#each currentplaces}}
+						{{name}}
+					{{/each}}
+				{{/if}}
+				<br />
+				status: {{status}}
+      </div>
+      <a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking (dummy link for now)</a>
+			
       <h2 class="list-title">What's Cooking</h2>
       <div class="list-subtitle">See what the community is cooking</div>
       <div class="list-activities">
-        {{#each activities}}
+<!--         {{#each activities}}
           {{> activity}}
         {{else}}
           <div class="wrapper-message">
             <div class="title-message">No one is cooking yet!</div>
             <div class="subtitle-message">Share that you made a recipe and it will show up here.</div>
           </div>
-        {{/each}}
+        {{/each}} -->
       </div>
-      <a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking (dummy link for now)</a>
+      <a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking. (dummy link for now)</a>
 
-      <h2 class="list-title">Our Favorite Recipes</h2>
+      <h2 class="list-title">Events and places around you</h2>
       <div class="list-subtitle">Hand-picked by neighborhood chefs</div>
       <div class="list-recipes">
 <!--         {{#each featuredRecipes}}

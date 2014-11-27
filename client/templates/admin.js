@@ -1,4 +1,4 @@
-Template.admin.helpers({
+Template.setnews.helpers({
   isAdmin: function() {
     return Meteor.user() && Meteor.user().admin;
   },
@@ -8,7 +8,7 @@ Template.admin.helpers({
   }
 });
 
-Template.admin.events({
+Template.setnews.events({
   'submit form': function(event) {
     event.preventDefault();
 

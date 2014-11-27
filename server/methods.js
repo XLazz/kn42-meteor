@@ -115,6 +115,8 @@ Meteor.methods({
 					place_id: myMerchants[i].place_id,
 					name: myMerchants[i].name,
 					vicinity: myMerchants[i].vicinity,
+					types: myMerchants[i].types,
+					geometry: myMerchants[i].geometry,
 					lat: lat,
 					lng: lng
 				}
@@ -143,7 +145,7 @@ Meteor.methods({
 			);			
 		} else {
 			Places.upsert(
-				{placeId: place_id},
+				{place_id: place_id},
 				{$set: {
 					locationId: locationId,
 					lat: lat,
@@ -152,7 +154,7 @@ Meteor.methods({
 					name: name
 					}
 				}
-			);	
+			);
 		}
 	},
 	
@@ -180,6 +182,7 @@ Meteor.methods({
 		}
 		console.log('removing all geodata ');
 		GeoLog.remove({userId:userId});
+		GooglePlaces.remove({});
 	},
 	
 	uploadCoords: function(userId, api_key){

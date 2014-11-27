@@ -28,27 +28,42 @@ PollingGeo = function(){
 	}
 }
 
+function upsertPlaceId(location){
+	Meteor.call('submitCoords',  Meteor.userId(), location.timestamp, location.coords, function(err,results){
+		gotPlaces = results;
+		Session.set('gotPlaces', gotPlaces);
+		var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: Meteor.userId()})._id;
+		console.log('submitCoords to php, gor results ', Meteor.userId(), ' results.google_places.results[0] ', results.google_places.results[0], ' coords ', location.coords, ' geoId ', geoId);			
+		GeoLog.upsert(
+			{_id: geoId},
+			{$set: {placeId: results.google_places.results[0].place_id, status: results.current_status}}
+		);
+/* 		results.google_places.results.forEach(function (item, index, array) {
+			console.log('inserting item ', item);
+			GooglePlaces.upsert(
+				{place_id: item.place_id},
+				item
+			);
+		});	 */
+	});
+}
+
 function UpdateGeo(){
 //	var handle = Deps.autorun(function () {
-		var location = Geolocation.currentLocation();
-		console.log('UpdateGeo event ', location, this);
-		GeoLog.insert({
-			location: location.coords,
-			uuid: Meteor.uuid(),
-			device: 'browser',
-			userId: Meteor.userId(),
-			created: new Date()
-		});	
-		Meteor.call('submitCoords',  Meteor.userId(), location.timestamp, location.coords, function(err,results){
-			console.log('submitting coords ', Meteor.userId(), location.coords, ' results ', results);
-			gotPlaces = results;
-			Session.set('gotPlaces', gotPlaces);
-		});
-		
-//		Session.set('interval', 60000);
-//	});
+	var location = Geolocation.currentLocation();
+	console.log('UpdateGeo event ', location, this);
+	GeoLog.insert({
+		location: location.coords,
+		uuid: Meteor.uuid(),
+		device: 'browser',
+		userId: Meteor.userId(),
+		created: new Date(),
+		timestamp: location.timestamp
+	});	
+	upsertPlaceId(location);
 	return location;
 };
+
 
 UpdateGeoCordova = function(){
 	GeolocationFG.get(function(location) {
@@ -58,14 +73,12 @@ UpdateGeoCordova = function(){
 			uuid: GeolocationBG2.uuid(),
 			device: GeolocationBG2.device(),
 			userId: Meteor.userId(),
-			created: new Date()
-		});
-		Meteor.call('submitCoords',  Meteor.userId(), location.timestamp, location.coords, function(err,results){
-			console.log('submitting coords ', Meteor.userId(), location.coords, ' results ', results);
-			gotPlaces = results;
-			Session.set('gotPlaces', gotPlaces);
+			created: new Date(),
+			timestamp: location.timestamp
 		});
 //		Session.set('interval', 60000);
+		upsertPlaceId(location);
+		return location;
 	});
 }
 
@@ -120,29 +133,7 @@ Template.footergeo.events({
 		console.log('click #getNow general event ', location, this);
 		if (Meteor.isCordova) {
 			// cordova
-/* 			Deps.autorun(function () {
-				var location = Geolocation.currentLocation();
-				console.log('Cordova click #getNow event with check ',  Geolocation.error(), 'if error ', location, this);
-				GeoLog.insert({
-					location: location,
-					uuid: Meteor.uuid(),
-					device: 'browser',
-					userId: Meteor.userId(),
-					created: new Date(),
-					error: Geolocation.error()
-				});	
-			});
-			return; */
-			GeolocationFG.get(function(location) {
-				console.log('Cordova click #getNow event with check ',  location, this);
-				GeoLog.insert({
-					location: location.coords,
-					uuid: GeolocationBG2.uuid(),
-					device: GeolocationBG2.device(),
-					userId: Meteor.userId(),
-					created: new Date()
-				});
-			});
+			UpdateGeoCordova();
 			return;
 		}
 		// browser
@@ -159,7 +150,7 @@ Template.footergeo.events({
 //				dest.innerHTML = 'Started';
 				btn.innerHTML = 'Stop';
 				Session.set('geoback', true);
-				Session.set('interval', 120000);
+				Session.set('interval', 300000);
 				UpdateGeo();
 				PollingGeo();
 				return;
@@ -184,7 +175,7 @@ Template.footergeo.events({
 //			dest.innerHTML = 'Started (every few minutes there should be an update)';
 			btn.innerHTML = 'Stop';
 			Session.set('geoback', true);
-			Session.set('interval', 120000);
+			Session.set('interval', 300000);
 			UpdateGeoCordova();
 			PollingGeo();
 			console.log('Geolocation.getBackground cordova event set true ', Session.get('interval'), Session.get('geoback'), this);
@@ -201,7 +192,7 @@ Template.footergeo.events({
 	//	dest.innerHTML = 'Stopped';
 		btn.innerHTML = 'Start';
 		Session.set('geoback', false);
-		Session.set('interval', 500000);
+		Session.set('interval', 5000000);
 		PollingGeo();
 		return;
 	},

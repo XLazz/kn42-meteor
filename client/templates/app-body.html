@@ -50,7 +50,11 @@
         </span>
       </a>
     </section>
-
+		
+		{{#if isAdmin}}
+			{{> Appsetnews}}
+		{{/if}}
+		
       <div class="notifications">
         {{#unless connected}}
           <div class="notification">
@@ -78,4 +82,13 @@
     </div>
 
   </div>
+</template>
+
+<template name="Appsetnews">
+	<a href="{{pathFor 'setnews'}}" class="{{activePage 'setnews'}}">
+		<span class="wrapper-menu-item">
+			<span class="icon-question"></span>
+			<span class="title-menu">Set news</span>
+		</span>
+	</a>
 </template>
