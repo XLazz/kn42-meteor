@@ -1,9 +1,9 @@
 App.info({
-  name: 'Local Market',
-  description: 'A recipe sharing app made in Meteor.',
-  author: 'Percolate Studio Team',
-  email: 'us@percolatestudio.com',
-  website: 'http://percolatestudio.com',
+  name: 'Kn42',
+  description: 'Kn42 personal companion',
+  author: 'Xlazz Inc',
+  email: 'stanp@xlazz.com',
+  website: 'http://xlazz.com',
   version: '0.0.1'
 });
 
