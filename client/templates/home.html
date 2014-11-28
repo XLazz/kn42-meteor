@@ -6,10 +6,9 @@
     <div class="content-scrollable">
       <div class="bg-image home">
         <h1 class="title-home">
-          <img src="img/app/dolphin-kn42-1000x500.png" alt="Local Market"/>
+          <img src="img/app/dolphin-kn42-1000x500.png" alt="Kn42 Personal Companion"/>
         </h1>
-        <span class="hours"><span class="title-callout">Hours</span>
-        Mon–Fri 9-6pm, Sat 10-5pm</span>
+        <span class="hours"><span class="title-callout">Take me anywhere</span></span>
         <span class="arrow"></span>
       </div>
 
@@ -22,13 +21,21 @@
       <div class="list-subtitle">See more</div>
       <div class="list-activities">
 				{{#if currentplaces}}
-					{{#each currentplaces}}
-						{{name}}
-					{{/each}}
+<!-- 					{{#each currentplaces}} -->
+						{{currentplaces.name}} at {{currentplaces.vicinity}} since {{currentplaces.started}}. <br />
+						status: {{status}}  <!-- <img src="{{confirmationimage}}" /> -->
+<!-- 					{{/each}} -->
 				{{/if}}
 				<br />
-				status: {{status}}
+				<button class="button btn btn-xs btn-modal" id="confirm" style="align: left; width: 32%"> Confirm </button>
+				<button class="button btn btn-xs btn-modal" id="change" style="align: middle; width: 32%"> Change </button>
+				<button class="button btn btn-xs btn-modal" id="attach" style="align: right; width: 32%"> Attach </button>
       </div>
+			<div>
+			{{#if changeplace}}
+				{{> selectPlace}}
+			{{/if}}
+			</div>
       <a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking (dummy link for now)</a>
 			
       <h2 class="list-title">What's Cooking</h2>
@@ -46,7 +53,7 @@
       <a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking. (dummy link for now)</a>
 
       <h2 class="list-title">Events and places around you</h2>
-      <div class="list-subtitle">Hand-picked by neighborhood chefs</div>
+      <div class="list-subtitle">Hand-picked by the wisdom of automated processing</div>
       <div class="list-recipes">
 <!--         {{#each featuredRecipes}}
           {{> recipeItem recipe=this size='small'}}

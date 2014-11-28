@@ -149,8 +149,8 @@ Template.showlocations.events({
 	},
 	
 	'click .cancel': function(event, template) {
-		console.log('click .cancel ',Session.get("showCreateDialog"), this);
-		Session.set("showCreateDialog", false);
+		console.log('showlocations click .cancel ', this);
+		Session.set('searching', false);
 	}
 });
 
@@ -165,42 +165,35 @@ Template.selectPlace.helpers({
 		return;
 	},
 	places: function(){
-		console.log('places selectPlace ',Session.get('locationId'),this);
-		
-		if (Session.get('locationId')) {
-			var locationId = Session.get('locationId');
-			var gotPlaces;
-//			var gotPlaces = Places.find({locationId: locationId}).fetch();
-			console.log(' got places already? 1 ', gotPlaces, Session.get('locationId'), Session.get('gotPlaces'), 'get places ', Session.get('getplaces'));
-//			if ((Places.find({locationId: locationId}).count() === 0 )){
-				// gotPlaces = '';
+		console.log('places selectPlace ', Session.get('userLocationId'),this);
 
-			console.log(' running selectPlace.helper places location', Session.get('locationId'), Session.get('radius'), Session.get('lat'), Session.get('lng'), ' merchantes ');
-			if (MerchantsCache.find({lat: Session.get('lat'), lng: Session.get('lng')}).count())  {
-		//		Session.set('searching', false);
-				gotPlaces = MerchantsCache.find({lat: Session.get('lat'), lng: Session.get('lng')}).fetch();
-				console.log('cgot places from mongo ', gotPlaces);
+		var userLocationId = Session.get('userLocationId');
+		var location = UserLocations.find({user_history_location_id: userLocationId}, {sort: {started: -1}}, {limit: 1}).fetch()[0];
+		var gotPlaces;
+//			var gotPlaces = Places.find({locationId: locationId}).fetch();
+		console.log(' got places already? 1 ', gotPlaces, Session.get('userLocationId'), Session.get('gotPlaces'), 'get places ', Session.get('getplaces'));
+//			if ((Places.find({locationId: locationId}).count() === 0 )){
+			// gotPlaces = '';
+
+		console.log(' running selectPlace.helper places location', userLocationId, Session.get('radius'),location.latitude, location.longitude, ' merchantes ');
+		if (MerchantsCache.find({lat: location.latitude, lng: location.longitude}).count())  {
+	//		Session.set('searching', false);
+			gotPlaces = MerchantsCache.find({lat: location.latitude, lng: location.longitude}).fetch();
+			console.log('cgot places from mongo ', gotPlaces);
+			return gotPlaces;
+		} else {
+			var myRadius = Session.get('radius');
+			Session.set('searching', true);
+			console.log('calling php for places from client ', location.latitude, location.longitude, Session.get('radius'));
+			Meteor.call('getPlaces', Meteor.userId(), location.latitude, location.longitude, Session.get('radius'), function(err,results){
+				gotPlaces = MerchantsCache.find({lat: location.latitude, lng: location.longitude}).fetch();
+				console.log('selectPlace fetched places from merchants ', gotPlaces);
+//				Session.set('searching', false);
 				return gotPlaces;
-			} else {
-				var myRadius = Session.get('radius');
-				Session.set('searching', true);
-				console.log('calling php for places from client ', Session.get('lat'), Session.get('lng'), Session.get('radius'));
-				Meteor.call('getPlaces', Meteor.userId(), Session.get('lat'), Session.get('lng'), Session.get('radius'), function(err,results){
-					gotPlaces = MerchantsCache.find({lat: Session.get('lat'), lng: Session.get('lng')}).fetch();
-					console.log('selectPlace fetched places from merchants ', gotPlaces);
-	//				Session.set('searching', false);
-					return gotPlaces;
 //						console.log('gotPlace from call ', results);
-				});
-			} 
-/* 			} else  {
-				var gotPlaces = Places.find({locationId: locationId}).fetch();				
-				console.log('selectPlace fetched places from places ', gotPlaces, Session.get('locationId'));
-				Session.set('searching', false);
-				Session.set('makecall', true);
-				return gotPlaces;
-			} 	 */		
-		}
+			});
+		} 
+	
 	},
 });
 
@@ -289,11 +282,12 @@ Template.selectPlace.helpers({
 
 Template.selectPlace.events({
 	'click .cancel': function(event, template) {
-		console.log('click .cancel ',Session.get("showCreateDialog"), this);
+		console.log('selectPlace click .cancel ',Session.get("showCreateDialog"), this);
 		// Session.set("showCreateDialog", false);
 		var radius = 50;
 		Session.set('radius', radius);
 		Session.set('searching', false);
+		Session.set('changeplace', false);
 		Overlay.hide();
 	},
 	
@@ -322,12 +316,12 @@ Template.selectPlace.events({
 
 		var placeName = template.find('#place-' + placeId).value
 
-		var locationId = Session.get('locationId');
+		var userLocationId = Session.get('userLocationId');
 		var lat = Session.get('lat');
 		var lng = Session.get('lng');
 		Session.set('placeId', placeId);
 		Session.set('placeName', placeName);
-		console.log('set location', Session.get('locationId'), placeId, placeName);	
+		console.log('set location', userLocationId, placeId, placeName);	
 /* 		var setPlace = ['yes'];
 		console.log('setPlace ', setPlace); */
 		
@@ -342,14 +336,27 @@ Template.selectPlace.events({
 			console.log('checking Places ', Places.find({locationId: locationId}).count(), Places.find().fetch());	
 		}
 		var myFetch = Places.find().fetch(); */
-		var myId = UserLocations.findOne({user_history_location_id: locationId});		
-		UserLocations.update({_id: myId._id}, {$set: {name: Session.get('placeName')}});		
+		var myId = UserLocations.findOne({user_history_location_id: userLocationId});		
+		UserLocations.update({_id: myId._id}, {$set: {name: placeName, place_id: placeId}});	
+		// And add it to the confirmed places
+		place = MerchantsCache.find({place_id: placeId}, {fields:{_id: 0}}).fetch()[0];
+		place.user_history_location_id = userLocationId;
+		myId = Places.findOne({user_history_location_id: userLocationId});		
+		console.log(' Places.findOne ', myId);
+		if (!myId) {
+			console.log(' Places.findOne inserting for ', myId, place);
+			Places.insert(place);	
+		} else {
+			console.log(' Places.findOne upserting for ', myId._id, place);
+			Places.update({_id: myId._id}, {$set: place});
+		}
 		// Session.set("showCreateDialog", false);
 
 		var radius = 50;
 		Session.set('radius', radius);		
-		console.log(' placeId event ', placeId, 'UserLocations', UserLocations.find({user_history_location_id: locationId}).fetch());
+		console.log(' placeId event ', placeId, 'Places', place);
 //		Session.set('searching', false);
+		Session.set('changeplace', false);
 		Overlay.hide();
 	}
 });
