@@ -48,8 +48,9 @@
 </template>
 
 <template name="selectPlace">
-	{{#if places}}
-		<div class="content-scrollable">
+
+	<div class="content-scrollable">
+		{{#if places}}
 <!-- 			{{#if wait}} 
 				{{> searching}}
 			{{/if}} -->
@@ -82,11 +83,11 @@
 			<div class="kn-container" style="height: 23px">
 			</div>
 			<br />
-		</div>
+		{{else}}
+			{{> searching}}
+		{{/if}}		
 		<hr>
-	{{else}}
-		{{> searching}}
-	{{/if}}
+	</div>
 	<input type="button" class="button cancel btn btn-primary btn-down" value="Cancel" />
 </template>
 
