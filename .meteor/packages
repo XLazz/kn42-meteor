@@ -24,7 +24,6 @@ mdg:geolocation
 
 # Packages from the app:
 request
-accounts-ui
 houston:admin
 insecure
 autopublish
@@ -32,4 +31,7 @@ zeroasterisk:cordova-geolocation-foreground
 peppelg:bootstrap-3-modal
 mizzao:bootstrap-3
 zeroasterisk:cordova-geolocation-background
+grigio:overlay
+accounts-ui-unstyled
+accounts-ui
 

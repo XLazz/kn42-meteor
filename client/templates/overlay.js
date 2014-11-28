@@ -4,7 +4,7 @@ var ANIMATION_DURATION = 200;
 
 Session.setDefault(TEMPLATE_KEY, null);
 
-Overlay = {
+Overlay2 = {
   open: function(template, data) {
     Session.set(TEMPLATE_KEY, template);
     Session.set(DATA_KEY, data);
@@ -24,7 +24,7 @@ Overlay = {
   }
 }
 
-Template.overlay.rendered = function() {
+Template.overlay2.rendered = function() {
   this.find('#overlay-hook')._uihooks = {
     insertElement: function(node, next, done) {
       var $node = $(node);
@@ -50,19 +50,19 @@ Template.overlay.rendered = function() {
   }
 }
 
-Template.overlay.helpers({
+Template.overlay2.helpers({
   template: function() {
-    return Overlay.template();
+    return Overlay2.template();
   },
   
   data: function() {
-    return Overlay.data();
+    return Overlay2.data();
   }
 });
 
-Template.overlay.events({
+Template.overlay2.events({
   'click .js-close-overlay': function(event) {
     event.preventDefault();
-    Overlay.close()
+    Overlay2.close()
   }
 });

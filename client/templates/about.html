@@ -9,25 +9,40 @@
         </h1>
       </div>
       <div class="description-about">
-        {{> loginButtons}}
+        profile details
       </div>
+			<br /> <br />
       <div>
-				{{#if userId}}
-					{{> profileDetails}}
-				{{else}}
-					Please login
-				{{/if}}
+				{{> profile}}
+				{{> overlay}}
       </div>
     </div>
     <a href="https://www.meteor.com" class="btn-primary js-open" target="_blank">Built with meteor</a>
   </div>
 </template>
 
+<template name="profile">
+	{{> loginButtons}}
+	{{#if userId}}
+		{{> profileDetails}}
+	{{else}}
+		
+	{{/if}}
+<!-- 	<button class="btn-primary btn logmein" style="bottom:auto">Log me in</button> -->
+</template>
+
 <template name="profileDetails">
-Profile details <br/>
+<br/>
 	{{#if details}}
 <!-- 		{{#each details}}
 			{{details}}
 		{{/each}} -->
 	{{/if}}
 </template>
+
+<template name="loginoverlay">
+	{{> loginButtons}}
+</template>
+
+
+

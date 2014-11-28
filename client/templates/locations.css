@@ -1,0 +1,24 @@
+.kn-ontop {
+	height: auto;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	width: auto;
+	height: auto;
+	bottom: 0;
+	background-color: black;
+	z-index: 100;
+	opacity: 0.3;
+	vertical-align: middle;
+	padding-top: 50%;
+	text-align: center;
+}
+.kn-container {
+	width: 100%; 
+	height: auto;
+	padding: 5px;
+}
+.kn-leftcol {width:  70%; float: left}
+.kn-rightcol {width:  30%; float: left}

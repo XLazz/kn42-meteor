@@ -1,0 +1,20 @@
+#login-dropdown-list {
+	width: 100%;
+	padding: 20px;
+	top: inherit;
+	left: inherit;
+}
+
+.accounts-dialog {
+	border: 0;
+	box-shadow: inherit;
+	z-index: inherit;
+	margin: 0 0 0 0;
+	width: 100%;
+	background: inherit;
+	width: 100%;
+}
+
+#login-buttons {
+	width: 100%;
+}

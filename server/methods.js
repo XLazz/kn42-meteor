@@ -3,10 +3,11 @@ GetApi = function(userId){
 		console.error('GetApi no userId, no key');
 		return;
 	}
-	var user_details = Meteor.users.find({_id: userId}, {api_key:1, _id:0}).fetch()[0];
+	var user_details = Meteor.users.findOne({_id: userId}, {api_key:1, _id:0});
+	console.log('GetApi checking api_key 1 for user ', userId, ' user details ', user_details); 
 	var api_key = user_details.api_key;
 	var user_email = user_details.emails[0].address, user_details;
-	console.log('GetApi checking api_key ', api_key, ' for user ', userId, ' user details ', user_details); 
+	console.log('GetApi checking api_key 2 ', api_key, ' for user ', userId, ' user details ', user_details); 
 	if (api_key) {
 		return api_key;
 	}
@@ -93,8 +94,7 @@ Meteor.methods({
 	},
 	
 	'getPlaces': function(userId, lat, lng, radius ){
-		var api_key = GetApi(userId);
-//		console.log('checking merchants for for lat and lng ', lat, lng, Merchants.find({lat: lat, lng: lng}).fetch()) ;
+
 		check(lat, Match.Any);
 		check(lng, Match.Any);
 		check(radius, Match.Any);
@@ -104,12 +104,11 @@ Meteor.methods({
 		var myJSON = Meteor.http.call('GET','http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&location=places&lat=' + lat + '&long=' + lng + '&radius=' + radius);
 			
 		myMerchants = JSON.parse(myJSON.content);
-//			console.log('got myMerchants for ', lat, lng, myMerchants);
 		myMerchants = myMerchants.google_places.results;
 //			console.log('got myMerchants 2 for ', lat, lng, myMerchants[0]);
 		for (var i = 0; i < myMerchants.length; i++) {
 			console.log('inserting merchants ', myMerchants[i].place_id);
-			Merchants.upsert(
+			MerchantsCache.upsert(
 				{place_id: myMerchants[i].place_id},
 				{
 					place_id: myMerchants[i].place_id,
@@ -137,7 +136,7 @@ Meteor.methods({
 		} */
 	},
 	
-	'UpdatePlaces': function(locationId, lat, lng, place_id, name){
+	'UpdatePlaces': function(locationId, place_id){
 		check(arguments, [Match.Any]);
 		if (place_id === 0){
 			Places.remove(
@@ -147,11 +146,8 @@ Meteor.methods({
 			Places.upsert(
 				{place_id: place_id},
 				{$set: {
-					locationId: locationId,
-					lat: lat,
-					lng: lng,					
+					locationId: locationId,	
 					place_id: place_id,
-					name: name
 					}
 				}
 			);
@@ -170,7 +166,7 @@ Meteor.methods({
 			return;
 		}
 		console.log('removing all locations ');
-		Merchants.remove({});
+		MerchantsCache.remove({});
 		Places.remove({});	
 		return UserLocations.remove({userId: userId});
 	},	

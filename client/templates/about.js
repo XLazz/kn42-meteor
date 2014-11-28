@@ -5,6 +5,34 @@ Template.about.helpers({
 	},
 });
 
+Template.profile.helpers({
+	userId: function(){
+		var userId = Meteor.userId();
+		console.log ('profile helpers ', Meteor.userId()); 
+		if (userId){
+			return userId;
+		} else {
+			Overlay.show('loginoverlay');		
+		}
+	},
+});
+
+Template.profile.events({
+	'click .logmein': function (event, template) {
+		Overlay.show('loginoverlay');		
+	},
+});
+
+Template.loginoverlay.helpers({
+	userId: function(){
+		var userId = Meteor.userId();
+		if (userId){
+			Overlay.hide();		
+			return userId;
+		} 
+	},
+});
+
 Template.profileDetails.helpers({
 	details: function(){
 		var user_email;

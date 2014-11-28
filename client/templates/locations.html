@@ -1,24 +1,18 @@
 <template name="locations">
   <div class="page recipes">
     {{> nav title='Locations' black=true}}
-					<div>
+<!-- 					<div>
 						{{#if showCreateDialog}}
 							{{> locationModal}}
 						{{/if}}	
-					</div>
+					</div> -->
     <div class="content-scrollable">
       <div class="list-recipes">
-<!--         {{#each this}}
-          {{#if highlighted}}
-            {{> recipeItem recipe=this size='large'}}
-          {{else}}
-            {{> recipeItem recipe=this size='small'}}
-          {{/if}}
-        {{/each}} -->
 				{{#if userId}}
 					<hr>
 					<div>
 						{{> showlocations}}
+						{{> overlay}}
 					</div>
 				{{else}}
 					Please log in to see your LifeLog<br>
@@ -28,98 +22,79 @@
     </div>
 		<footer class="footer" style="bottom: 0; position: absolute;">
 			<div class="footer">
-				<button class="button reloadlocations btn btn-danger btn-xs"> Reload Data </button>
-				<button class="button updatelocations btn btn-primary btn-xs"> Update </button>
+				<button class="button reloadlocations btn btn-danger btn-xs btn-modal"> Reload Data </button>
+				<button class="button updatelocations btn btn-primary btn-xs btn-modal"> Update </button>
 			</div>
 		</footer>
   </div>
 </template>
 
-<template name="kn42_locations">  
-   
-	<div class="hero-unit">
-        <h1>User Locations</h1>
-		{{> loginButtons}}
-    </div>
-    <div class="page-header">
-	</div>
-	<div class="container">
-		<div>
-
-			{{#if showCreateDialog}}
-				{{> locationModal}}
-			{{/if}}
-<!-- 			modal 2 {{> locationModal2}}
-			modal 1 {{> locationModal}} -->
-		
-		</div>
-		<div class="footer">
-		footer
-			<button class="button reloadlocations btn btn-danger"> Reload Data </button>
-			<button class="button updatelocations btn btn-primary"> Update </button>
-		</div>
-		<hr>
-		<div>
-			{{> showlocations}}
-		</div>
-
-    </div>
-</template>
-
 <template name="showlocations">
-	{{#each locations}}
-		<p>{{user_history_location_id}} {{#if name}} {{name}} {{else}} Unknown {{/if}} <br/><small>started at {{started}}, finished at {{finished}}</small></p>
-		<form class="form-inline" >
-			<input type="button" class="button locations btn btn-primary" data-toggle="modal" data-target="#myModal" id="{{user_history_location_id}}" value="Change" />
-			<input type="hidden" id="lat-{{user_history_location_id}}" value="{{latitude}}">
-			<input type="hidden" id="lng-{{user_history_location_id}}" value="{{longitude}}">
-			<input type="hidden" name="test" value="test">
-		</form>
-		<hr>
-	{{/each}}
-<!-- 
-{{#if locationId=user_history_location_id}}
-	echo: {{showPlace}} {{locationId}} = {{user_history_location_id}}
-	{{#each places}}
-		{{> place}}
-		<hr>		
-	{{/each}}	
-{{/if}} -->
+<!-- 	{{#if isInOverlay}}
+		{{> selectPlace}}
+	{{/if}} -->
+	{{#unless isInOverlay}}
+		{{#each locations}}
+			<p>{{user_history_location_id}} {{#if name}} {{name}} {{else}} Unknown {{/if}} <br/><small>started at {{started}}, finished at {{finished}}</small></p>
+			<form class="form-inline" >
+				<input type="button" class="button locations btn btn-primary" data-toggle="modal" data-target="#myModal" id="{{user_history_location_id}}" value="Change" />
+				<input type="hidden" id="lat-{{user_history_location_id}}" value="{{latitude}}">
+				<input type="hidden" id="lng-{{user_history_location_id}}" value="{{longitude}}">
+				<input type="hidden" name="test" value="test">
+			</form>
+			<hr>
+		{{/each}}
+	{{/unless}}
 </template>
 
 <template name="selectPlace">
-	<p> Select place for location {{locationId}}</p>
 	{{#if places}}
-		{{#each places}}
+		<div class="content-scrollable">
+<!-- 			{{#if wait}} 
+				{{> searching}}
+			{{/if}} -->
+<!-- 			<p> Select place for location {{locationId}}</p> -->
+			<br /><br />
+			{{#each places}}
+				<div class="kn-container">
+					<div class="kn-leftcol">{{#if name}} {{name}} {{else}} Unknown {{/if}}</div>
+					<div class="kn-rightcol">
+						<form class="form-inline" >
+							<div class="form-group">
+								<input type="button" class="button setlocations btn btn-primary" id="{{place_id}}" value="Set" />
+								<input type="hidden" id="place-{{place_id}}" value="{{name}}">
+							</div>
+						</form>	
+					</div>
+				</div>	
+			{{/each}}
 			<div class="kn-container">
-				<div class="kn-leftcol">{{#if name}} {{name}} {{else}} Unknown {{/if}}</div>
+				<div class="kn-leftcol">Elsewhere</div>
 				<div class="kn-rightcol">
 					<form class="form-inline" >
 						<div class="form-group">
-							<input type="button" class="button setlocations btn btn-primary" id="{{place_id}}" value="Set" />
-							<input type="hidden" id="place-{{place_id}}" value="{{name}}">
+							<input type="button" class="button elsewhere btn btn-primary" id="0" value="Set" />
+							<input type="hidden" id="place-0" value="else">
 						</div>
 					</form>	
 				</div>
-			</div>	
-		{{/each}}
-		<div class="kn-container">
-		<div class="kn-leftcol">Elsewhere</div>
-			<div class="kn-rightcol">
-				<form class="form-inline" >
-					<div class="form-group">
-						<input type="button" class="button setlocations btn btn-primary" id="0" value="Set" />
-						<input type="hidden" id="place-0" value="else">
-					</div>
-				</form>	
 			</div>
+			<div class="kn-container" style="height: 23px">
+			</div>
+			<br />
 		</div>
 		<hr>
 	{{else}}
-		wait...
+		{{> searching}}
 	{{/if}}
+	<input type="button" class="button cancel btn btn-primary btn-down" value="Cancel" />
 </template>
 
+<template name="searching">
+	<div class="kn-ontop">
+		<img src="img/app/qVHae.gif" />
+	</div>
+</template>
 
 <!-- Modal --> 
 <template name="locationModal">
@@ -143,3 +118,4 @@
 	</div>
 
 </template>
+

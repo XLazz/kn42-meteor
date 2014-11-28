@@ -11,7 +11,7 @@ Template.home.helpers({
 		}
 		console.log('home currentplaces lastGeoLog ', lastGeoLog);
 		var placeId = lastGeoLog.placeId;	
-		lastPlaces = Merchants.find({place_id: placeId}).fetch();
+		lastPlaces = MerchantsCache.find({place_id: placeId}).fetch();
 		console.log('home currentplaces lastGeoLog ', lastPlaces, placeId);
 		return lastPlaces;
 	},
