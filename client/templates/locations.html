@@ -38,6 +38,7 @@
 			<p>{{user_history_location_id}} {{#if name}} {{name}} {{else}} Unknown {{/if}} <br/><small>started at {{started}}, finished at {{finished}}</small></p>
 			<form class="form-inline" >
 				<input type="button" class="button locations btn btn-primary" data-toggle="modal" data-target="#myModal" id="{{user_history_location_id}}" value="Change" />
+				<input type="button" class="button travel btn btn-primary" data-toggle="modal" data-target="#myModal" id="{{user_history_location_id}}" value="Travel" />
 				<input type="hidden" id="lat-{{user_history_location_id}}" value="{{latitude}}">
 				<input type="hidden" id="lng-{{user_history_location_id}}" value="{{longitude}}">
 				<input type="hidden" name="test" value="test">

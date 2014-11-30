@@ -146,7 +146,6 @@ Meteor.methods({
 					updated: moment()
 				},
 					{$set: {
-						userLocationId: userLocationId,	
 						place_id: place_id,
 					}
 				}

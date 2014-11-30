@@ -22,21 +22,34 @@
       <div class="list-activities">
 				{{#if currentplaces}}
 <!-- 					{{#each currentplaces}} -->
-						{{currentplaces.name}} at {{currentplaces.vicinity}} since {{currentplaces.started}}. <br />
-						status: {{status}}  <!-- <img src="{{confirmationimage}}" /> -->
+					{{currentplaces.name}} at {{currentplaces.vicinity}} since {{currentplaces.started}}. <br />
+					status: {{status}}  <!-- <img src="{{confirmationimage}}" /> -->
 <!-- 					{{/each}} -->
 				{{/if}}
+
 				<br />
-				<button class="button btn btn-xs btn-modal" id="confirm" style="align: left; width: 32%"> Confirm </button>
-				<button class="button btn btn-xs btn-modal" id="change" style="align: middle; width: 32%"> Change </button>
-				<button class="button btn btn-xs btn-modal" id="attach" style="align: right; width: 32%"> Attach </button>
+				<button class="button btn btn-xs confirm" id="{{currentplaces.place_id}}" style="align: left; width: 32%"> Confirm </button>
+				<button class="button btn btn-xs change" id="{{currentplaces.place_id}}" style="align: middle; width: 32%"> Change </button>
+				<button class="button btn btn-xs " id="attach" style="align: right; width: 32%"> Attach </button>
+				<br />
+				{{#if placeconfirmed}}
+
+					<br />
+					Please choose your experience: 
+					{{#each placeconfirmed}}
+						<button>{{placeconfirmed}}</button>
+					{{/each}}
+				{{/if}}
       </div>
+			<div >
+
+			</div>
 			<div>
 			{{#if changeplace}}
 				{{> selectPlace}}
 			{{/if}}
 			</div>
-      <a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking (dummy link for now)</a>
+      <a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking</a>
 			
       <h2 class="list-title">What's Cooking</h2>
       <div class="list-subtitle">See what the community is cooking</div>
@@ -50,7 +63,7 @@
           </div>
         {{/each}} -->
       </div>
-      <a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking. (dummy link for now)</a>
+      <a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking</a>
 
       <h2 class="list-title">Events and places around you</h2>
       <div class="list-subtitle">Hand-picked by the wisdom of automated processing</div>

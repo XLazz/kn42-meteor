@@ -128,7 +128,20 @@ Template.showlocations.helpers({
 		} else {
 			console.log('calling mongo for json', Session.get('userLocations'));
 //			console.log(' checking mongo UserLocations ', UserLocations.find({}, {sort: {started: -1}}));
-			userLocations = UserLocations.find({userId: Meteor.userId()}, {sort: {started: -1}}).fetch();
+			userLocations = UserLocations.find({
+				userId: Meteor.userId()
+			}, {
+				sort: {started: -1},
+				transform: function(doc){
+					console.log('inside userLocations ', doc);
+					var content = MerchantsCache.findOne({place_id: doc.place_id});
+					doc.names = content;
+					console.log('locations inside MerchantsCache transform for 1 ', doc.place_id, doc);
+					console.log('locations inside MerchantsCache transform for 2 ', doc.place_id, content);
+					return _.extend(doc, _.omit(content, '_id'));
+					return doc;
+				}
+			});
 			console.log('userLocations', userLocations);
 			return userLocations;
 		}
@@ -174,7 +187,7 @@ Template.selectPlace.helpers({
 		console.log('wait initiated ', Session.get('searching'));
 		if (Session.get('searching') == true) {
 			console.log('Session searching', Session.get('searching'));
-//			return {'wait': Session.get('searching')};
+			return {'wait': Session.get('searching')};
 		}
 		return;
 	},
@@ -249,32 +262,6 @@ Template.selectPlace.helpers({
 //		return gotPlaces;
 	},
 });
-
-/* Template.locationModal.helpers({
-	places: function(){
-		console.log('locationModal.helpers set name ',this);
-		if (Session.get('place_id'))  {
-			var place_id = Session.get('place_id');
-			var userLocationId = Session.get('userLocationId');
-			var user_history_location_id = userLocationId;
-			var myFetch = Places.find({userLocationId: userLocationId}).fetch();
-			
-			var myId = UserLocations.findOne({user_history_location_id: userLocationId});		
-			UserLocations.update({_id: myId._id}, {$set: {name: Session.get('placeName')}});
-			
-			console.log(' place_id helper ', myId._id, userLocationId, place_id, myFetch, UserLocations.find({user_history_location_id: userLocationId}).fetch());
-//			Session.set('lat', '');
-			Session.set('userLocationId', '');
-			Session.set('havePlace', 1);
-			Session.set('havePlaces', 0);
-			Session.set('place_id', '');
-			Session.set('radius', 50);
-			Session.set('getplaces', false);
-			Session.set("showCreateDialog", false);
-			return myFetch;
-		}
-	}
-}); */
 
 /* Template.locationModal.events({
 	'click .cancel': function(event, template) {
