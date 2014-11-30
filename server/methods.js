@@ -93,15 +93,12 @@ Meteor.methods({
 		return userLocations;
 	},
 	
-	'getPlaces': function(userId, lat, lng, radius ){
+	'getPlaces': function(userId, userLocation, radius ){
 
-		check(lat, Match.Any);
-		check(lng, Match.Any);
-		check(radius, Match.Any);
 		check(arguments, [Match.Any]);
-		console.log('calling php on server for lat and lng radius', lat, lng, radius);
+		console.log('calling php on server for lat and lng radius', userLocation.latitude, userLocation.longitude , radius);
 		var api_key = GetApi(userId);
-		var myJSON = Meteor.http.call('GET','http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&location=places&lat=' + lat + '&long=' + lng + '&radius=' + radius);
+		var myJSON = Meteor.http.call('GET','http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&location=places&lat=' + userLocation.latitude + '&long=' + userLocation.longitude + '&radius=' + radius);
 			
 		myMerchants = JSON.parse(myJSON.content);
 		myMerchants = myMerchants.google_places.results;
@@ -116,8 +113,8 @@ Meteor.methods({
 					vicinity: myMerchants[i].vicinity,
 					types: myMerchants[i].types,
 					geometry: myMerchants[i].geometry,
-					lat: lat,
-					lng: lng
+					lat: userLocation.latitude,
+					lng: userLocation.longitude
 				}
 			);
 		}
@@ -136,17 +133,17 @@ Meteor.methods({
 		} */
 	},
 	
-	'UpdatePlaces': function(locationId, place_id){
+	'UpdatePlaces': function(userLocationId, place_id){
 		check(arguments, [Match.Any]);
 		if (place_id === 0){
 			Places.remove(
-				{locationId: locationId}
+				{userLocationId: userLocationId}
 			);			
 		} else {
 			Places.upsert(
 				{place_id: place_id},
 				{$set: {
-					locationId: locationId,	
+					userLocationId: userLocationId,	
 					place_id: place_id,
 					}
 				}

@@ -36,7 +36,7 @@ function upsertPlaceId(location){
 		console.log('submitCoords to php, gor results ', Meteor.userId(), ' results.google_places.results[0] ', results.google_places.results[0], ' coords ', location.coords, ' geoId ', geoId);			
 		GeoLog.upsert(
 			{_id: geoId},
-			{$set: {placeId: results.google_places.results[0].place_id, status: results.current_status}}
+			{$set: {place_id: results.google_places.results[0].place_id, status: results.current_status}}
 		);
 /* 		results.google_places.results.forEach(function (item, index, array) {
 			console.log('inserting item ', item);

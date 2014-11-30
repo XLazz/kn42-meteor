@@ -54,11 +54,15 @@
 <!-- 			{{#if wait}} 
 				{{> searching}}
 			{{/if}} -->
-<!-- 			<p> Select place for location {{locationId}}</p> -->
+<!-- 			<p> Select place for location {{userLocationId}}</p> -->
 			<br /><br />
 			{{#each places}}
+				{{#each content}} 
+					content
+					{{content}}
+				{{/each}}
 				<div class="kn-container">
-					<div class="kn-leftcol">{{#if name}} {{name}} {{else}} Unknown {{/if}}</div>
+					<div class="kn-leftcol">{{#if name}} {{name}} {{else}} Unknown {{user_history_location_id}}  {{/if}}</div>
 					<div class="kn-rightcol">
 						<form class="form-inline" >
 							<div class="form-group">
@@ -84,7 +88,8 @@
 			</div>
 			<br />
 		{{else}}
-			{{> searching}}
+			cant find places? {{name}} {{_id}}
+<!-- 			{{> searching}} -->
 		{{/if}}		
 		<hr>
 	</div>
@@ -98,7 +103,7 @@
 </template>
 
 <!-- Modal --> 
-<template name="locationModal">
+<!-- <template name="locationModal">
 	<div class="modal show in fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 		<div class="modal-dialog" style="width: 100%;">                                                                                
 			<div class="modal-content">                                                                               
@@ -118,5 +123,5 @@
 		</div>
 	</div>
 
-</template>
+</template> -->
 

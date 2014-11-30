@@ -6,38 +6,58 @@ Template.home.helpers({
 		var lastPlaces;
 /* 		var currentresults = Session.get('gotPlaces');
 		var google_places = currentresults.google_places.results; */
-//		var lastGeoLog = GeoLog.find({userId: Meteor.userId(), placeId: {$not: {$size: 0}}}, {sort: {timestamp: -1}}, {limit: 1}).fetch()[0];
-		var lastGeoLog = UserLocations.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {started: -1}});
+//		var lastGeoLog = GeoLog.find({userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {timestamp: -1}}, {limit: 1}).fetch()[0];
+/* 		var lastGeoLog = UserLocations.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {started: -1}});
 		if (!lastGeoLog) {
 			return {name: 'unknown'};
 		}
 		console.log('home currentplaces lastGeoLog ', lastGeoLog);
-		var placeId = lastGeoLog.place_id;	
-		Session.set('userLocationId', lastGeoLog.user_history_location_id);
-		lastPlaces = Places.findOne({place_id: placeId});
+		var place_id = lastGeoLog.place_id;	
+		Session.set('userLocationId', lastGeoLog.user_history_location_id); */
+/* 		lastPlaces = Places.findOne(
+			{place_id: 
+				function () {
+						var lastGeoLog = UserLocations.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {started: -1}});
+						Session.set('userLocationId', lastGeoLog.user_history_location_id);
+						console.log('home currentplaces lastGeoLog ', lastGeoLog);
+						return lastGeoLog.place_id;
+				}
+			}
+		) */;
+		
 		if (!lastPlaces) {
-			lastPlaces = MerchantsCache.find(
-				{
-					place_id: UserLocations.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {started: -1}})
-				}).fetch()[0];
-			lastPlaces.started = lastGeoLog.started;
-			console.log('home currentplaces lastPlaces ', lastPlaces, placeId);
+			return UserLocations.findOne({
+				userId: Meteor.userId(), place_id: {$not: {$size: 0}}
+			}, {
+				sort: {started: -1},
+				transform: function(doc){
+					var content = Places.findOne({place_id: doc.place_id});
+					Session.set('userLocationId', doc.user_history_location_id);
+					var olddoc = doc;
+					doc.content = content;
+//					Session.set('elsewhere', false);
+					console.log('gotPlaces inside UserLocations transform for ', doc.place_id, _.extend(doc, _.omit(content, '_id')) );
+					return _.extend(doc, _.omit(content, '_id'));
+				}
+			});
+			console.log('home currentplaces lastPlaces 1 ', lastPlaces);
 			return lastPlaces;
 		}
-		lastPlaces.started = lastGeoLog.started;
-		console.log('home currentplaces lastPlaces ', lastPlaces, placeId);
+//		lastPlaces.started = UserLocations.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {started: -1}}).started;
+		console.log('home currentplaces lastPlaces 2 ', lastPlaces, place_id);
 		return lastPlaces;
 	},
 	
 	confirmationimage: function(){
-
 		return {confirmationimage: '/icon/blank31.png'};
 	},	
+	
 	status: function(){
 		if (!Meteor.userId()) {return;};
-		var lastGeoLog = GeoLog.findOne({userId: Meteor.userId(), placeId: {$not: {$size: 0}}}, {sort: {timestamp: -1}});
+		var lastGeoLog = GeoLog.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {timestamp: -1}});
 		return lastGeoLog.status;	
 	},	
+	
   // selects FEATURED_COUNT number of recipes at random
   featuredRecipes: function() {
     var recipes = _.values(RecipesData);
@@ -45,7 +65,6 @@ Template.home.helpers({
     
     for (var i = 0;i < FEATURED_COUNT;i++)
       selection.push(recipes.splice(_.random(recipes.length - 1), 1)[0]);
-
     return selection;
   },
   
@@ -65,7 +84,7 @@ Template.home.helpers({
 Template.home.events({
 	'click #change': function (event, template) {
 		Session.set('radius', 50);
-//		var locationId = $(event.currentTarget).attr("id");
+//		var userLocationId = $(event.currentTarget).attr("id");
 //		Meteor.call('getLocations','list');
 
 		return Session.set('changeplace', true);

@@ -35,4 +35,6 @@ grigio:overlay
 accounts-ui-unstyled
 accounts-ui
 mrt:moment
+dburles:collection-helpers
+reywood:publish-composite
 
