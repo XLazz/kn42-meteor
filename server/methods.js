@@ -96,7 +96,7 @@ Meteor.methods({
 	'getPlaces': function(userId, userLocation, radius ){
 
 		check(arguments, [Match.Any]);
-		console.log('calling php on server for lat and lng radius', userLocation.latitude, userLocation.longitude , radius);
+		console.log('calling php on server for lat and lng radius', userId, userLocation.longitude , radius);
 		var api_key = GetApi(userId);
 		var myJSON = Meteor.http.call('GET','http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&location=places&lat=' + userLocation.latitude + '&long=' + userLocation.longitude + '&radius=' + radius);
 			
@@ -141,10 +141,13 @@ Meteor.methods({
 			);			
 		} else {
 			Places.upsert(
-				{place_id: place_id},
-				{$set: {
-					userLocationId: userLocationId,	
+				{
 					place_id: place_id,
+					updated: moment()
+				},
+					{$set: {
+						userLocationId: userLocationId,	
+						place_id: place_id,
 					}
 				}
 			);

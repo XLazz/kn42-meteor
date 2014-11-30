@@ -49,11 +49,15 @@
           <span class="title-menu">Fitness</span>
         </span>
       </a>
+			{{#if isAdmin}}
+				{{> Appsetnews}}
+			{{else}}
+			{{/if}} 
     </section>
 		
-		{{#if isAdmin}}
-			{{> Appsetnews}}
-		{{/if}}
+
+
+		
 		
       <div class="notifications">
         {{#unless connected}}
@@ -69,7 +73,16 @@
           </div>
         {{/each}}
 				<div class="notification">
-					<div class="title-notification">service: {{status}}</div>
+					<div class="title-notification">
+						<div style="display: inline-block">service: {{status}}</div>
+						{{#if isAdmin}}
+							<div style="display: inline-block; float: right">
+								<label for="debug" class="checkbox-inline debug"> 
+									<input type="checkbox" name="debug" id="debug" checked={{isChecked}}/> Debug
+								</label>
+							</div>
+						{{/if}}
+					</div>
 				</div>
       </div>
 

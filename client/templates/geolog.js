@@ -108,6 +108,8 @@ Template.coords.helpers({
 	},
 });
 
+
+	
 Template.footergeo.helpers({
 	userId: function(){
 		return Meteor.userId();
@@ -122,6 +124,9 @@ Template.footergeo.helpers({
 		console.log('footergeo.helpers ', running, Session.get('geoback'), Session.get('interval'));
 //		PollingGeo();	
 		return running;
+	},
+	isChecked: function(){
+		return Session.get('debug');
 	},
 });
 
@@ -202,12 +207,14 @@ Template.footergeo.events({
 		Meteor.call('deleteGeoData', Meteor.userId());
 //		Meteor.call('getLocations','list',function(err,results));
 	},	
+	
+
 });
 
 if (Meteor.isCordova) {
   GeolocationBG2.config({
-    url: 'https://192.168.1.113:3000/api/geolocation',
-    debug: true
+    url: 'http://kn42.xlazz.com:3000/api/geolocation',
+    debug: Session.get('debug'),
   });
   // triggered by a start button
   // GeolocationBG2.start();

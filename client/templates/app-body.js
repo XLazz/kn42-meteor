@@ -138,6 +138,8 @@ Template.appBody.helpers({
 			return 'stopped';
 		}
 	},
+	
+
 });
 
 Template.appBody.events({
@@ -179,11 +181,31 @@ Template.appBody.events({
       this.callback();
       notifications.remove(this._id);
     }
-  }
+  },
+
+	'click #debug': function (event, template) {
+		if ($( "input:checked" ).val()) {
+			console.log('checkbox debug ', this, $( "input:checked" ).val());
+			Session.set('debug', true);
+		} else {
+			console.log('checkbox debug off ', this, $( "input:checked" ).val());
+			Session.set('debug', false);	
+		}
+	},
+
 });
 
 Template.Appsetnews.helpers({
   isAdmin: function() {
     return Meteor.user() && Meteor.user().admin;
   },
+});
+
+Template.appBody.helpers({
+  isAdmin: function() {
+    return Meteor.user() && Meteor.user().admin;
+  },
+	ifDebug: function() {
+		return 'debug';
+	},
 });

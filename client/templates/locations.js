@@ -352,10 +352,15 @@ Template.selectPlace.events({
 		Session.set('elsewhere', true);
 		Session.set('searching', true);
 //		Meteor.call('removeAllPlaces', Meteor.userId());
-		Meteor.call('getPlaces', Meteor.userId(), UserLocations.findOne({user_history_location_id: Session.get('userLocationId')}, {sort: {started: -1}}), Session.get('radius'), function(err,results){
-			gotPlaces = results;
-//			Session.set('searching', false);
-		});
+		Meteor.call(
+			'getPlaces', 
+			Meteor.userId(), 
+			UserLocations.findOne({user_history_location_id: Session.get('userLocationId')}, {sort: {started: -1}}), 
+			Session.get('radius'), 
+			function(err,results){
+				gotPlaces = results;
+			}
+		);
 		console.log('locationModal events elsewhere ', Session.get("elsewhere"), $(event.currentTarget).attr("id"), this );
 //		LoadPlaces();
 		return;
