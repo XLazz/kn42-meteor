@@ -37,3 +37,6 @@ mrt:moment
 dburles:collection-helpers
 reywood:publish-composite
 accounts-google
+jeremy:selectize
+mrt:jquery-csv
+

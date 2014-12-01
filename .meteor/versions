@@ -42,6 +42,7 @@ iron:location@1.0.3
 iron:middleware-stack@1.0.3
 iron:router@1.0.3
 iron:url@1.0.3
+jeremy:selectize@0.2.0
 jquery-waypoints@1.0.1
 jquery@1.0.1
 json@1.0.1
@@ -59,6 +60,7 @@ minimongo@1.0.5
 mizzao:bootstrap-3@3.3.1
 mobile-status-bar@1.0.1
 mongo@1.0.8
+mrt:jquery-csv@0.7.1
 mrt:moment@2.8.1
 npm-bcrypt@0.7.7
 oauth1@1.1.2

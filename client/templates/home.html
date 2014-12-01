@@ -3,78 +3,108 @@
 
     {{>nav title='Local Market' black=true}}
 
-    <div class="content-scrollable">
-      <div class="bg-image home">
-        <h1 class="title-home">
-          <img src="img/app/dolphin-kn42-1000x500.png" alt="Kn42 Personal Companion"/>
-        </h1>
-        <span class="hours"><span class="title-callout">Take me anywhere</span></span>
-        <span class="arrow"></span>
-      </div>
+		{{> homeinside}}
 
-      <div class="callout-news">
-        <span class="title-callout">News</span>
-        {{latestNews.text}}
-      </div>
 
-      <h2 class="list-title">You are at:</h2>
-      <div class="list-subtitle">See more</div>
-      <div class="list-activities">
-				{{#if currentplaces}}
-<!-- 					{{#each currentplaces}} -->
-					{{currentplaces.name}} at {{currentplaces.vicinity}} since {{currentplaces.started}}. <br />
-					status: {{status}}  <!-- <img src="{{confirmationimage}}" /> -->
-<!-- 					{{/each}} -->
+	</div>
+</template>
+
+<template name="homeinside">
+	<div class="content-scrollable">
+		<div class="bg-image home">
+			<h1 class="title-home">
+				<img src="img/app/dolphin-kn42-1000x500.png" alt="Kn42 Personal Companion"/>
+			</h1>
+			<span class="hours"><span class="title-callout">Take me anywhere</span></span>
+			<span class="arrow"></span>
+		</div>
+
+		<div class="callout-news">
+			<span class="title-callout">News</span>
+			{{latestNews.text}}
+		</div>
+
+		<h2 class="list-title">You are at:</h2>
+		<div class="list-subtitle">See more</div>
+		<div class="list-activities">
+			{{#if currentplaces}}
+				{{#if currentplaces.finished}}
+					Last place
 				{{/if}}
-
+				{{currentplaces.name}} at {{currentplaces.vicinity}} since {{currentplaces.started}} 
+				{{#if currentplaces.finished}} till {{currentplaces.finished}} {{/if}}
 				<br />
-				<button class="button btn btn-xs confirm" id="{{currentplaces.place_id}}" style="align: left; width: 32%"> Confirm </button>
-				<button class="button btn btn-xs change" id="{{currentplaces.place_id}}" style="align: middle; width: 32%"> Change </button>
-				<button class="button btn btn-xs " id="attach" style="align: right; width: 32%"> Attach </button>
-				<br />
-				{{#if placeconfirmed}}
-
-					<br />
-					Please choose your experience: 
-					{{#each placeconfirmed}}
-						<button>{{placeconfirmed}}</button>
-					{{/each}}
-				{{/if}}
-      </div>
-			<div >
-
-			</div>
-			<div>
-			{{#if changeplace}}
-				{{> selectPlace}}
+				status: {{status}}
+			{{/if}}		
+			<br />
+			{{#if placeconfirmed}}
+				Please choose your experience: 
+				{{> selectExperience}}
 			{{/if}}
-			</div>
-      <a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking</a>
+			<br />
 			
-      <h2 class="list-title">What's Cooking</h2>
-      <div class="list-subtitle">See what the community is cooking</div>
-      <div class="list-activities">
-<!--         {{#each activities}}
-          {{> activity}}
-        {{else}}
-          <div class="wrapper-message">
-            <div class="title-message">No one is cooking yet!</div>
-            <div class="subtitle-message">Share that you made a recipe and it will show up here.</div>
-          </div>
-        {{/each}} -->
-      </div>
-      <a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking</a>
+			<br />
+			<button class="button btn btn-xs confirm" id="{{currentplaces.place_id}}" style="align: left; width: 32%"> 
+			{{#if placeconfirmed}}Confirmed{{else}}Confirm{{/if}}
+			</button>
+			<button class="button btn btn-xs change" id="{{currentplaces.place_id}}" style="align: middle; width: 32%"> Change </button>
+			<button class="button btn btn-xs " id="attach" style="align: right; width: 32%"> Attach </button>
+		</div>
+		<div >
 
-      <h2 class="list-title">Events and places around you</h2>
-      <div class="list-subtitle">Hand-picked by the wisdom of automated processing</div>
-      <div class="list-recipes">
-<!--         {{#each featuredRecipes}}
-          {{> recipeItem recipe=this size='small'}}
-        {{/each}} -->
-      </div>
+		</div>
+		<div>
+		{{#if changeplace}}
+			{{> selectPlace}}
+		{{/if}}
+		</div>
+		<a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking</a>
+		
+		<h2 class="list-title">What's Cooking</h2>
+		<div class="list-subtitle">See what the community is cooking</div>
+		<div class="list-activities">
+		</div>
+		<a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking</a>
 
-      <a href="{{pathFor 'locations'}}" class="btn-primary">Explore your recent locations</a>
-    </div>
+		<h2 class="list-title">Events and places around you</h2>
+		<div class="list-subtitle">Hand-picked by the wisdom of automated processing</div>
+		<div class="list-recipes">
+				{{#each featuredRecipes}}
+				{{> recipeItem recipe=this size='small'}}
+			{{/each}}
+		</div>
 
-  </div>
+		<a href="{{pathFor 'locations'}}" class="btn-primary">Explore your recent locations</a>
+
+	</div>
+</template>
+
+<template name="selectExperience">
+	<div class="demo">
+		<div class="control-group">
+			<form class="form-inline">
+<!-- 				<label for="input-tags">Tags:</label> -->
+				<input type="text" name="experience" id="input-tags" class="inline-block" style="width: auto; float:left"
+				value="
+					{{#each experiences}}
+						{{#if experience}} {{experience}} {{else}} {{experiences}} {{/if}} 
+					{{/each}}
+				">
+				<input class="button btn inline-block" type="submit" value="Submit your experience">
+			</form>
+		</div>
+		<script>
+		$('#input-tags').selectize({
+			persist: false,
+			createOnBlur: true,
+			create: true
+		});
+		</script>
+	</div>
+</template>
+
+<template name="valuehelper">
+	{{#each experiences}}
+		{{experiences}},	
+	{{/each}}
 </template>
