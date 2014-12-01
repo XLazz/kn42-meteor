@@ -42,8 +42,11 @@
 				<input type="button" class="button travel btn btn-small" data-toggle="modal" data-target="#myModal" id="{{user_history_location_id}}" value="Travel" />
 				<input type="hidden" id="lat-{{user_history_location_id}}" value="{{latitude}}">
 				<input type="hidden" id="lng-{{user_history_location_id}}" value="{{longitude}}">
-				<input type="hidden" name="test" value="test">
 			</form>
+			{{#if placeconfirmed}}
+				Please choose your experience: 
+				{{> selectExperience}}
+			{{/if}}
 			<hr>
 		{{/each}}
 	{{/unless}}
@@ -53,10 +56,6 @@
 
 	<div class="content-scrollable">
 		{{#if places}}
-<!-- 			{{#if wait}} 
-				{{> searching}}
-			{{/if}} -->
-<!-- 			<p> Select place for location {{userLocationId}}</p> -->
 			<br /><br />
 			{{> confirm}}
 			{{#each places}}

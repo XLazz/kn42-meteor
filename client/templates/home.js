@@ -159,7 +159,6 @@ Template.homeinside.events({
 		console.log('chenging place ', place_id);
 //		var userLocationId = $(event.currentTarget).attr("id");
 //		Meteor.call('getLocations','list');
-
 		return Session.set('changeplace', true);
 	},
 	
@@ -196,6 +195,15 @@ Template.homeinside.events({
 
 Template.selectExperience.helpers({
 	experiences: function(){
+		userId = Meteor.userId();
+		var currentPlace = Session.get('currentPlace');
+		var services = Experiences.find({
+			place_id: currentPlace, userId: userId
+		});
+		console.log('experiences Experiences ', services.fetch());
+		if (services.count()) {
+			return services.fetch();
+		}
 		var services = Services.find({
 			place_id: Session.get('currentPlace')
 		});
@@ -219,8 +227,9 @@ Template.selectExperience.events({
 		console.log('experiences selectExperience.events ', experiences);
 		experiences.forEach(function (item, index, array){
 			if (item){
-				if	(!Services.findOne({place_id: Session.get('currentPlace'), experience: item})) {
-					Services.insert({
+				if	(!Services.findOne({place_id: Session.get('currentPlace'), experience: item, userId: Meteor.userId()})) {
+					Experiences.insert({
+						userId: Meteor.userId(),
 						experience: item,
 						place_id: Session.get('currentPlace')
 					});

@@ -5,7 +5,6 @@
 
 		{{> homeinside}}
 
-
 	</div>
 </template>
 
@@ -87,7 +86,7 @@
 				<input type="text" name="experience" id="input-tags" class="inline-block" style="width: auto; float:left"
 				value="
 					{{#each experiences}}
-						{{#if experience}} {{experience}} {{else}} {{experiences}} {{/if}} 
+						{{#if experience}} {{experience}}, {{/if}} 
 					{{/each}}
 				">
 				<input class="button btn inline-block" type="submit" value="Submit your experience">
