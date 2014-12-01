@@ -348,12 +348,22 @@ Template.selectPlace.events({
 				gotPlaces = results;
 			}
 		);
+
 		console.log('locationModal events elsewhere ', Session.get("elsewhere"), $(event.currentTarget).attr("id"), this );
 //		LoadPlaces();
 		return;
 	},
 	"click .setlocations": function (event, template) {
 //		Session.set("showCreateDialog", true);
+		var allloc = template.find('#allloc').checked;
+		if (allloc) {
+			console.log('checkbox allloc ', this, $( "input:checked" ).val());
+			Session.set('allloc', true);
+		} else {
+			console.log('checkbox allloc off ', this, $( "input:checked" ).val());
+			Session.set('allloc', false);	
+		}
+		
 		console.log('locationModal events setlocations ', Session.get("showCreateDialog"), $(event.currentTarget).attr("id"), this );
 		
 		var updated_loc = this;
@@ -384,13 +394,21 @@ Template.selectPlace.events({
 			console.log('checking Places ', Places.find({userLocationId: userLocationId}).count(), Places.find().fetch());	
 		}
 		var myFetch = Places.find().fetch(); */
-		var myId = UserLocations.findOne({user_history_location_id: userLocationId});		
-		UserLocations.update({_id: myId._id}, {$set: {name: placeName, place_id: place_id}});	
+		
+		if (!Session.get('allloc')) {
+			var myId = UserLocations.findOne({user_history_location_id: userLocationId});		
+			UserLocations.update({_id: myId._id}, {$set: {name: placeName, place_id: place_id}});	
+		} else {
+			Meteor.call('UserLocationsUpdate', Meteor.userId(), userLocationId, place_id, placeName, function(err,results){
+				console.log('UserLocationsUpdate call results ', results);
+			});
+		}
 		// And add it to the confirmed places
 		place = MerchantsCache.find({place_id: place_id}, {fields:{_id: 0}}).fetch()[0];
 		place.user_history_location_id = userLocationId;
 		myId = Places.findOne({user_history_location_id: userLocationId});		
 		console.log(' Places.findOne ', myId);
+		
 		if (!myId) {
 			console.log(' Places.findOne inserting for ', myId, place);
 			Places.insert(place);	
@@ -406,7 +424,17 @@ Template.selectPlace.events({
 //		Session.set('searching', false);
 		Session.set('changeplace', false);
 		Overlay.hide();
-	}
+	},
+	
+	'click #allloc': function (event, template) {
+		if ($( "input:checked" ).val()) {
+			console.log('checkbox allloc ', this, $( "input:checked" ).val());
+			Session.set('allloc', true);
+		} else {
+			console.log('checkbox allloc off ', this, $( "input:checked" ).val());
+			Session.set('allloc', false);	
+		}
+	},
 });
 
 Template.overlay.events({

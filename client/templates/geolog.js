@@ -2,13 +2,19 @@ Meteor.subscribe('basic');
 
 Session.set('location', Geolocation.currentLocation());
 var location = {};
-var friends = ["Mike", "Stacy", "Andy", "Rick"];
+
+Deps.autorun(function(){
+/* 	myInterval = Session.get('interval');
+	PollingGeo();
+	console.log('resetting PollingGeo with myInterval', myInterval);
+	return; */
+});
 
 PollingGeo = function(){
 	var myInterval = Session.get('interval');
 	var watchGPS;
 	console.log('Polling geo 1 ', myInterval, Session.get('geoback'));
-	// auto-re-run by Cordova every ~30000 ms (30 sec)
+	// auto-re-run by Cordova every myInterval ms
 	if (Session.get('geoback') == true) {
 		var runGeo = function() {
 			
@@ -68,6 +74,11 @@ function UpdateGeo(){
 UpdateGeoCordova = function(){
 	GeolocationFG.get(function(location) {
 		console.log('UpdateGeoCordova ',  location, this);
+		if (location.coords.speed) {
+			Session.set('interval', 150000);
+		} else {
+			Session.set('interval', 800000);
+		}
 		GeoLog.insert({
 			location: location.coords,
 			uuid: GeolocationBG2.uuid(),
@@ -128,6 +139,14 @@ Template.footergeo.helpers({
 	isChecked: function(){
 		return Session.get('debug');
 	},
+	
+	button: function(){
+		if (Session.get('geoback')){
+			return 'Stop';		
+		} else {
+			return 'Start';
+		}
+	}
 });
 
 Template.footergeo.events({
@@ -168,7 +187,20 @@ Template.footergeo.events({
 			return;
 		}
 /////////////////////////
-		if (!GeolocationBG2.isStarted) {
+		if (!Session.get('geoback')){
+			btn.innerHTML = 'Start';
+			Session.set('geoback', true);
+			Session.set('interval', 500000);
+			PollingGeo();
+			return;	
+		} else {
+			btn.innerHTML = 'Stop';
+			Session.set('geoback', false);
+			Session.set('interval', 5000000);
+			PollingGeo();
+			return;
+		}
+/* 		if (!GeolocationBG2.isStarted) {
 			if (!GeolocationBG2.start()) {
 				dest.innerHTML = 'ERROR: Not Started, unable to start';
 				return;
@@ -200,14 +232,15 @@ Template.footergeo.events({
 		Session.set('interval', 5000000);
 		PollingGeo();
 		return;
-	},
+ */	},
 	
 	"click .deletedata": function (event, template) {
 		console.log('delete geodata events ');
 		Meteor.call('deleteGeoData', Meteor.userId());
 //		Meteor.call('getLocations','list',function(err,results));
 	},	
-	
+
+
 
 });
 
