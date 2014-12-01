@@ -227,11 +227,14 @@ Template.selectExperience.events({
 		console.log('experiences selectExperience.events ', experiences);
 		experiences.forEach(function (item, index, array){
 			if (item){
-				if	(!Services.findOne({place_id: Session.get('currentPlace'), experience: item, userId: Meteor.userId()})) {
+				item = item.replace(/\s+/g, '');
+				if	((!Experiences.findOne({place_id: Session.get('currentPlace'), experience: item, userId: Meteor.userId()})) && (item)) {		
+					console.log('experiences inserting item ', Session.get('currentPlace'), item, Meteor.userId(), Experiences.findOne({place_id: Session.get('currentPlace'), experience: item, userId: Meteor.userId()}));
 					Experiences.insert({
 						userId: Meteor.userId(),
 						experience: item,
-						place_id: Session.get('currentPlace')
+						place_id: Session.get('currentPlace'),
+						created: new Date(),
 					});
 				}
 			}
