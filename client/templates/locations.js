@@ -160,6 +160,13 @@ Template.showlocations.helpers({
 
 Template.showlocations.events({
 
+	"click .div-locations": function (event, template) {
+		var userLocationId = $(event.currentTarget).attr("id");
+		Session.set('userLocationId', userLocationId);
+		console.log('click on div ', userLocationId, event.currentTarget, this);
+//		Session.get('userLocationId');
+	},	
+	
 	"click .locations": function (event, template) {
 		Session.set('searching', false);
 		console.log('locations events ',this);

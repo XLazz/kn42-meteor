@@ -35,7 +35,9 @@
 	{{/if}} -->
 	{{#unless isInOverlay}}
 		{{#each locations}}
-			<p>{{user_history_location_id}} {{#if name}} {{name}} {{else}} Unknown {{/if}} <br/><small>started at {{started}}, finished at {{finished}}</small></p>
+			<div class="div-locations" id="{{user_history_location_id}}">
+				{{#if name}} {{name}} {{else}} Unknown {{/if}} <br/><small>started at {{started}}, finished at {{finished}}</small>
+			</div>
 			<form class="form-inline" id="{{user_history_location_id}}">
 				<input type="button" class="button confirm btn btn-small" data-toggle="modal" data-target="#myModal" id="{{user_history_location_id}}" value="
 					{{#if confirmed}} Undo {{else}} Conf {{/if}}
