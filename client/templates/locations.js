@@ -5,9 +5,9 @@ LoadPlaces = function(userLocationId){
 		userLocation = UserLocations.findOne({user_history_location_id: Session.get('userLocationId')}, {sort: {started: -1}});
 		userId = Meteor.userId();
 		radius = Session.get('radius');
-		console.log('gotPlaces autorun 1 for userLocationId ', Session.get('userLocationId'), userLocation);
+//		console.log('gotPlaces autorun 1 for userLocationId ', Session.get('userLocationId'), userLocation);
 		Meteor.call( 'getPlaces', userId, userLocation, radius, function(err,results){
-			console.log('gotPlaces inside MerchantsCache http call for 2 ', userLocation, results);
+//			console.log('gotPlaces inside MerchantsCache http call for 2 ', userLocation, results);
 		});
 	}
 };
@@ -138,7 +138,8 @@ Template.showlocations.helpers({
 					doc.names = content;
 					console.log('locations inside MerchantsCache transform for 1 ', doc.place_id, doc);
 					console.log('locations inside MerchantsCache transform for 2 ', doc.place_id, content);
-					return _.extend(doc, _.omit(content, '_id'));
+					Session.set('currentPlace', doc.place_id);
+					doc = _.extend(doc, _.omit(content, '_id'));
 					return doc;
 				}
 			});
@@ -147,6 +148,11 @@ Template.showlocations.helpers({
 		}
 		
 	},
+	
+	'showExp': function(){
+		return Session.get('showExp');
+	},
+	
 	updated: function() {
 //		Meteor.setInterval(Meteor.call('getLocations','list'), 1000000);	
 	}
@@ -173,7 +179,7 @@ Template.showlocations.events({
 	"click .confirm": function (event, template) {
 		var userLocationId = $(event.currentTarget).attr("id");
 		var userLocations = UserLocations.findOne({user_history_location_id: userLocationId});		
-		UserLocations.upsert({_id: userLocations._id}, {$set: {confirmed: 1}});		
+		UserLocations.upsert({_id: userLocations._id}, {$set: {confirmed: 1, cnfd: 'Cnfd'}});		
 		console.log('confirming userLocationId ', userLocationId, userLocations.place_id );
 /* 		var myPlace = MerchantsCache.findOne({place_id: userLocationsplace_id}, {fields: {_id: 0}});		
 		var myId = Places.findOne({place_id: place_id}, {fields: {_id: 1}});		
@@ -400,10 +406,54 @@ Template.selectPlace.events({
 	},
 });
 
+Template._show_exp.events({
+	'click .experience': function(event, template) {
+		var userLocationId = $(event.delegateTarget).attr("id");
+		console.log('click .exp ', this, userLocationId);
+		Session.set('userLocationId', userLocationId);
+//		Session.set('currentPlace');
+	// Session.set("showCreateDialog", false);
+	},
+});
+
+
 Template.overlay.events({
 	'click .cancel':function () {
 		console.log('overlay click .cancel');
 		Overlay.hide();
+	}
+});
+
+UI.registerHelper('ifConfirmed', function (context, options) {
+  // extract boolean value from data context. the data context is
+  // always an object -- in this case it's a wrapped boolean object.
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean
+  var isBlock = this.valueOf();
+	isBlock = Number.isInteger(isBlock);
+	console.log('isBlock ifConfirmed ', isBlock, this);
+
+  if ((isBlock)) {
+    return Template._show_exp;
+  } else {
+    return Template._no_exp;
+	}
+});
+
+UI.registerHelper('ifConfirmed2', function () {
+  // extract boolean value from data context. the data context is
+  // always an object -- in this case it's a wrapped boolean object.
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean
+  var isBlock = this.valueOf();
+//	isBlock = Number.isInteger(isBlock);
+	
+	console.log('isBlock ifConfirmed2 ', isBlock, Session.get('userLocationId'), this.valueOf(), this);
+
+  if (isBlock == Session.get('userLocationId')) {
+		console.log('isBlock check ', isBlock);
+    return Template._show_exp2;
+  } else {
+		console.log('isBlock check 2 ', isBlock);
+    return Template._no_exp2;
 	}
 });
 

@@ -81,13 +81,17 @@
 <template name="selectExperience">
 	<div class="demo">
 		<div class="control-group">
-			<form class="form-inline">
+			<form class="form-inline" id="{{place_id}}">
 <!-- 				<label for="input-tags">Tags:</label> -->
+				<input type="hidden" id="{{place_id}}" value="{{name}}">
 				<input type="text" name="experience" id="input-tags" class="inline-block" style="width: auto; float:left"
 				value="
 					{{#each experiences}}
 						{{#if experience}} {{experience}}, {{/if}} 
 					{{/each}}
+
+						{{experiences}}
+
 				">
 				<input class="button btn inline-block" type="submit" value="Submit your experience">
 			</form>

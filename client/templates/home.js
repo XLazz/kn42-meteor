@@ -196,24 +196,21 @@ Template.homeinside.events({
 Template.selectExperience.helpers({
 	experiences: function(){
 		userId = Meteor.userId();
-		var currentPlace = Session.get('currentPlace');
-		var services = Experiences.find({
-			place_id: currentPlace, userId: userId
-		});
-		console.log('experiences Experiences ', services.fetch());
+		var userLocationId = Session.get('userLocationId');
+//		var currentPlaceId = UserLocations.findOne({user_history_location_id: userLocationId}).place_id;
+		var services = Experiences.find({ place_id: UserLocations.findOne({user_history_location_id: userLocationId}).place_id , userId: userId });
+		console.log('experiences Experiences ', UserLocations.findOne({user_history_location_id: userLocationId}).place_id, services.fetch());
 		if (services.count()) {
 			return services.fetch();
 		}
-		var services = Services.find({
-			place_id: Session.get('currentPlace')
-		});
-		console.log('experiences Services ', services.fetch());
+		var services = Services.find({place_id: UserLocations.findOne({user_history_location_id: userLocationId}).place_id});
+		console.log('experiences Services ', UserLocations.findOne({user_history_location_id: userLocationId}).place_id, services.fetch());
 		if (services.count()) {
 			return services.fetch();
 		}
-		var currentPlace = Places.findOne({place_id: Session.get('currentPlace')});
-		console.log('experiences Places ', currentPlace.types);
-		if (currentPlace){		
+		var currentPlace = Places.findOne({place_id: UserLocations.findOne({user_history_location_id: userLocationId}).place_id});
+		console.log('experiences Places ', UserLocations.findOne({user_history_location_id: userLocationId}).place_id, currentPlace.types);
+		if (currentPlace.types){		
 			return currentPlace.types;
 		}
 	},

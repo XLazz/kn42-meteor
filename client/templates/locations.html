@@ -36,17 +36,21 @@
 	{{#unless isInOverlay}}
 		{{#each locations}}
 			<p>{{user_history_location_id}} {{#if name}} {{name}} {{else}} Unknown {{/if}} <br/><small>started at {{started}}, finished at {{finished}}</small></p>
-			<form class="form-inline" >
-				<input type="button" class="button confirm btn btn-small" data-toggle="modal" data-target="#myModal" id="{{user_history_location_id}}" value="Confirm" />
+			<form class="form-inline" id="{{user_history_location_id}}">
+				<input type="button" class="button confirm btn btn-small" data-toggle="modal" data-target="#myModal" id="{{user_history_location_id}}" value="
+					{{#if cnfd}} {{cnfd}} {{else}} Conf {{/if}}
+				" />
 				<input type="button" class="button locations btn btn-small" data-toggle="modal" data-target="#myModal" id="{{user_history_location_id}}" value="Change" />
 				<input type="button" class="button travel btn btn-small" data-toggle="modal" data-target="#myModal" id="{{user_history_location_id}}" value="Travel" />
+				{{#ifConfirmed confirmed}}
+					contents
+				{{/ifConfirmed}}				
 				<input type="hidden" id="lat-{{user_history_location_id}}" value="{{latitude}}">
 				<input type="hidden" id="lng-{{user_history_location_id}}" value="{{longitude}}">
 			</form>
-			{{#if placeconfirmed}}
-				Please choose your experience: 
-				{{> selectExperience}}
-			{{/if}}
+			{{#ifConfirmed2 user_history_location_id}}
+				content
+			{{/ifConfirmed2}}
 			<hr>
 		{{/each}}
 	{{/unless}}
@@ -106,31 +110,24 @@
 <template name='confirm'>
 	<div class="kn-container">
 		<label for="allloc" class="checkbox-inline allloc"> 
-			<input type="checkbox" name="allloc" id="allloc" checked={{isChecked}}/> Apply for all locations like that one
+			<input type="checkbox" name="allloc" id="allloc" checked="{{isChecked}}"/> Apply for all locations like that one
 		</label>
 	</div>
 </template>
 
-<!-- Modal --> 
-<!-- <template name="locationModal">
-	<div class="modal show in fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-		<div class="modal-dialog" style="width: 100%;">                                                                                
-			<div class="modal-content">                                                                               
-				<div class="modal-header">                                                                                
-					<a class="close cancel" data-dismiss="modal">×</a>                                                             
-					<h3>Select the place for location</h3>                                                                        
-				</div>                                                                                                    
-				<div class="modal-body" >                                                                                 
-					<h4>Places</h4>                                                                                
-					{{> selectPlace}} 
+<template name="_show_exp">
+	<input type="button" class="button experience btn btn-small" data-toggle="modal" data-target="#myModal" id="{{user_history_location_id}}" value="Exp" />
+</template>
 
-				</div>                                                                                                    
-				<div class="modal-footer">                                                                                                                              
-					<a href="#" class="btn cancel" data-dismiss="modal">Close</a>                                                  
-				</div>  
-			</div>
-		</div>
-	</div>
+<template name="_no_exp">
+</template>
 
-</template> -->
+<template name="_show_exp2">
+	show exp v2
+	{{> selectExperience}}
+</template>
+
+<template name="_no_exp2">
+</template>
+
 
