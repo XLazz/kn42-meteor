@@ -38,13 +38,13 @@
 			<p>{{user_history_location_id}} {{#if name}} {{name}} {{else}} Unknown {{/if}} <br/><small>started at {{started}}, finished at {{finished}}</small></p>
 			<form class="form-inline" id="{{user_history_location_id}}">
 				<input type="button" class="button confirm btn btn-small" data-toggle="modal" data-target="#myModal" id="{{user_history_location_id}}" value="
-					{{#if cnfd}} {{cnfd}} {{else}} Conf {{/if}}
+					{{#if confirmed}} Undo {{else}} Conf {{/if}}
 				" />
 				<input type="button" class="button locations btn btn-small" data-toggle="modal" data-target="#myModal" id="{{user_history_location_id}}" value="Change" />
 				<input type="button" class="button travel btn btn-small" data-toggle="modal" data-target="#myModal" id="{{user_history_location_id}}" value="Travel" />
-				{{#ifConfirmed confirmed}}
+<!-- 				{{#ifConfirmed confirmed}}
 					contents
-				{{/ifConfirmed}}				
+				{{/ifConfirmed}}		 -->		
 				<input type="hidden" id="lat-{{user_history_location_id}}" value="{{latitude}}">
 				<input type="hidden" id="lng-{{user_history_location_id}}" value="{{longitude}}">
 			</form>
@@ -123,7 +123,6 @@
 </template>
 
 <template name="_show_exp2">
-	show exp v2
 	{{> selectExperience}}
 </template>
 

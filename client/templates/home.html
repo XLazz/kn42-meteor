@@ -37,13 +37,12 @@
 			{{/if}}		
 			<br />
 			{{#if placeconfirmed}}
-				Please choose your experience: 
 				{{> selectExperience}}
 			{{/if}}
 			<br />
 			
 			<br />
-			<button class="button btn btn-xs confirm" id="{{currentplaces.place_id}}" style="align: left; width: 32%"> 
+			<button class="button btn btn-xs confirm" id="{{currentplaces.user_history_location_id}}" style="align: left; width: 32%"> 
 			{{#if placeconfirmed}}Confirmed{{else}}Confirm{{/if}}
 			</button>
 			<button class="button btn btn-xs change" id="{{currentplaces.place_id}}" style="align: middle; width: 32%"> Change </button>
@@ -81,33 +80,28 @@
 <template name="selectExperience">
 	<div class="demo">
 		<div class="control-group">
-			<form class="form-inline" id="{{place_id}}">
-<!-- 				<label for="input-tags">Tags:</label> -->
-				<input type="hidden" id="{{place_id}}" value="{{name}}">
-				<input type="text" name="experience" id="input-tags" class="inline-block" style="width: auto; float:left"
-				value="
-					{{#each experiences}}
-						{{#if experience}} {{experience}}, {{/if}} 
-					{{/each}}
-
-						{{experiences}}
-
-				">
+			<form class="form-inline" id="{{currentPlace}}">
+				<label for="select-{{currentPlace}}-empty">Add your experience:</label>
+				<select id="select-{{currentPlace}}-empty" class="demo-default" data-placeholder="Select or create...">			
+					{{#if experiences}}
+						{{#each experiences}}
+							<option value="{{experience}}">{{experience}}</option>
+						{{/each}}
+					{{else}}
+						{{#each types}}
+							<option value="{{this}}">{{this}}</option>
+						{{/each}}
+					{{/if}}			
+					<option value="">None</option>
+				</select>
 				<input class="button btn inline-block" type="submit" value="Submit your experience">
 			</form>
 		</div>
 		<script>
-		$('#input-tags').selectize({
-			persist: false,
-			createOnBlur: true,
+		$('#select-{{currentPlace}}-empty').selectize({
+			allowEmptyOption: true,
 			create: true
 		});
 		</script>
 	</div>
-</template>
-
-<template name="valuehelper">
-	{{#each experiences}}
-		{{experiences}},	
-	{{/each}}
 </template>

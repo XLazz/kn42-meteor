@@ -68,17 +68,17 @@ Meteor.methods({
 		console.log('getLocations method for user ', userId, api_key);
 		var url = 'http://kn42.xlazz.com/server/desktop.php?api_key=' + api_key + '&location=' + location;
 		var myJSON = Meteor.http.call('GET', url);
-		console.log('calling php server for json 2 ', url, myJSON);
+//		console.log('calling php server for json 2 ', url, myJSON);
 		var userLocations = JSON.parse(myJSON.content).user_locations;
-		console.log('calling php server for json 3. First el ', userLocations[0]);
-		var last_loc2 = UserLocations.find({userId: userId}, {sort: {user_history_location_id:	 -1}, limit: 1}).fetch()[0];
+//		console.log('calling php server for json 3. First el ', userLocations[0]);
+		var last_loc2 = UserLocations.findOne({userId: userId}, {sort: {started:	 -1}});
 		if (last_loc2) {
 			last_loc = parseInt(last_loc2.user_history_location_id);
 		}
 		userLocations.forEach(function (item, index, array) {
-			console.log('inserting item for user ', userId, api_key, ' last_loc ', last_loc2, item);
-			item['userId'] = userId;
-			if ((parseInt(item.user_history_location_id) > last_loc) || (!last_loc)){
+			item.userId = userId;
+			if ((parseInt(item.user_history_location_id) > last_loc) || (!last_loc) && (!UserLocations.findOne({user_history_location_id: item.user_history_location_id}))) {
+				console.log('inserting item for user ', userId, api_key, ' last_loc ', last_loc, item.user_history_location_id, item.name);
 				UserLocations.insert(
 					item
 				);

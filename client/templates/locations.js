@@ -179,7 +179,7 @@ Template.showlocations.events({
 	"click .confirm": function (event, template) {
 		var userLocationId = $(event.currentTarget).attr("id");
 		var userLocations = UserLocations.findOne({user_history_location_id: userLocationId});		
-		UserLocations.upsert({_id: userLocations._id}, {$set: {confirmed: 1, cnfd: 'Cnfd'}});		
+		UserLocations.upsert({_id: userLocations._id}, {$set: {confirmed: 1}});		
 		console.log('confirming userLocationId ', userLocationId, userLocations.place_id );
 /* 		var myPlace = MerchantsCache.findOne({place_id: userLocationsplace_id}, {fields: {_id: 0}});		
 		var myId = Places.findOne({place_id: place_id}, {fields: {_id: 1}});		
@@ -429,10 +429,10 @@ UI.registerHelper('ifConfirmed', function (context, options) {
   // always an object -- in this case it's a wrapped boolean object.
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean
   var isBlock = this.valueOf();
-	isBlock = Number.isInteger(isBlock);
-	console.log('isBlock ifConfirmed ', isBlock, this);
+	isBlock = isNaN(isBlock);
+	console.log('isBlock ifConfirmed ', isBlock, this.valueOf(), this);
 
-  if ((isBlock)) {
+  if (!isBlock) {
     return Template._show_exp;
   } else {
     return Template._no_exp;
@@ -446,13 +446,13 @@ UI.registerHelper('ifConfirmed2', function () {
   var isBlock = this.valueOf();
 //	isBlock = Number.isInteger(isBlock);
 	
-	console.log('isBlock ifConfirmed2 ', isBlock, Session.get('userLocationId'), this.valueOf(), this);
+//	console.log('isBlock ifConfirmed2 ', isBlock, Session.get('userLocationId'), this.valueOf(), this);
 
   if (isBlock == Session.get('userLocationId')) {
-		console.log('isBlock check ', isBlock);
+//		console.log('isBlock check ', isBlock);
     return Template._show_exp2;
   } else {
-		console.log('isBlock check 2 ', isBlock);
+//		console.log('isBlock check 2 ', isBlock);
     return Template._no_exp2;
 	}
 });
