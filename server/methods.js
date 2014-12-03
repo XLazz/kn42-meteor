@@ -207,11 +207,27 @@ Meteor.methods({
 		GooglePlaces.remove({});
 	},
 	
-	'check_users': function(userId) {
-		
-		var user = Meteor.users.find({}).fetch();
-		console.log(user);
-		console.log(user.services);
+	'update_profile': function(userId) {	
+		var user = Meteor.users.findOne({_id: userId});
+		console.log(userId, user);
+		console.log(user.services.google.picture);
+		if (user.services.google !== undefined) {
+			var profile = {
+				'firstName': user.services.google.given_name,
+				'lastName': user.services.google.family_name,
+				'picture': user.services.google.picture,	
+				'gender': user.services.google.gender,	
+				'google': 1,
+			};
+		} else {
+			return;
+		}
+			
+		var update = {
+			profile: profile
+		};
+		Meteor.users.upsert({_id: userId}, { $set: update });
+		return update;
 	},
 	
 	uploadCoords: function(userId, api_key){
