@@ -192,6 +192,19 @@ Template.appBody.events({
 			Session.set('debug', false);	
 		}
 	},
+	'click .kn42service': function (event, template) {
+		if (Session.get('geoback')) {
+			console.log('stopping service');
+			Session.set('geoback', false);
+			PollingGeo();
+		} else {
+			console.log('starting service');
+			Session.set('geoback', true);
+			Session.set('interval', 300000);
+			UpdateGeo();
+			PollingGeo();
+		}
+	},
 
 });
 

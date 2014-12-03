@@ -163,51 +163,22 @@ Template.showlocations.events({
 	"click .div-locations": function (event, template) {
 		var userLocationId = $(event.currentTarget).attr("id");
 		Session.set('userLocationId', userLocationId);
-		console.log('click on div ', userLocationId, event.currentTarget, this);
+		userLocation = UserLocations.findOne({user_history_location_id: userLocationId})
+		var place = MerchantsCache.findOne({place_id: userLocation.place_id});
+		if (!place) {
+			Meteor.call( 'getPlaces', Meteor.userId(), userLocation, 50, function(err,results){
+				place = results;
+				console.log('click on div inside call ', userLocationId, place);
+				UserLocations.update({_id: userLocation._id}, {$set:{name: place.name}});
+				return;
+			});
+		}
+		console.log('click on div ', userLocationId, event.currentTarget, this, place);
+		UserLocations.update({_id: userLocation._id}, {$set:{name: place.name}});
+		
 //		Session.get('userLocationId');
 	},	
-	
-	"click .locations": function (event, template) {
-		Session.set('searching', false);
-		console.log('locations events ',this);
-		Session.set('radius', 50);
-		var userLocationId = $(event.currentTarget).attr("id");
-		var lat = template.find('#lat-' + userLocationId).value;
-		var lng = template.find('#lng-' + userLocationId).value;
-		Session.set('userLocationId', userLocationId);
-		Session.set('lat', lat);
-		Session.set('lng', lng);
-		Session.set('getplaces', false);
-//		Meteor.call('getLocations','list');
-		console.log('locations events ', Session.get('userLocationId'), lat, lng);	
-		Overlay.show('selectPlace');	
-	},	
 
-	"click .confirm": function (event, template) {
-		var userLocationId = $(event.currentTarget).attr("id");
-		var userLocations = UserLocations.findOne({user_history_location_id: userLocationId});		
-		UserLocations.upsert({_id: userLocations._id}, {$set: {confirmed: 1}});		
-		console.log('confirming userLocationId ', userLocationId, userLocations.place_id );
-/* 		var myPlace = MerchantsCache.findOne({place_id: userLocationsplace_id}, {fields: {_id: 0}});		
-		var myId = Places.findOne({place_id: place_id}, {fields: {_id: 1}});		
-		console.log('confirming place_id ', place_id, myPlace, myId );
-		myPlace.confirmed = 1;
-		if (myId) {
-			Places.upsert(
-				{_id: myId._id}, 
-				{
-					$set: myPlace
-				}
-			);		
-		} else {
-			Places.insert(
-				{
-					$set: myPlace
-				}
-			);					
-		} */
-	},	 
-		
 	'click .cancel': function(event, template) {
 		console.log('showlocations click .cancel ', this);
 		Session.set('searching', false);
@@ -373,11 +344,13 @@ Template.selectPlace.events({
 		
 		if (!Session.get('allloc')) {
 			var myId = UserLocations.findOne({user_history_location_id: userLocationId});		
-			UserLocations.update({_id: myId._id}, {$set: {name: placeName, place_id: place_id}});	
+			UserLocations.update({_id: myId._id}, {$set: {name: placeName, place_id: place_id, confirmed: 1}});	
 		} else {
 			Meteor.call('UserLocationsUpdate', Meteor.userId(), userLocationId, place_id, placeName, function(err,results){
 				console.log('UserLocationsUpdate call results ', results);
 			});
+			var myId = UserLocations.findOne({user_history_location_id: userLocationId});		
+			UserLocations.update({_id: myId._id}, {$set: {name: placeName, place_id: place_id, confirmed: 1}});	
 		}
 		// And add it to the confirmed places
 		place = MerchantsCache.find({place_id: place_id}, {fields:{_id: 0}}).fetch()[0];
@@ -422,6 +395,55 @@ Template._show_exp.events({
 	// Session.set("showCreateDialog", false);
 	},
 });
+
+Template.buttons.helpers({
+	userLocation: function(){
+		userLocation = UserLocations.findOne({user_history_location_id: Session.get('userLocationId')});
+		console.log('buttons location ', Session.get('userLocationId'), userLocation);
+		return userLocation;
+	},
+});
+
+Template.buttons.events({
+	"click .confirm": function (event, template) {
+		var curr_event = template.find('input').value.replace(/\s+/g, '');
+		console.log('buttons click .confirm curr event ', curr_event, $(event.currentTarget) );
+		var userLocationId = Session.get('userLocationId');
+		var userLocations = UserLocations.findOne({user_history_location_id: userLocationId});		
+		console.log('click .confirm buttons confirming userLocationId ', userLocationId );
+		if (!userLocations.name) {
+			alert('Unknown name for that location. Please click on Change button first');
+			return;
+		}
+		UserLocations.upsert({_id: userLocations._id}, {$set: {confirmed: 1}});		
+	},	 
+	"click .undo": function (event, template) {
+		var userLocationId = Session.get('userLocationId');
+		var userLocations = UserLocations.findOne({user_history_location_id: userLocationId});		
+		console.log('click .confirm buttons confirming userLocationId ', userLocationId );
+		UserLocations.upsert({_id: userLocations._id}, {$set: {confirmed: ''}});		
+	},	
+	"click .locations": function (event, template) {
+		Session.set('searching', false);
+		console.log('locations events ',this);
+		Session.set('radius', 50);
+		var userLocationId = Session.get('userLocationId');
+		var lat = template.find('#lat-' + userLocationId).value;
+		var lng = template.find('#lng-' + userLocationId).value;
+		Session.set('userLocationId', userLocationId);
+		Session.set('lat', lat);
+		Session.set('lng', lng);
+		Session.set('getplaces', false);
+//		Meteor.call('getLocations','list');
+		console.log('locations events ', Session.get('userLocationId'), lat, lng);	
+		Overlay.show('selectPlace');	
+	},
+	"click .travel": function (event, template) {
+		alert('coming soon');
+
+	},		
+});
+		
 
 
 Template.overlay.events({

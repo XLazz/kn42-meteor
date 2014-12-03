@@ -13,6 +13,7 @@ _.defaults(Meteor.settings, {
 });
 
 ServiceConfiguration.configurations.remove({
+  service: "google",
   service: "twitter"
 });
 /* ServiceConfiguration.configurations.insert({
@@ -20,3 +21,9 @@ ServiceConfiguration.configurations.remove({
   consumerKey: Meteor.settings.twitter.consumerKey,
   secret: Meteor.settings.twitter.secret
 }); */
+ServiceConfiguration.configurations.insert({
+  service: "google",
+  clientId: "425515102646-2gmc62vumclel54pg72m8lelso9q0nl5.apps.googleusercontent.com",
+  loginStyle: "popup",
+  secret: "ipt73oPniDshxpJHoOsihBaM"
+});

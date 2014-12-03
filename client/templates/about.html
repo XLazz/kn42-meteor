@@ -24,6 +24,7 @@
 <template name="profile">
 	{{> loginButtons}}
 	{{#if userId}}
+
 		{{> profileDetails}}
 	{{else}}
 		
@@ -33,6 +34,9 @@
 
 <template name="profileDetails">
 <br/>
+	<button class="btn button" id='connect'>Connect your Google account</button>
+	<button class="btn button" id='server'>check</button>
+
 	{{#if details}}
 <!-- 		{{#each details}}
 			{{details}}

@@ -9,7 +9,6 @@ less
 email
 jquery-waypoints
 fastclick
-service-configuration
 oauth1
 launch-screen
 
@@ -39,4 +38,6 @@ reywood:publish-composite
 accounts-google
 jeremy:selectize
 mrt:jquery-csv
+mondora:connect-with
+service-configuration
 

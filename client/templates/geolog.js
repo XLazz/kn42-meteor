@@ -12,6 +12,9 @@ Deps.autorun(function(){
 
 PollingGeo = function(){
 	var myInterval = Session.get('interval');
+	if (!Session.get('interval')) {
+		myInterval = 150000;
+	} 
 	var watchGPS;
 	console.log('Polling geo 1 ', myInterval, Session.get('geoback'));
 	// auto-re-run by Cordova every myInterval ms
@@ -54,7 +57,7 @@ function upsertPlaceId(location){
 	});
 }
 
-function UpdateGeo(){
+UpdateGeo = function (){
 //	var handle = Deps.autorun(function () {
 	var location = Geolocation.currentLocation();
 	console.log('UpdateGeo event ', location, this);

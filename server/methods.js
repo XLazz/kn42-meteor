@@ -3,11 +3,22 @@ GetApi = function(userId){
 		console.error('GetApi no userId, no key');
 		return;
 	}
-	var user_details = Meteor.users.findOne({_id: userId}, {api_key:1, _id:0});
-	console.log('GetApi checking api_key 1 for user ', userId, ' user details ', user_details); 
+	var user_details = Meteor.users.findOne({_id: userId}, {_id:0});
+//	console.log('GetApi checking api_key 1 for user ', userId, ' user details ', user_details); 
 	var api_key = user_details.api_key;
-	var user_email = user_details.emails[0].address, user_details;
-	console.log('GetApi checking api_key 2 ', api_key, ' for user ', userId, ' user details ', user_details); 
+	console.log('GetApi checking api_key 2 ', api_key, ' for user ', userId); 
+	if (user_details.emails) {
+		var user_email = user_details.emails[0].address;
+	} else if (user_details.services){ 
+		if (user_details.services.google) {
+			var user_email = user_details.services.google.email;
+			// It needs to be some way to connect new google user and old user with the same email
+/* 			var old_user = Meteor.users.findOne({_id: userId}, {_id:0});
+			Meteor.users.upsert({emails.0.address: user_email, api_key: {$size: 1}}, {$set: user_details}); */
+		} else {
+			console.log('cant get api for user ', userId, user_details); 
+		}
+	}
 	if (api_key) {
 		return api_key;
 	}
@@ -107,16 +118,18 @@ Meteor.methods({
 		check(arguments, [Match.Any]);
 		console.log('calling php on server for lat and lng radius', userId, userLocation.longitude , radius);
 		var api_key = GetApi(userId);
-		var myJSON = Meteor.http.call('GET','http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&location=places&lat=' + userLocation.latitude + '&long=' + userLocation.longitude + '&radius=' + radius);
+		var url = 'http://kn42.xlazz.com/server/request.php?api_key=';
+		var myJSON = Meteor.http.call('GET',url + api_key + '&location=places&lat=' + userLocation.latitude + '&long=' + userLocation.longitude + '&radius=' + radius);
 			
 		myMerchants = JSON.parse(myJSON.content);
 		myMerchants = myMerchants.google_places.results;
-//			console.log('got myMerchants 2 for ', lat, lng, myMerchants[0]);
+//		console.log('inserting merchants 0 ', myMerchants[0]);
 		for (var i = 0; i < myMerchants.length; i++) {
-			console.log('inserting merchants ', myMerchants[i].place_id);
+			console.log('inserting merchants ', myMerchants[i].place_id, myMerchants[i].name);
 			MerchantsCache.upsert(
 				{place_id: myMerchants[i].place_id},
 				{
+					icon: myMerchants[i].icon,
 					place_id: myMerchants[i].place_id,
 					name: myMerchants[i].name,
 					vicinity: myMerchants[i].vicinity,
@@ -126,6 +139,11 @@ Meteor.methods({
 					lng: userLocation.longitude
 				}
 			);
+		}
+		if (myMerchants[0].name) {
+			return myMerchants[0];
+		} else {
+			return myMerchants[1];
 		}
 	},
 	 
@@ -187,6 +205,13 @@ Meteor.methods({
 		console.log('removing all geodata ');
 		GeoLog.remove({userId:userId});
 		GooglePlaces.remove({});
+	},
+	
+	'check_users': function(userId) {
+		
+		var user = Meteor.users.find({}).fetch();
+		console.log(user);
+		console.log(user.services);
 	},
 	
 	uploadCoords: function(userId, api_key){

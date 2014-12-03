@@ -191,8 +191,8 @@ Template.selectExperience.helpers({
 		userId = Meteor.userId();
 		var userLocationId = Session.get('userLocationId');
 		var currentPlace = Places.findOne({place_id: UserLocations.findOne({user_history_location_id: userLocationId}).place_id});
-		console.log('experiences Places ', UserLocations.findOne({user_history_location_id: userLocationId}).place_id, currentPlace.types);
-		if (currentPlace.types){		
+		console.log('experiences Places ', UserLocations.findOne({user_history_location_id: userLocationId}).place_id, currentPlace);
+		if (currentPlace){		
 			return currentPlace.types;
 		}
 	},
