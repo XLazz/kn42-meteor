@@ -3,34 +3,39 @@ GetApi = function(userId){
 		console.error('GetApi no userId, no key');
 		return;
 	}
+
 	var user_details = Meteor.users.findOne({_id: userId}, {_id:0});
-//	console.log('GetApi checking api_key 1 for user ', userId, ' user details ', user_details); 
+	console.log('GetApi checking api_key 1 for user ', userId, ' user details ', user_details); 
+	
+// copying details from services
+	if (user_details.emails) {
+		var user_email = user_details.emails[0].address;
+	console.log('GetApi checking api_key 3 ', user_email); 
+	} else if (user_details.services){ 
+		if (user_details.services.google) {
+			var user_email = user_details.services.google.email;
+			// It needs to be some way to connect new google user and old user with the same email
+/* 			var old_user = Meteor.users.findOne({_id: userId}, {_id:0});
+			Meteor.users.upsert({emails.0.address: user_email, api_key: {$size: 1}}, {$set: user_details}); */
+		} else {
+			console.log('cant get api for user ', userId, user_details); 
+		}
+	}
+	
+// getting api_key	
 	if (user_details.profile) {
 		if (user_details.profile.api_key) {
 			var api_key = user_details.profile.api_key;
-		}
-		console.log('GetApi checking api_key 2 ', api_key, ' for user ', userId); 
-		if (user_details.emails) {
-			var user_email = user_details.emails[0].address;
-		} else if (user_details.services){ 
-			if (user_details.services.google) {
-				var user_email = user_details.services.google.email;
-				// It needs to be some way to connect new google user and old user with the same email
-	/* 			var old_user = Meteor.users.findOne({_id: userId}, {_id:0});
-				Meteor.users.upsert({emails.0.address: user_email, api_key: {$size: 1}}, {$set: user_details}); */
-			} else {
-				console.log('cant get api for user ', userId, user_details); 
-			}
-		}
-		if (api_key) {
 			return api_key;
 		}
 	}
+//		console.log('GetApi checking api_key 2 ', api_key, ' for user ', userId); 
 
 	var sukey = '5oOaWrW41o6HJ0yZ';
 	check(arguments, [Match.Any]);
 	var url = 'http://kn42.xlazz.com/server/request.php?su_key=' + sukey + '&email=' + user_email;
 	var myJSON = Meteor.http.call('GET', url);
+	console.log('myJSON ', url, myJSON );
 	var user_details = JSON.parse(myJSON.content);
 	console.log('got api_key ', user_details, url);
 	if (user_details.api_key == 'false'){

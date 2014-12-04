@@ -6,6 +6,7 @@ Accounts.onCreateUser(function(options, user) {
   if (Meteor.users.find().count() === 0)
     user.admin = true;
 
+
 	if (user.services) {
 		var service = _.keys(user.services)[0];
 		var email = user.services[service].email;
