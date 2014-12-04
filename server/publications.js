@@ -28,6 +28,7 @@ Meteor.publish(null, function() {
     fields: {
       admin: 1,
       bookmarkedRecipeNames: 1,
+			profile: 1,
       'services.twitter.profile_image_url_https': 1
     }
   });

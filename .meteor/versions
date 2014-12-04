@@ -63,6 +63,8 @@ mondora:connect-with@0.1.2
 mongo@1.0.8
 mrt:jquery-csv@0.7.1
 mrt:moment@2.8.1
+msamoylov:accounts-foursquare@1.0.3
+msamoylov:foursquare@1.0.3
 npm-bcrypt@0.7.7
 oauth1@1.1.2
 oauth2@1.1.1

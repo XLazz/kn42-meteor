@@ -129,15 +129,11 @@ Template.footergeo.helpers({
 		return Meteor.userId();
 	},
 	status: function(){
-		var running = Session.get('geoback');
 		if (Session.get('geoback')) {
-			running = 'running';
+			return 'running';
 		} else {
-			running  = 'stopped';
+			return 'stopped';
 		}
-		console.log('footergeo.helpers ', running, Session.get('geoback'), Session.get('interval'));
-//		PollingGeo();	
-		return running;
 	},
 	isChecked: function(){
 		return Session.get('debug');

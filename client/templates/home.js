@@ -1,4 +1,5 @@
 var FEATURED_COUNT = 4;
+var i = 0;
 
 findExperiences = function(){
 	var services = Services.findOne({
@@ -17,18 +18,18 @@ findExperiences = function(){
 
 Template.home.helpers({	
   // selects FEATURED_COUNT number of recipes at random
-  featuredRecipes: function() {
+/*   featuredRecipes: function() {
     var recipes = _.values(RecipesData);
     var selection = [];
     
     for (var i = 0;i < FEATURED_COUNT;i++)
       selection.push(recipes.splice(_.random(recipes.length - 1), 1)[0]);
     return selection;
-  },
+  }, */
   
-  activities: function() {
+/*   activities: function() {
     return Activities.latest();
-  },
+  }, */
   
   latestNews: function() {
     return News.latest();
@@ -43,36 +44,35 @@ Template.homeinside.helpers({
 	currentplaces: function(){
 		if (!Meteor.userId()) {return;};
 //		if (!Session.get('changeplace')) {return};
-		var lastPlaces;		
-		if (!lastPlaces) {
-			return UserLocations.findOne({
-				userId: Meteor.userId(), place_id: {$not: {$size: 0}}
-			}, {
-				sort: {started: -1},
-				transform: function(doc){
-					var content = Places.findOne({place_id: doc.place_id});
-					Session.set('userLocationId', doc.user_history_location_id);
+		var ready = Meteor.subscribe('UserLocations').ready();
+//		console.log('currentplaces before findOne ', i++, UserLocations.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {started: -1}}) );
+		var places = UserLocations.findOne({
+			userId: Meteor.userId(), place_id: {$not: {$size: 0}}
+		}, {
+			sort: {started: -1},
+			transform: function(doc){
+				var content = Places.findOne({place_id: doc.place_id});
+				Session.set('userLocationId', doc.user_history_location_id);
 					if (!content) {
-						content = MerchantsCache.findOne({place_id: doc.place_id});
-					}
-					if (!content) {
-						console.log('no content, going for call to getPlaces');
-						Meteor.call( 'getPlaces', Meteor.userId(), doc, 50);
-					}
-					var olddoc = doc;
-					doc.content = content;
-//					Session.set('elsewhere', false);
-					console.log('gotPlaces inside UserLocations transform for ', doc.place_id, _.extend(doc, _.omit(content, '_id')) );
-//					return Session.set('changeplace', false);
-					return _.extend(doc, _.omit(content, '_id'));
+					content = MerchantsCache.findOne({place_id: doc.place_id});
 				}
-			});
-			console.log('home currentplaces lastPlaces 1 ', lastPlaces);
-			return lastPlaces;
-		}
+				if (!content) {
+					console.log('no content, going for call to getPlaces');
+					Meteor.call( 'getPlaces', Meteor.userId(), doc, 50);
+				}
+				var olddoc = doc;
+				doc.content = content;
+//				console.log('gotPlaces inside UserLocations transform for ', doc.place_id, _.extend(doc, _.omit(content, '_id')) );
+				return _.extend(doc, _.omit(content, '_id'));
+			}
+		});
+		places['timespent'] = moment(places.started).fromNow();
+//		ready = places.ready();
+		
 //		lastPlaces.started = UserLocations.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {started: -1}}).started;
-		console.log('home currentplaces lastPlaces 2 ', lastPlaces, place_id);
-		return lastPlaces;
+//		console.log('home currentplaces lastPlaces 2 ', ready, places);
+		return places;
+		
 	},
 	
 	placeconfirmed: function(){

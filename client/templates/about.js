@@ -60,6 +60,15 @@ Template.profileDetails.helpers({
 	
 });
 
+Template.profilePic.helpers({
+	user_details: function(){
+//		var user_emails = Meteor.user().emails;
+		if (Meteor.userId()) {
+			return Meteor.user();
+		}
+	},
+});
+
 Template.profileDetails.events({
 	'click #connect_google': function (event, template) {
 		if (Meteor.user()) {
@@ -68,7 +77,7 @@ Template.profileDetails.events({
 		}		
 	},
 	'click #connect_fb': function (event, template) {
-//		alert('coming soon');
+		alert('coming soon');
 		if (Meteor.user()) {
 				console.log('connecting with fb');
 				Meteor.connectWith("facebook");

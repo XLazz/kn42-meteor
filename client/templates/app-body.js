@@ -219,6 +219,6 @@ Template.appBody.helpers({
     return Meteor.user() && Meteor.user().admin;
   },
 	ifDebug: function() {
-		return 'debug';
+		return Session.get('debug');
 	},
 });

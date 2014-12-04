@@ -41,9 +41,15 @@
 <!-- 	<button class="btn button" id='server'>check</button> -->
 
 	<div><img src="{{user_details.profile.picture}}" style="width:30%"/></div>
-	<div>Name: {{user_details.profile.firstName}}</div>
-	<div>Surname: {{user_details.profile.lastName}}</div>
-	<div>gender: {{user_details.profile.gender}}</div>
+	<div>{{user_details.profile.firstName}} {{user_details.profile.lastName}}</div>
+	<div>{{user_details.profile.country}} {{user_details.profile.place}}</div>
+</template>
+
+<template name="profilePic">
+	<div>
+		<div><a href="/profile"><img src="{{user_details.profile.picture}}" style="width:100%"/></a></div>
+		<div>{{user_details.profile.firstName}} {{user_details.profile.lastName}}</div>
+	</div>
 </template>
 
 <template name="loginoverlay">

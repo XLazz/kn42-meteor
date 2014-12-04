@@ -26,35 +26,35 @@
 		<h2 class="list-title">You are at:</h2>
 		<div class="list-subtitle">See more</div>
 		<div class="list-activities">
-			{{#if currentplaces}}
-				{{#if currentplaces.finished}}
-					Last place
-				{{/if}}
-				{{currentplaces.name}} at {{currentplaces.vicinity}} since {{currentplaces.started}} 
-				{{#if currentplaces.finished}} till {{currentplaces.finished}} {{/if}}
-				<br />
-				status: {{status}}
-			{{/if}}		
-			<br />
-			{{#if placeconfirmed}}
-				{{> selectExperience}}
-			{{/if}}
-			<br />
-			
-			<br />
-			<button class="button btn btn-xs confirm" id="{{currentplaces.user_history_location_id}}" style="align: left; width: 32%"> 
-			{{#if placeconfirmed}}Confirmed{{else}}Confirm{{/if}}
-			</button>
-			<button class="button btn btn-xs change" id="{{currentplaces.place_id}}" style="align: middle; width: 32%"> Change </button>
-			<button class="button btn btn-xs " id="attach" style="align: right; width: 32%"> Attach </button>
+			{{#with currentplaces}}
+				<div style="width: 100%; height: auto; padding: 5px">
+					<div class="div-locations" style="width: 100%; height: auto" id="{{user_history_location_id}}">
+						<div style="display:inline-block; width: 85%; vertical-align: top;">
+							
+							{{#if name}} {{name}} {{else}} Unknown {{/if}} <br/>
+							<span style="font-size: smaller">
+								{{currentplaces.vicinity}} <br />
+								Started {{timespent}}
+							</span>
+							
+						</div>
+						<div style="display:inline-block; width: 10%; max-width: 40px; vertical-align: top;">
+							<img style="width: auto; height: auto; max-width: 40px" src="{{currentplaces.icon}}" />
+						</div>
+					</div>
+					<div>status: {{status}}</div>
+					<div>{{> buttons}}</div>
+				</div>
+			{{/with}}
+			<br />			
 		</div>
 		<div >
 
 		</div>
 		<div>
-		{{#if changeplace}}
+<!-- 		{{#if changeplace}}
 			{{> selectPlace}}
-		{{/if}}
+		{{/if}} -->
 		</div>
 		<a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking</a>
 		
@@ -67,9 +67,9 @@
 		<h2 class="list-title">Events and places around you</h2>
 		<div class="list-subtitle">Hand-picked by the wisdom of automated processing</div>
 		<div class="list-recipes">
-				{{#each featuredRecipes}}
+<!-- 			{{#each featuredRecipes}}
 				{{> recipeItem recipe=this size='small'}}
-			{{/each}}
+			{{/each}} -->
 		</div>
 
 		<a href="{{pathFor 'locations'}}" class="btn-primary">Explore your recent locations</a>
@@ -77,11 +77,36 @@
 	</div>
 </template>
 
+<template name="buttons">
+	<div>
+		<div style="display: inline-block; width: auto; vertical-align: top; ">
+			<form class="form-inline buttons" id="{{userLocation.user_history_location_id}}">
+				<input type="button" class="button {{#if userLocation.confirmed}}undo{{else}}confirm{{/if}} btn btn-small" data-toggle="modal" data-target="#myModal" id="{{userLocation.user_history_location_id}}" value="
+					{{#if userLocation.confirmed}}Undo{{else}}Conf{{/if}}
+				" />
+				{{#with userLocation}}
+					{{#unless confirmed}}
+						<input type="button" class="button locations btn btn-small" data-toggle="modal" data-target="#myModal" id="{{user_history_location_id}}" value="Change" />
+						<input type="button" class="button travel btn btn-small" data-toggle="modal" data-target="#myModal" id="{{user_history_location_id}}" value="Travel" />
+					{{/unless}}
+				{{/with}}	
+				<input type="hidden" id="lat-{{userLocation.user_history_location_id}}" value="{{userLocation.latitude}}">
+				<input type="hidden" id="lng-{{userLocation.user_history_location_id}}" value="{{userLocation.longitude}}">
+			</form>
+		</div>
+		<div style="display: inline-block; width: 65%">
+			{{#if userLocation.confirmed}}
+				{{> selectExperience}}
+			{{/if}}
+		</div>
+	</div>
+</template>
+
 <template name="selectExperience">
 	<div class="demo">
 		<div class="control-group">
 			<form class="form-inline" id="{{currentPlace}}">
-				<label for="select-{{currentPlace}}-empty">Add your experience:</label>
+<!-- 				<label for="select-{{currentPlace}}-empty">Add your experience:</label> -->
 				<select id="select-{{currentPlace}}-empty" class="demo-default" data-placeholder="Select or create...">			
 					{{#if experiences}}
 						{{#each experiences}}

@@ -5,7 +5,7 @@ GetApi = function(userId){
 	}
 	var user_details = Meteor.users.findOne({_id: userId}, {_id:0});
 //	console.log('GetApi checking api_key 1 for user ', userId, ' user details ', user_details); 
-	var api_key = user_details.api_key;
+	var api_key = user_details.profile.api_key;
 	console.log('GetApi checking api_key 2 ', api_key, ' for user ', userId); 
 	if (user_details.emails) {
 		var user_email = user_details.emails[0].address;
@@ -37,7 +37,7 @@ GetApi = function(userId){
 	}
 	if (user_details.api_key) {
 		console.log('got api_key ', user_details.api_key );
-		Meteor.users.update({_id: userId}, {$set: {api_key: user_details.api_key}});
+		Meteor.users.update({_id: userId}, {$set: {'profile.api_key': user_details.api_key}});
 	}
 	return user_details.api_key;
 }
@@ -79,7 +79,7 @@ Meteor.methods({
 		console.log('getLocations method for user ', userId, api_key);
 		var url = 'http://kn42.xlazz.com/server/desktop.php?api_key=' + api_key + '&location=' + location;
 		var myJSON = Meteor.http.call('GET', url);
-//		console.log('calling php server for json 2 ', url, myJSON);
+		console.log('calling php server for json 2 ', url);
 		var userLocations = JSON.parse(myJSON.content).user_locations;
 //		console.log('calling php server for json 3. First el ', userLocations[0]);
 		var last_loc2 = UserLocations.findOne({userId: userId}, {sort: {started:	 -1}});
