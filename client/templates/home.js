@@ -41,6 +41,10 @@ Template.home.events({
 });
 
 Template.homeinside.helpers({
+	ifUser: function (){
+		if (Meteor.userId()) {return 'true'};
+	},
+	
 	currentplaces: function(){
 		if (!Meteor.userId()) {return;};
 //		if (!Session.get('changeplace')) {return};
@@ -125,6 +129,9 @@ Template.homeinside.helpers({
 });
 
 Template.homeinside.events({
+	'click .goprofile': function(event, template) {
+		Router.go('about');
+	},
 	'click .change': function (event, template) {
 		var place_id = $(event.currentTarget).attr("id");
 		Session.set('radius', 50);

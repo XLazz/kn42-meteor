@@ -4,42 +4,49 @@ GetApi = function(userId){
 		return;
 	}
 
+	var create_profile;
 	var user_details = Meteor.users.findOne({_id: userId}, {_id:0});
-	console.log('GetApi checking api_key 1 for user ', userId, ' user details ', user_details); 
-	var user_email = user_details.emails[0].address;
-	
-	// copying email from the service account to the base account
-	if (user_details.services){ 
-		if (user_details.services.google) {
-			var user_email = user_details.services.google.email;
-			// It needs to be some way to connect new google user and old user with the same email
-/* 			var old_user = Meteor.users.findOne({_id: userId}, {_id:0});
-			Meteor.users.upsert({emails.0.address: user_email, api_key: {$size: 1}}, {$set: user_details}); */
-			if (!user_details.emails[0].address) {
-				Meteor.users.update({_id: userId},{$set:{'emails.0.address': user_email}}); 
-			} 
-		} else {
-			console.log('cant get api for user ', userId, user_details); 
-		}
-	} else {
+//	console.log('GetApi checking api_key 1 for user ', userId, ' user details ', user_details); 
+	if (user_details.emails) {
 		var user_email = user_details.emails[0].address;
-	}
-	
-// getting api_key	
-	if (user_details.profile) {
-		if (user_details.profile.api_key) {
-			var api_key = user_details.profile.api_key;
-			console.log('GetApi checking api_key 2 ', api_key, ' for user ', userId); 
-			return api_key;
+		if (!user_details.profile) {
+			create_profile = 1;
+		} else {
+			if (!user_details.profile.firstName){
+				create_profile = 1;
+			}
 		}
+		if ((create_profile) && (user_details)) {
+//			console.log('user_details.profile ', user_email, user_details );
+			var name = user_email.split('@')[0];
+			Meteor.users.update({_id: userId},{$set:{'profile.firstName': name, 'profile.lastName': ' ', 'profile.picture': "img/app/robot.jpg"}});
+		}				
+	} else {
+	// It should be social network account
+		if (user_details.services){ 
+			if (user_details.services.google) {
+				var user_email = user_details.services.google.email;
+				if (!user_details.emails) {
+					console.log('adding service details t- profile for user ', userId, user_details); 
+					Meteor.users.update({_id: userId},{$set:{'emails.0.address': user_email, 'profile.firstName': user_details.services.google.given_name, 'profile.lastName': user_details.services.google.family_name}}); 
+				} 
+			}
+		} 
+	}
+
+
+// getting api_key	
+	if (user_details.profile.api_key) {
+		var api_key = user_details.profile.api_key;
+//		console.log('GetApi checking api_key 2 ', api_key, ' for user ', userId); 
+		return api_key;
 	}
 	
-
 	var sukey = '5oOaWrW41o6HJ0yZ';
 	check(arguments, [Match.Any]);
 	var url = 'http://kn42.xlazz.com/server/request.php?su_key=' + sukey + '&email=' + user_email;
 	var myJSON = Meteor.http.call('GET', url);
-	console.log('myJSON ', url, myJSON );
+//	console.log('myJSON ', url );
 	var user_details = JSON.parse(myJSON.content);
 	console.log('got api_key ', user_details, url);
 	if (user_details.api_key == 'false'){

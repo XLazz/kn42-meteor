@@ -26,26 +26,32 @@
 		<h2 class="list-title">You are at:</h2>
 		<div class="list-subtitle">See more</div>
 		<div class="list-activities">
-			{{#with currentplaces}}
-				<div style="width: 100%; height: auto; padding: 5px">
-					<div class="div-locations" style="width: 100%; height: auto" id="{{user_history_location_id}}">
-						<div style="display:inline-block; width: 85%; vertical-align: top;">
-							
-							{{#if name}} {{name}} {{else}} Unknown {{/if}} <br/>
-							<span style="font-size: smaller">
-								{{currentplaces.vicinity}} <br />
-								Started {{timespent}}
-							</span>
-							
+			{{#if ifUser}}
+				{{#with currentplaces}}
+					<div style="width: 100%; height: auto; padding: 5px">
+						<div class="div-locations" style="width: 100%; height: auto" id="{{user_history_location_id}}">
+							<div style="display:inline-block; width: 85%; vertical-align: top;">
+								
+								{{#if name}} {{name}} {{else}} Unknown {{/if}} <br/>
+								<span style="font-size: smaller">
+									{{currentplaces.vicinity}} <br />
+									Started {{timespent}}
+								</span>
+								
+							</div>
+							<div style="display:inline-block; width: 10%; max-width: 40px; vertical-align: top;">
+								<img style="width: auto; height: auto; max-width: 40px" src="{{currentplaces.icon}}" />
+							</div>
 						</div>
-						<div style="display:inline-block; width: 10%; max-width: 40px; vertical-align: top;">
-							<img style="width: auto; height: auto; max-width: 40px" src="{{currentplaces.icon}}" />
-						</div>
+						<div>status: {{status}}</div>
+						<div>{{> buttons}}</div>
 					</div>
-					<div>status: {{status}}</div>
-					<div>{{> buttons}}</div>
-				</div>
-			{{/with}}
+				{{/with}}
+			{{else}}
+				We need to create profile for you before you can start using service
+				<a href="{{pathFor 'about'}}"> <button class="btn btn-primary" id="goprofile" style="width:100%">Login</button></a>
+				
+			{{/if}}
 			<br />			
 		</div>
 		<div >

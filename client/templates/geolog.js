@@ -42,6 +42,7 @@ function upsertPlaceId(location){
 		gotPlaces = results;
 		Session.set('gotPlaces', gotPlaces);
 		var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: Meteor.userId()})._id;
+		console.log('submitCoords to php, gor results ', Meteor.userId(),  results);
 		console.log('submitCoords to php, gor results ', Meteor.userId(), ' results.google_places.results[0] ', results.google_places.results[0], ' coords ', location.coords, ' geoId ', geoId);			
 		GeoLog.upsert(
 			{_id: geoId},

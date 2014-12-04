@@ -355,8 +355,8 @@ Template.selectPlace.events({
 		var place_id = $(event.currentTarget).attr("id");
 
 		var placeName = template.find('#place-' + place_id).value;
-		icon = $(template.find('img')).attr("src");
-		console.log('icon find ', icon);
+/* 		icon = $(template.find('img')).attr("src");
+		console.log('icon find ', icon); */
 		
 		var userLocationId = Session.get('userLocationId');
 		var lat = Session.get('lat');
@@ -378,35 +378,36 @@ Template.selectPlace.events({
 			console.log('checking Places ', Places.find({userLocationId: userLocationId}).count(), Places.find().fetch());	
 		}
 		var myFetch = Places.find().fetch(); */
-		
-		if (!Session.get('allloc')) {
-			var myId = UserLocations.findOne({user_history_location_id: userLocationId});		
-			UserLocations.update({_id: myId._id}, {$set: {name: placeName, place_id: place_id, icon2: icon, confirmed: 1}});	
-		} else {
-			Meteor.call('UserLocationsUpdate', Meteor.userId(), userLocationId, place_id, placeName, function(err,results){
-				console.log('UserLocationsUpdate call results ', results);
-			});
-			var myId = UserLocations.findOne({user_history_location_id: userLocationId});		
-			UserLocations.update({_id: myId._id}, {$set: {name: placeName, place_id: place_id, icon2: icon, confirmed: 1}});	
-		}
-		// And add it to the confirmed places
 		place = MerchantsCache.find({place_id: place_id}, {fields:{_id: 0}}).fetch()[0];
 		place.user_history_location_id = userLocationId;
 		myId = Places.findOne({user_history_location_id: userLocationId});		
 		console.log(' Places.findOne ', myId);
 		
+		if (!Session.get('allloc')) {
+			var myId = UserLocations.findOne({user_history_location_id: userLocationId});		
+			UserLocations.update({_id: myId._id}, {$set: {name: place.name, place_id: place_id, icon2: place.icon, confirmed: 1}});	
+		} else {
+			Meteor.call('UserLocationsUpdate', Meteor.userId(), userLocationId, place_id, place.name, function(err,results){
+				console.log('UserLocationsUpdate call results ', results);
+			});
+			var myId = UserLocations.findOne({user_history_location_id: userLocationId});		
+			UserLocations.update({_id: myId._id}, {$set: {name: place.name, place_id: place_id, icon2: place.icon, confirmed: 1}});	
+		}
+		// And add it to the confirmed places
+
+		
 		if (!myId) {
-			console.log(' Places.findOne inserting for ', myId, place);
+			console.log(' Places.findOne inserting for ', myId, place.name);
 			Places.insert(place);	
 		} else {
-			console.log(' Places.findOne upserting for ', myId._id, place);
+			console.log(' Places.findOne upserting for ', myId._id, place.name);
 			Places.update({_id: myId._id}, {$set: place});
 		}
 		// Session.set("showCreateDialog", false);
 
 		var radius = 50;
 		Session.set('radius', radius);		
-		console.log(' place_id event ', place_id, 'Places', place);
+		console.log(' place_id event ', place_id, 'Places', place.name);
 //		Session.set('searching', false);
 		Session.set('changeplace', false);
 		Overlay.hide();
