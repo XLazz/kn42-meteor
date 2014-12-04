@@ -43,11 +43,17 @@ Template.profileDetails.helpers({
 //		var user_emails = Meteor.user().emails;
 		if (Meteor.userId()) {
 			user_details = Meteor.user();
-			if (!Meteor.user().profile.firstName) {
+			console.log('Meteor.user().profile ', Meteor.user().profile);
+			if (!Meteor.user().profile) {
+				Meteor.call('update_profile', Meteor.userId(), function(err,results){
+					console.log('Meteor.call update_profile ', results);
+				});			
+			}
+/* 			if (!Meteor.user().profile.firstName) {
 				Meteor.call('update_profile', Meteor.userId(), function(err,results){
 					console.log('Meteor.call update_profile ', results);
 				});
-			}
+			} */
 		}
 		console.log('checking profile ', user_details);
 /*     if (user_details.services.google !== undefined) {
