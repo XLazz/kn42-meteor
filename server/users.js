@@ -7,7 +7,7 @@ Accounts.onCreateUser(function(options, user) {
     user.admin = true;
 
 
-	if (user.services) {
+/* 	if (user.services) {
 		var service = _.keys(user.services)[0];
 		var email = user.services[service].email;
 
@@ -41,7 +41,7 @@ Accounts.onCreateUser(function(options, user) {
 		// even worse hackery
 		Meteor.users.remove({_id: existingUser._id}); // remove existing record
 		return existingUser;                          // record is re-inserted
-	}
+	} */
 
   return user;
 });
