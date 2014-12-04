@@ -11,7 +11,8 @@ GetApi = function(userId){
 	if (user_details.emails) {
 		var user_email = user_details.emails[0].address;
 	console.log('GetApi checking api_key 3 ', user_email); 
-	} else if (user_details.services){ 
+	} 
+	if (user_details.services){ 
 		if (user_details.services.google) {
 			var user_email = user_details.services.google.email;
 			// It needs to be some way to connect new google user and old user with the same email
