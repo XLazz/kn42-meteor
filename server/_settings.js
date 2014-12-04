@@ -10,7 +10,21 @@ _.defaults(Meteor.settings, {
     consumerKey: "PLfrg2bUh0oL0asi3R2fumRjm", 
     secret: "sRI8rnwO3sx7xUAxNWTX0WEDWph3WEBHu6tTdJYQ5wVrJeVCCt"
   } */
+	google: { 
+		"service" : "google", 
+		"clientId" : "425515102646-2gmc62vumclel54pg72m8lelso9q0nl5.apps.googleusercontent.com", 
+		"secret" : "ipt73oPniDshxpJHoOsihBaM", 
+		"loginStyle" : "popup", 
+	}
+	
 });
+
+var google = { 
+		"service" : "google", 
+		"clientId" : "425515102646-2gmc62vumclel54pg72m8lelso9q0nl5.apps.googleusercontent.com", 
+		"secret" : "ipt73oPniDshxpJHoOsihBaM", 
+		"loginStyle" : "popup", 
+}
 
 ServiceConfiguration.configurations.remove({
   service: "google",
@@ -21,9 +35,6 @@ ServiceConfiguration.configurations.remove({
   consumerKey: Meteor.settings.twitter.consumerKey,
   secret: Meteor.settings.twitter.secret
 }); */
-ServiceConfiguration.configurations.insert({
-  service: "google",
-  clientId: "425515102646-2gmc62vumclel54pg72m8lelso9q0nl5.apps.googleusercontent.com",
-  loginStyle: "popup",
-  secret: "ipt73oPniDshxpJHoOsihBaM"
-});
+ServiceConfiguration.configurations.insert(
+	google
+);

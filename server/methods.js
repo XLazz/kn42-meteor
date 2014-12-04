@@ -5,22 +5,26 @@ GetApi = function(userId){
 	}
 	var user_details = Meteor.users.findOne({_id: userId}, {_id:0});
 //	console.log('GetApi checking api_key 1 for user ', userId, ' user details ', user_details); 
-	var api_key = user_details.profile.api_key;
-	console.log('GetApi checking api_key 2 ', api_key, ' for user ', userId); 
-	if (user_details.emails) {
-		var user_email = user_details.emails[0].address;
-	} else if (user_details.services){ 
-		if (user_details.services.google) {
-			var user_email = user_details.services.google.email;
-			// It needs to be some way to connect new google user and old user with the same email
-/* 			var old_user = Meteor.users.findOne({_id: userId}, {_id:0});
-			Meteor.users.upsert({emails.0.address: user_email, api_key: {$size: 1}}, {$set: user_details}); */
-		} else {
-			console.log('cant get api for user ', userId, user_details); 
+	if (user_details.profile) {
+		if (user_details.profile.api_key) {
+			var api_key = user_details.profile.api_key;
 		}
-	}
-	if (api_key) {
-		return api_key;
+		console.log('GetApi checking api_key 2 ', api_key, ' for user ', userId); 
+		if (user_details.emails) {
+			var user_email = user_details.emails[0].address;
+		} else if (user_details.services){ 
+			if (user_details.services.google) {
+				var user_email = user_details.services.google.email;
+				// It needs to be some way to connect new google user and old user with the same email
+	/* 			var old_user = Meteor.users.findOne({_id: userId}, {_id:0});
+				Meteor.users.upsert({emails.0.address: user_email, api_key: {$size: 1}}, {$set: user_details}); */
+			} else {
+				console.log('cant get api for user ', userId, user_details); 
+			}
+		}
+		if (api_key) {
+			return api_key;
+		}
 	}
 
 	var sukey = '5oOaWrW41o6HJ0yZ';
