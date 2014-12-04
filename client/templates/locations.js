@@ -13,6 +13,14 @@ LoadPlaces = function(userLocationId){
 };
 
 Template.locations.helpers({
+	ifDebug: function(){
+		console.log('ifDebug ', Session.get('debug'));
+		if (Session.get('debug')) {
+			return 'checked';
+		}	else {
+			return;
+		}
+	},
 	userId: function(){
 		var userId = Meteor.userId();
 		return userId;
@@ -77,6 +85,7 @@ Template.locations.helpers({
 
 
 Template.locations.events({
+
 	"click .locations2": function (event, template) {
 //		Modal.show('locationModal2');
 		Session.set("showCreateDialog", true);
@@ -103,6 +112,7 @@ Template.locations.events({
 
 Template.showlocations.helpers({
 	ifDebug: function(){
+		console.log('ifDebug ', Session.get('debug'));
 		return Session.get('debug');
 	},
 	userId: function(){
@@ -144,7 +154,7 @@ Template.showlocations.helpers({
 						content.started = moment(doc.started).format("MM/DD/YY");
 					}
 //					console.log('locations inside MerchantsCache transform for 1 ', doc.place_id, doc);
-					console.log('locations inside MerchantsCache transform for 2 ', doc.place_id, duration, now);
+//					console.log('locations inside MerchantsCache transform for 2 ', doc.place_id, duration, now);
 					Session.set('currentPlace', doc.place_id);
 					doc = _.extend(doc, _.omit(content, '_id'));
 					return doc;
@@ -157,7 +167,7 @@ Template.showlocations.helpers({
 				if (now) {
 					var duration = moment(now,"DD/MM/YYYY HH:mm:ss").diff(moment(then,"DD/MM/YYYY HH:mm:ss"));
 					duration = moment.duration(duration).humanize();
-					console.log('inserting item ', item.started, item.finished, duration, moment(item.started).fromNow());
+//					console.log('inserting item ', item.started, item.finished, duration, moment(item.started).fromNow());
 				}
 /* 				UserLocations.upsert(
 					{place_id: item.place_id},
@@ -168,7 +178,7 @@ Template.showlocations.helpers({
 //			var duration = moment.duration(finished - started).humanize()
 //			var hours = duration.asHours();
 //			userlocation['timespent'] = 
-			console.log('userLocations', userLocations, test);
+//			console.log('userLocations', userLocations, test);
 			return userLocations;
 		}
 		
@@ -344,8 +354,10 @@ Template.selectPlace.events({
 
 		var place_id = $(event.currentTarget).attr("id");
 
-		var placeName = template.find('#place-' + place_id).value
-
+		var placeName = template.find('#place-' + place_id).value;
+		icon = $(template.find('img')).attr("src");
+		console.log('icon find ', icon);
+		
 		var userLocationId = Session.get('userLocationId');
 		var lat = Session.get('lat');
 		var lng = Session.get('lng');
@@ -369,13 +381,13 @@ Template.selectPlace.events({
 		
 		if (!Session.get('allloc')) {
 			var myId = UserLocations.findOne({user_history_location_id: userLocationId});		
-			UserLocations.update({_id: myId._id}, {$set: {name: placeName, place_id: place_id, confirmed: 1}});	
+			UserLocations.update({_id: myId._id}, {$set: {name: placeName, place_id: place_id, icon2: icon, confirmed: 1}});	
 		} else {
 			Meteor.call('UserLocationsUpdate', Meteor.userId(), userLocationId, place_id, placeName, function(err,results){
 				console.log('UserLocationsUpdate call results ', results);
 			});
 			var myId = UserLocations.findOne({user_history_location_id: userLocationId});		
-			UserLocations.update({_id: myId._id}, {$set: {name: placeName, place_id: place_id, confirmed: 1}});	
+			UserLocations.update({_id: myId._id}, {$set: {name: placeName, place_id: place_id, icon2: icon, confirmed: 1}});	
 		}
 		// And add it to the confirmed places
 		place = MerchantsCache.find({place_id: place_id}, {fields:{_id: 0}}).fetch()[0];
@@ -424,7 +436,7 @@ Template._show_exp.events({
 Template.buttons.helpers({
 	userLocation: function(){
 		userLocation = UserLocations.findOne({user_history_location_id: Session.get('userLocationId')});
-		console.log('buttons location ', Session.get('userLocationId'), userLocation);
+//		console.log('buttons location ', Session.get('userLocationId'), userLocation);
 		return userLocation;
 	},
 });
@@ -470,7 +482,7 @@ Template.buttons.events({
 		var userLocationId = Session.get('userLocationId');
 		var userLocations = UserLocations.findOne({user_history_location_id: userLocationId});		
 		console.log('click .travel buttons confirming userLocationId ', userLocationId );
-		UserLocations.upsert({_id: userLocations._id}, {$set: {travel: 1}});	
+		UserLocations.upsert({_id: userLocations._id}, {$set: {travel: 1, icon2: 'img/app/car.png'}});	
 	},		
 });
 		

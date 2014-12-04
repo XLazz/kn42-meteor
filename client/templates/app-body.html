@@ -88,11 +88,11 @@
         {{/each}}
 				<div class="notification">
 					<div class="title-notification" >
-						<div class="kn42service" style="display: inline-block">service: {{status}}</div>
+						<div class="kn42service" style="display: inline-block">service: {{status}} {{ifDebug}}</div>
 						{{#if isAdmin}}
 							<div style="display: inline-block; float: right">
 								<label for="debug" class="checkbox-inline debug"> 
-									<input type="checkbox" name="debug" id="debug" checked={{isChecked}}/> Debug
+									<input type="checkbox" name="debug" id="debug" autocomplete="off"/> Debug
 								</label>
 							</div>
 						{{/if}}

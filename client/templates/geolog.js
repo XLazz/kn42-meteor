@@ -136,6 +136,7 @@ Template.footergeo.helpers({
 		}
 	},
 	isChecked: function(){
+		console.log('isChecked ', Session.get('debug'));
 		return Session.get('debug');
 	},
 	

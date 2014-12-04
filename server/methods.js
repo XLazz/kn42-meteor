@@ -6,31 +6,34 @@ GetApi = function(userId){
 
 	var user_details = Meteor.users.findOne({_id: userId}, {_id:0});
 	console.log('GetApi checking api_key 1 for user ', userId, ' user details ', user_details); 
+	var user_email = user_details.emails[0].address;
 	
-// copying details from services
-	if (user_details.emails) {
-		var user_email = user_details.emails[0].address;
-	console.log('GetApi checking api_key 3 ', user_email); 
-	} 
+	// copying email from the service account to the base account
 	if (user_details.services){ 
 		if (user_details.services.google) {
 			var user_email = user_details.services.google.email;
 			// It needs to be some way to connect new google user and old user with the same email
 /* 			var old_user = Meteor.users.findOne({_id: userId}, {_id:0});
 			Meteor.users.upsert({emails.0.address: user_email, api_key: {$size: 1}}, {$set: user_details}); */
+			if (!user_details.emails[0].address) {
+				Meteor.users.update({_id: userId},{$set:{'emails.0.address': user_email}}); 
+			} 
 		} else {
 			console.log('cant get api for user ', userId, user_details); 
 		}
+	} else {
+		var user_email = user_details.emails[0].address;
 	}
 	
 // getting api_key	
 	if (user_details.profile) {
 		if (user_details.profile.api_key) {
 			var api_key = user_details.profile.api_key;
+			console.log('GetApi checking api_key 2 ', api_key, ' for user ', userId); 
 			return api_key;
 		}
 	}
-//		console.log('GetApi checking api_key 2 ', api_key, ' for user ', userId); 
+	
 
 	var sukey = '5oOaWrW41o6HJ0yZ';
 	check(arguments, [Match.Any]);
@@ -49,6 +52,7 @@ GetApi = function(userId){
 		console.log('got api_key ', user_details.api_key );
 		Meteor.users.update({_id: userId}, {$set: {'profile.api_key': user_details.api_key}});
 	}
+	console.log('GetApi checking api_key 3 ', user_details, ' for user ', userId); 
 	return user_details.api_key;
 }
 
@@ -218,9 +222,10 @@ Meteor.methods({
 	},
 	
 	'update_profile': function(userId) {	
+	// Checking if we have google user with the same email
 		var user = Meteor.users.findOne({_id: userId});
 		console.log(userId, user);
-		console.log(user.services.google.picture);
+//		console.log(user.services.google.picture);
 		if (user.services.google !== undefined) {
 			var profile = {
 				'firstName': user.services.google.given_name,

@@ -20,12 +20,14 @@
 				{{/if}}
       </div>
     </div>
+		{{#if ifDebug}}
 		<footer class="footer" style="bottom: 0; position: absolute;">
 			<div class="footer">
 				<button class="button reloadlocations btn btn-danger btn-xs btn-modal"> Reload Data </button>
 				<button class="button updatelocations btn btn-primary btn-xs btn-modal"> Update </button>
 			</div>
 		</footer>
+		{{/if}}
   </div>
 </template>
 
@@ -53,7 +55,7 @@
 						</div>
 						<div style="display:inline-block; width: 10%; max-width: 40px; vertical-align: top;">
 <!-- 							<img style="width: auto; height: auto; max-width: 40px" src="{{#unless travel}}{{icon}}{{/unless}}" /> -->
-							<img style="width: auto; height: auto; max-width: 40px" src="{{icon}}" />
+							<img style="width: auto; height: auto; max-width: 40px" src="{{#if icon2}}  {{icon2}} {{else}} {{icon}} {{/if}}" />
 						</div>
 					</div>
 					{{#if ifDebug}}<div> {{finished}}</div>{{/if}}
@@ -79,24 +81,26 @@
 					content
 					{{content}}
 				{{/each}}
-				<div class="kn-container">
+				<div class="kn-container setlocations {{place_id}}" style="overflow:hidden; height: auto; min-height: 40px; padding:5px" id="{{place_id}}">
 					<div class="kn-leftcol">{{#if name}} {{name}} {{else}} Unknown {{user_history_location_id}}  {{/if}}</div>
 					<div class="kn-rightcol">
 						<form class="form-inline" >
 							<div class="form-group">
-								<input type="button" class="button setlocations btn btn-primary" id="{{place_id}}" value="Set" />
+<!-- 								<input type="button" class="button setlocations btn btn-primary" id="{{place_id}}" value="Set" /> -->
+								<img class="setlocations3" id="icon-{{place_id}}" style="width:40px" src="{{#if icon2}}  {{icon2}} {{else}} {{icon}} {{/if}}" />
 								<input type="hidden" id="place-{{place_id}}" value="{{name}}">
 							</div>
 						</form>	
 					</div>
 				</div>	
 			{{/each}}
-			<div class="kn-container">
+			<div class="kn-container setlocations {{place_id}}" style="overflow:hidden; height: auto; min-height: 40px; padding:5px" id="{{place_id}}">
 				<div class="kn-leftcol">Elsewhere</div>
 				<div class="kn-rightcol">
 					<form class="form-inline" >
 						<div class="form-group">
-							<input type="button" class="button elsewhere btn btn-primary" id="0" value="Set" />
+<!-- 							<input type="button" class="button elsewhere btn btn-primary" id="0" value="Set" /> -->
+							<img class="setlocations3" id="icon-{{place_id}}" style="width:40px" src="img/app/rss_icon.png" />
 							<input type="hidden" id="place-0" value="else">
 						</div>
 					</form>	

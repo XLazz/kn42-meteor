@@ -138,7 +138,14 @@ Template.appBody.helpers({
 			return 'stopped';
 		}
 	},
-	
+	ifDebug: function(){
+		console.log('ifDebug ', Session.get('debug'));
+		if (Session.get('debug')) {
+			return 'checked';
+		}	else {
+			return;
+		}
+	},	
 
 });
 

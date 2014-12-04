@@ -45,6 +45,10 @@ Template.homeinside.helpers({
 		if (!Meteor.userId()) {return;};
 //		if (!Session.get('changeplace')) {return};
 		var ready = Meteor.subscribe('UserLocations').ready();
+		if (!UserLocations.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}})) {
+			//empty UserLocations, lets load from php
+			Meteor.call('getLocations', Meteor.userId(), 'list');
+		}
 //		console.log('currentplaces before findOne ', i++, UserLocations.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {started: -1}}) );
 		var places = UserLocations.findOne({
 			userId: Meteor.userId(), place_id: {$not: {$size: 0}}
@@ -66,6 +70,7 @@ Template.homeinside.helpers({
 				return _.extend(doc, _.omit(content, '_id'));
 			}
 		});
+		if (!places) {return;}
 		places['timespent'] = moment(places.started).fromNow();
 //		ready = places.ready();
 		
@@ -86,6 +91,7 @@ Template.homeinside.helpers({
 	status: function(){
 		if (!Meteor.userId()) {return;};
 		var lastGeoLog = GeoLog.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {timestamp: -1}});
+		if (!lastGeoLog) {return};
 		if (!lastGeoLog.status) {
 			if (!Session.get('geoback')) {
 				return 'service is not running';

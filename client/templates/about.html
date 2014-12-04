@@ -40,15 +40,15 @@
 	{{#if user_details.profile.twitter}} Twtr connected {{else}} <button class="btn button" id='connect_twtr'>Twitter</button> {{/if}}
 <!-- 	<button class="btn button" id='server'>check</button> -->
 
-	<div><img src="{{user_details.profile.picture}}" style="width:30%"/></div>
+	<div id="profile_update"><img src="{{user_details.profile.picture}}" style="width:30%"/></div>
 	<div>{{user_details.profile.firstName}} {{user_details.profile.lastName}}</div>
 	<div>{{user_details.profile.country}} {{user_details.profile.place}}</div>
 </template>
 
 <template name="profilePic">
 	<div>
-		<div><a href="/profile"><img src="{{user_details.profile.picture}}" style="width:100%"/></a></div>
-		<div>{{user_details.profile.firstName}} {{user_details.profile.lastName}}</div>
+		<div id="profile_update"><a href="/profile"><img src="{{user_details.profile.picture}}" style="width:100%"/></a></div>
+<!-- 		<div>{{user_details.profile.firstName}} {{user_details.profile.lastName}}</div> -->
 	</div>
 </template>
 
