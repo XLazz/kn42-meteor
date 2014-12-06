@@ -132,12 +132,13 @@ Template.profileDetails.events({
 		if (Meteor.user()) {
 			console.log('connecting with fsqr');
 			Meteor.connectWith("foursquare");
+			Meteor.call('updateProfile', Meteor.userId);
 		}		
 	},
 	'click #update_profile': function (event, template) {
 		console.log('pic was clicked', Meteor.user());
-		Meteor.call('update_profile', Meteor.userId(), function(err,results){
-			console.log('Meteor.call update_profile ', results);
+		Meteor.call('showProfile', Meteor.userId(), function(err,results){
+			console.log('Meteor.call update_profile ', err, results);
 //			console.log('Meteor.call update_profile ', results.google);
 //			Meteor.users.upsert({_id: Meteor.userId()}, { $set: result });
 			return results;

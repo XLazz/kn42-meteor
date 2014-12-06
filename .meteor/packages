@@ -39,7 +39,7 @@ jeremy:selectize
 mrt:jquery-csv
 service-configuration
 request
-mondora:connect-with
 msamoylov:accounts-foursquare
 msamoylov:foursquare
+ipstas:connect-with
 

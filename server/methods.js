@@ -89,7 +89,7 @@ GetApi = function(userId){
 
 Meteor.methods({
 
-	getKey: function(userId){
+	updateProfile: function(userId){
 		if (!userId) {
 			return;
 		}
@@ -235,10 +235,11 @@ Meteor.methods({
 		GooglePlaces.remove({});
 	},
 	
-	'update_profile': function(userId) {	
+	'showProfile': function(userId) {	
 	// Checking if we have google user with the same email
 //		var user = Meteor.users.findOne({_id: userId});
 		var user = Meteor.users.find({}).fetch();
+		var config = ServiceConfiguration.configurations.find().fetch();
 		console.log(userId, user);
 		var fsqrOauth = GetFsqr(userId);
 //		console.log(user.services.google.picture);
@@ -259,7 +260,7 @@ Meteor.methods({
 		} */
 		user.fsqrOauth = fsqrOauth;
 
-		return user;
+		return {user: user, config: config};
 	},
 	
 	uploadCoords: function(userId, api_key){
