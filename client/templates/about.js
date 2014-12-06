@@ -44,39 +44,25 @@ Template.profileDetails.helpers({
 //		var user_emails = Meteor.user().emails;
 		if (Meteor.userId()) {
 			var user_details = Meteor.user();
-//			console.log('Meteor.user() ', Meteor.user());
-			if (user_details.profile !== undefined){
-				create_profile = 1;
-			} else {
-				if (!Meteor.user().profile.firstName){
+			console.log('Meteor.user() ', Meteor.user());
+			if (!user_details) {
+				return;
+			}
+			if ((!user_details.profile.name) || (!user_details.profile.picture)){
 					create_profile = 1;
-				}
+					console.log('create_profile 1 ', Meteor.user());
+			}
+			if ((user_details.profile.foursquare) || (!user_details.profile.foursquareId)){
+					create_profile = 1;
+					console.log('create_profile foursquare ', Meteor.user());
 			}
 			if ((create_profile) && (user_details)) {
 				console.log('user_details ', user_details);
-				if (!user_details.emails) {
-					Meteor.call('getKey', Meteor.userId(), function(err, results){
-						user_details = Meteor.user();
-					});
-				} else {
-					var user_email = user_details.emails[0].address;
-					console.log('Meteor.user().profile ', user_email, user_details );
-					var name = user_email.split('@')[0];
-					Meteor.users.update({_id: userId},{$set:{'profile.firstName': name, 'profile.lastName': ' ', 'profile.picture': "img/app/robot.jpg"}});
-				}
-			}
-				
-
-/* 			if (!Meteor.user().profile) {
-				Meteor.call('update_profile', Meteor.userId(), function(err,results){
-					console.log('Meteor.call update_profile ', results);
-				});			
-			} else if (!Meteor.user().profile.firstName) {
-				Meteor.call('update_profile', Meteor.userId(), function(err,results){
-					console.log('Meteor.call update_profile ', results);
+			
+				Meteor.call('updateProfile', Meteor.userId(), function(err, results){
+					user_details = Meteor.user();
 				});
-			} */
-
+			}
 		}
 //		console.log('checking profile ', user_details);
 /*     if (user_details.services.google !== undefined) {
@@ -103,12 +89,9 @@ Template.profileDetails.events({
 		if (Meteor.user()) {
 			console.log('connecting with google');
 			Meteor.connectWith("google");
-			Meteor.call('update_profile', Meteor.userId(), function(err,results){
-				console.log('Meteor.call update_profile ', results);
-//			console.log('Meteor.call update_profile ', results.google);
-//			Meteor.users.upsert({_id: Meteor.userId()}, { $set: result });
-				return results;
-			});		
+				Meteor.call('updateProfile', Meteor.userId(), function(err, results){
+					user_details = Meteor.user();
+				});	
 		}
 	},
 	'click #connect_fb': function (event, template) {
@@ -117,6 +100,9 @@ Template.profileDetails.events({
 		if (Meteor.user()) {
 				console.log('connecting with fb');
 				Meteor.connectWith("facebook");
+				Meteor.call('updateProfile', Meteor.userId(), function(err, results){
+					user_details = Meteor.user();
+				});
 		}		
 	},
 	'click #connect_twtr': function (event, template) {
@@ -125,6 +111,9 @@ Template.profileDetails.events({
 		if (Meteor.user()) {
 				console.log('connecting with twtr');
 				Meteor.connectWith("twitter");
+				Meteor.call('updateProfile', Meteor.userId(), function(err, results){
+					user_details = Meteor.user();
+				});
 		}		
 	},
 	'click #connect_fsqr': function (event, template) {
@@ -132,7 +121,9 @@ Template.profileDetails.events({
 		if (Meteor.user()) {
 			console.log('connecting with fsqr');
 			Meteor.connectWith("foursquare");
-			Meteor.call('updateProfile', Meteor.userId);
+				Meteor.call('updateProfile', Meteor.userId(), function(err, results){
+					user_details = Meteor.user();
+				});
 		}		
 	},
 	'click #update_profile': function (event, template) {
