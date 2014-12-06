@@ -137,6 +137,7 @@ Template.profileDetails.events({
 	},
 	'click #update_profile': function (event, template) {
 		console.log('pic was clicked', Meteor.user());
+		Meteor.call('updateProfile', Meteor.userId);
 		Meteor.call('showProfile', Meteor.userId(), function(err,results){
 			console.log('Meteor.call update_profile ', err, results);
 //			console.log('Meteor.call update_profile ', results.google);
