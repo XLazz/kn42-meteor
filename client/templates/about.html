@@ -22,6 +22,7 @@
 </template>
 
 <template name="profile">
+<div style="padding: 5px">
 	{{> loginButtons}}
 	{{#if userId}}
 
@@ -29,20 +30,26 @@
 	{{else}}
 		
 	{{/if}}
+</div>
 <!-- 	<button class="btn-primary btn logmein" style="bottom:auto">Log me in</button> -->
 </template>
 
 <template name="profileDetails">
-	<br/>
-	Connect your accounts: <br />
-	{{#if user_details.profile.google}} Google connected {{else}} <button class="btn button" id='connect_google'>Google</button> {{/if}}
-	{{#if user_details.profile.facebook}} FB connected {{else}} <button class="btn button" id='connect_fb'>Facebook</button> {{/if}}
-	{{#if user_details.profile.twitter}} Twtr connected {{else}} <button class="btn button" id='connect_twtr'>Twitter</button> {{/if}}
-<!-- 	<button class="btn button" id='server'>check</button> -->
 
-	<div id="profile_update"><img src="{{user_details.profile.picture}}" style="width:30%"/></div>
-	<div>{{user_details.profile.firstName}} {{user_details.profile.lastName}}</div>
-	<div>{{user_details.profile.country}} {{user_details.profile.place}}</div>
+	<div style="float:left; width: 40%">
+		<div id="profile_update"><img src="{{user_details.profile.picture}}" style="width:30%"/></div>
+		<div>{{user_details.profile.firstName}} {{user_details.profile.lastName}}</div>
+		<div>{{user_details.profile.country}} {{user_details.profile.place}}</div>
+	</div>
+	<div style="float:right">
+		Connect your accounts: <br />
+		{{#if user_details.profile.google}} Google connected {{else}} <button class="btn button" id='connect_google'>Google</button> {{/if}}<br />
+		{{#if user_details.profile.facebook}} FB connected {{else}} <button class="btn button" id='connect_fb'>Facebook</button> {{/if}}<br />
+		{{#if user_details.profile.twitter}} Twtr connected {{else}} <button class="btn button" id='connect_twtr'>Twitter</button> {{/if}}<br />
+		{{#if user_details.profile.foursquare}} Foursquare connected {{else}} <button class="btn button" id='connect_fsqr'>Foursquare</button> {{/if}}<br />
+		<button class="btn button" id='update_profile'>check</button>
+	</div>
+
 </template>
 
 <template name="profilePic">

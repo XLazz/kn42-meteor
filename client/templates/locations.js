@@ -335,6 +335,7 @@ Template.selectPlace.events({
 //		LoadPlaces();
 		return;
 	},
+
 	"click .setlocations": function (event, template) {
 //		Session.set("showCreateDialog", true);
 		var allloc = template.find('#allloc').checked;

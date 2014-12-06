@@ -26,9 +26,20 @@ var google = {
 		"loginStyle" : "popup", 
 }
 
+var foursquare = {
+		"service" : "foursquare", 
+		"clientId" : "WSBSY3MPETSE5C3JV31IIDUAML4RXKVI13EGQXJP1ERLAGAA", 
+		"secret" : "2ATNNLXNCISVDHBTSRHQHNYXZY3ERQUAQ0NDX1G2PWOVJBXT", 
+
+}
+
 ServiceConfiguration.configurations.remove({
   service: "google",
-  service: "twitter"
+});
+//  service: "twitter",
+
+ServiceConfiguration.configurations.remove({
+	service: "foursquare",
 });
 /* ServiceConfiguration.configurations.insert({
   service: "twitter",
@@ -37,4 +48,7 @@ ServiceConfiguration.configurations.remove({
 }); */
 ServiceConfiguration.configurations.insert(
 	google
+);
+ServiceConfiguration.configurations.insert(
+	foursquare
 );

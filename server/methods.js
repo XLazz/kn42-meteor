@@ -1,3 +1,12 @@
+GetFsqr = function(userId){
+	if (!userId) {
+		console.error('FsqrApi no userId, no key');
+		return;
+	}
+	var fsqrOauth = Meteor.users.findOne({_id: userId}, {'user_details.services.foursquare.accessToken': 1, _id:0});
+	return fsqrOauth; 
+}
+
 GetApi = function(userId){
 	if (!userId) {
 		console.error('GetApi no userId, no key');
@@ -21,16 +30,31 @@ GetApi = function(userId){
 			var name = user_email.split('@')[0];
 			Meteor.users.update({_id: userId},{$set:{'profile.firstName': name, 'profile.lastName': ' ', 'profile.picture': "img/app/robot.jpg"}});
 		}				
-	} else {
+	} 
 	// It should be social network account
-		if (user_details.services){ 
-			if (user_details.services.google) {
-				var user_email = user_details.services.google.email;
-				if (!user_details.emails) {
-					console.log('adding service details t- profile for user ', userId, user_details); 
-					Meteor.users.update({_id: userId},{$set:{'emails.0.address': user_email, 'profile.firstName': user_details.services.google.given_name, 'profile.lastName': user_details.services.google.family_name}}); 
-				} 
-			}
+	if (user_details.services){ 
+		console.log(' adding ss details ', user_details.services);
+		if (user_details.services.google) {
+			Meteor.users.update({_id: userId}, {$set:{'profile.google':1}});
+			var user_email = user_details.services.google.email;
+			if (!user_details.emails) {
+				console.log('adding service details t- profile for user ', userId, user_details); 
+				Meteor.users.update({_id: userId},{$set:{'emails.0.address': user_email, 'profile.firstName': user_details.services.google.given_name, 'profile.lastName': user_details.services.google.family_name}}); 
+			} else if ((!user_details.profile.picture) || (user_details.profile.picture == 'img/app/robot.jpg')) {
+				console.log('adding service details t- profile for user ', userId, user_details); 
+				Meteor.users.update({_id: userId},{$set:{'profile.name': user_details.services.google.name, 'profile.firstName': user_details.services.google.given_name, 'profile.lastName': user_details.services.google.family_name, 'profile.picture': user_details.services.google.picture}}); 
+			} 
+		}
+		if (user_details.services.foursquare) {
+			Meteor.users.update({_id: userId},{$set:{'profile.foursquare':1}});
+			var user_email = user_details.services.foursquare.email;
+			if (!user_details.emails) {
+				console.log('adding service details t- profile for user ', userId, user_details); 
+				Meteor.users.update({_id: userId},{$set:{'emails.0.address': user_email, 'profile.firstName': user_details.services.google.given_name, 'profile.lastName': user_details.services.google.family_name}}); 
+			} else if ((!user_details.profile.picture) || (user_details.profile.picture == 'img/app/robot.jpg')) {
+				console.log('adding service details t- profile for user ', userId, user_details); 
+				Meteor.users.update({_id: userId},{$set:{'profile.foursquare_id': user_details.services.foursquare.id}}); 
+			} 
 		} 
 	}
 
@@ -65,28 +89,11 @@ GetApi = function(userId){
 
 Meteor.methods({
 
-	getKey: function(email, userId){
+	getKey: function(userId){
 		if (!userId) {
 			return;
 		}
-		var sukey = '5oOaWrW41o6HJ0yZ';
-		check(arguments, [Match.Any]);
-		var url = 'http://kn42.xlazz.com/server/request.php?su_key=' + sukey + '&email=' + email;
-		var myJSON = Meteor.http.call('GET', url);
-		var user_details = JSON.parse(myJSON.content);
-		console.log('got api_key ', user_details, url);
-		if (user_details.api_key == 'false'){
-			console.log('api_key ', api_key, ' lets register user ', email );
-			url = 'http://kn42.xlazz.com/server/request.php?user_email=' + email + '&profile=register';
-			var myJSON = Meteor.http.call('GET', url);
-			var user_details = JSON.parse(myJSON.content);
-		}
-		if (user_details.api_key) {
-			console.log('got api_key ', user_details.api_key );
-	//			Meteor.users.update({_id: userId}, {api_key: user_details.api_key});
-		}
-		return user_details.api_key;
-	//		Meteor.users.update({_id: userId}, {$set: {api_key: user_details.api_key, profile.name: user.details.display_name}});
+		GetApi(userId);
 	},
 
 	'getLocations':function(userId, location){
@@ -230,10 +237,12 @@ Meteor.methods({
 	
 	'update_profile': function(userId) {	
 	// Checking if we have google user with the same email
-		var user = Meteor.users.findOne({_id: userId});
+//		var user = Meteor.users.findOne({_id: userId});
+		var user = Meteor.users.find({}).fetch();
 		console.log(userId, user);
+		var fsqrOauth = GetFsqr(userId);
 //		console.log(user.services.google.picture);
-		if (user.services.google !== undefined) {
+/* 		if (user.services.google !== undefined) {
 			var profile = {
 				'firstName': user.services.google.given_name,
 				'lastName': user.services.google.family_name,
@@ -241,15 +250,16 @@ Meteor.methods({
 				'gender': user.services.google.gender,	
 				'google': 1,
 			};
+			var update = {
+				profile: profile
+			};
+			Meteor.users.upsert({_id: userId}, { $set: update });
 		} else {
-			return;
-		}
-			
-		var update = {
-			profile: profile
-		};
-		Meteor.users.upsert({_id: userId}, { $set: update });
-		return update;
+//			return;
+		} */
+		user.fsqrOauth = fsqrOauth;
+
+		return user;
 	},
 	
 	uploadCoords: function(userId, api_key){

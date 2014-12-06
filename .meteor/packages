@@ -21,7 +21,6 @@ mdg:camera
 mdg:geolocation
 
 # Packages from the app:
-request
 houston:admin
 insecure
 autopublish
@@ -38,7 +37,9 @@ reywood:publish-composite
 accounts-google
 jeremy:selectize
 mrt:jquery-csv
-mondora:connect-with
 service-configuration
+request
+mondora:connect-with
 msamoylov:accounts-foursquare
+msamoylov:foursquare
 
