@@ -10,6 +10,9 @@ GetFsqr = function(userId){
 UpdateProfile = function(userId){
 	var user_details = Meteor.users.findOne({_id: userId}, {_id:0});
 	var user_email;
+	if (!user_details) {
+		return;
+	}
 	if (user_details.services){ 
 //		console.log(' adding ss details ', user_details);
 		if (user_details.services.google) {

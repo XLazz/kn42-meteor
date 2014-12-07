@@ -45,43 +45,50 @@ Template.homeinside.helpers({
 		if (Meteor.userId()) {return 'true'};
 	},
 	
-	currentplaces: function(){
+	currentlocation: function(){
 		if (!Meteor.userId()) {return;};
 //		if (!Session.get('changeplace')) {return};
 		var ready = Meteor.subscribe('UserLocations').ready();
 		if (!UserLocations.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}})) {
 			//empty UserLocations, lets load from php
-			Meteor.call('getLocations', Meteor.userId(), 'list');
+			Meteor.call('getLocations', Meteor.userId(), 'list', function(err, results) {
+				console.log('Meteor.call getLocations', results);
+				return;
+			});
 		}
 //		console.log('currentplaces before findOne ', i++, UserLocations.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {started: -1}}) );
-		var places = UserLocations.findOne({
-			userId: Meteor.userId(), place_id: {$not: {$size: 0}}
-		}, {
-			sort: {started: -1},
-			transform: function(doc){
-				var content = Places.findOne({place_id: doc.place_id});
-				Session.set('userLocationId', doc.user_history_location_id);
-					if (!content) {
-					content = MerchantsCache.findOne({place_id: doc.place_id});
-				}
-				if (!content) {
-					console.log('no content, going for call to getPlaces');
-					Meteor.call( 'getPlaces', Meteor.userId(), doc, 50);
-				}
-				var olddoc = doc;
-				doc.content = content;
-//				console.log('gotPlaces inside UserLocations transform for ', doc.place_id, _.extend(doc, _.omit(content, '_id')) );
-				return _.extend(doc, _.omit(content, '_id'));
-			}
-		});
-		if (!places) {return;}
-		places['timespent'] = moment(places.started).fromNow();
+		var userLocation = UserLocations.findOne({
+			userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {started: -1}});
+		if (!userLocation) {return;}
+		
 //		ready = places.ready();
 		
 //		lastPlaces.started = UserLocations.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {started: -1}}).started;
 //		console.log('home currentplaces lastPlaces 2 ', ready, places);
-		return places;
+		Session.set('userLocationId', userLocation.user_history_location_id);
+		return userLocation;
 		
+	},
+	
+	currentplace: function(){
+		userLocation = UserLocations.findOne({user_history_location_id: Session.get('userLocationId')});
+		var place = Places.findOne({place_id: UserLocations.findOne({user_history_location_id: Session.get('userLocationId')}).place_id});
+		
+		if (!place) {
+			place = MerchantsCache.findOne({place_id: UserLocations.findOne({user_history_location_id: Session.get('userLocationId')}).place_id});
+		}
+		if (!place) {
+			console.log('no content, going for call to getPlaces');
+			Meteor.call( 'getPlaces', Meteor.userId(), userLocation, 50, function(err, results){
+				console.log('Meteor.call getPlaces', results);
+				return {'currentplace': results};
+			});
+			return place;
+		}
+		
+		place.timespent = moment(UserLocations.findOne({user_history_location_id: Session.get('userLocationId')}).started).fromNow();
+		console.log('currentplace started ', UserLocations.findOne({user_history_location_id: Session.get('userLocationId')}).started );
+		return place;
 	},
 	
 	placeconfirmed: function(){

@@ -27,15 +27,15 @@
 		<div class="list-subtitle">See more</div>
 		<div class="list-activities">
 			{{#if ifUser}}
-				{{#with currentplaces}}
+				{{#if currentlocation}}
 					<div style="width: 100%; height: auto; padding: 5px">
 						<div class="div-locations" style="width: 100%; height: auto" id="{{user_history_location_id}}">
 							<div style="display:inline-block; width: 85%; vertical-align: top;">
 								
-								{{#if name}} {{name}} {{else}} Unknown {{/if}} <br/>
+								{{#if currentplace.name}} {{currentplace.name}} {{else}} Unknown {{/if}} <br/>
 								<span style="font-size: smaller">
-									{{currentplaces.vicinity}} <br />
-									Started {{timespent}}
+									{{currentplace.vicinity}} <br />
+									{{#if currentplace.timespent}} Started {{currentplace.timespent}} {{/if}}
 								</span>
 								
 							</div>
@@ -43,10 +43,10 @@
 								<img style="width: auto; height: auto; max-width: 40px" src="{{currentplaces.icon}}" />
 							</div>
 						</div>
-						<div>status: {{status}}</div>
+						<div>status: {{#if currentlocation.moving}} moving {{else}} stationary {{/if}}</div>
 						<div>{{> buttons}}</div>
 					</div>
-				{{/with}}
+				{{/if}}
 			{{else}}
 				We need to create profile for you before you can start using service
 				<a href="{{pathFor 'about'}}"> <button class="btn btn-primary" id="goprofile" style="width:100%">Login</button></a>
