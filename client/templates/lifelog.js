@@ -8,7 +8,7 @@ LoadPlaces = function(userLocation){
 	});
 };
 
-Template.locations.helpers({
+Template.lifelog.helpers({
 	ifDebug: function(){
 		console.log('ifDebug ', Session.get('debug'));
 		if (Session.get('debug')) {
@@ -30,7 +30,7 @@ Template.locations.helpers({
 	},	
 });
 
-Template.locations.events({
+Template.lifelog.events({
 
 	"click .locations2": function (event, template) {
 //		Modal.show('locationModal2');
