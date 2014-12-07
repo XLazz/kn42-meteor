@@ -154,7 +154,7 @@ Template.homeinside.events({
 		return Session.set('changeplace', true);
 	},
 	
-	'click .confirm': function (event, template) {
+/* 	'click .confirm': function (event, template) {
 
 //		Meteor.call('getLocations','list');
 		var user_history_location_id = $(event.currentTarget).attr("id");
@@ -191,7 +191,7 @@ Template.homeinside.events({
 		}
 			
 		return Session.set('changeplace', false);
-	},
+	}, */
 
 	"click .expselect": function (event, template) {
 		Session.set('showexp', true);
@@ -273,6 +273,7 @@ Template.buttons.events({
 	"click .confirm": function (event, template) {
 		var curr_event = template.find('input').value.replace(/\s+/g, '');
 		console.log('buttons click .confirm curr event ', curr_event, $(event.currentTarget) );
+		console.log('click .confirm buttons confirming userLocation ');
 		var userLocation = Session.get('userLocation');
 		console.log('click .confirm buttons confirming userLocation ', userLocation );
 		if (!userLocation.name) {
