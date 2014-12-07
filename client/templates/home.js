@@ -274,9 +274,9 @@ Template.buttons.events({
 		var curr_event = template.find('input').value.replace(/\s+/g, '');
 		console.log('buttons click .confirm curr event ', curr_event, $(event.currentTarget) );
 		var userLocation = Session.get('userLocation');
-		console.log('click .confirm buttons confirming userLocation ', userLocation._id );
-		if (!userLocations.name) {
-			alert('Unknown name for that location. Please click on Change button first');
+		console.log('click .confirm buttons confirming userLocation ', userLocation );
+		if (!userLocation.name) {
+			alert('Cant confirm Unknown. Please click on Change button first');
 			return;
 		}
 		UserLocations.upsert({_id: userLocation._id}, {$set: {confirmed: 1, travel: ''}});		
@@ -293,7 +293,6 @@ Template.buttons.events({
 		var userLocation = Session.get('userLocation');
 //		Meteor.call('getLocations','list');
 		console.log('locations events ', Session.get('userLocation'));	
-		UserLocations.upsert({_id: userLocation._id}, {$set: {confirmed: 1, travel: ''}});		
 		Overlay.show('selectPlace');	
 	},
 	"click .travel": function (event, template) {

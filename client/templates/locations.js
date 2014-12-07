@@ -34,7 +34,6 @@ Template.locations.events({
 
 	"click .locations2": function (event, template) {
 //		Modal.show('locationModal2');
-		Session.set("showCreateDialog", true);
 		console.log('locations events 2 ',Session.get("showCreateDialog"), this);
 	},
 	"click .reloadlocations": function (event, template) {
@@ -208,7 +207,7 @@ Template.selectPlace.helpers({
 		console.log('wait initiated ', Session.get('searching'));
 		if (Session.get('searching') == true) {
 			console.log('Session searching', Session.get('searching'));
-			return {'wait': Session.get('searching')};
+//			return {'wait': Session.get('searching')};
 		}
 		return;
 	},
@@ -216,19 +215,19 @@ Template.selectPlace.helpers({
 		var location;
 		console.log('places selectPlace ', Session.get('userLocation').place_id, Session.get('elsewhere'), this);
 		
-
 		gotPlaces = MerchantsCache.find({lat: Session.get('userLocation').latitude, lng: Session.get('userLocation').longitude, place_id: {$exists: true }});
+//		gotPlaces = MerchantsCache.find({lat: Session.get('userLocation').latitude, lng: Session.get('userLocation').longitude});
 		if (gotPlaces.count()) {
 			console.log('got places from MerchantsCache ', gotPlaces.count(), gotPlaces.fetch(), Session.get('userLocation').user_history_location_id);
 			return gotPlaces;		
 		}
 		
-		console.log('gotPlaces MerchantsCache http call for 1 ', UserLocations.findOne({user_history_location_id: Session.get('userLocation').user_history_location_id}, {sort: {started: -1}}), Session.get('radius'));
+		console.log('gotPlaces no MerchantsCache ', UserLocations.findOne({user_history_location_id: Session.get('userLocation').user_history_location_id}, {sort: {started: -1}}), Session.get('radius'));
 		
 		Meteor.call( 'getPlaces', Meteor.userId(), Session.get('userLocation'), Session.get('radius'), function(err,results){
-			
+//			Session.set('searching', false);
 			console.log('gotPlaces MerchantsCache http call for 2 ', Session.get('radius'), results);
-			return;
+//			return results;
 		});
 
 		
@@ -241,7 +240,7 @@ Template.selectPlace.helpers({
 
 Template.selectPlace.events({
 	'click .cancel': function(event, template) {
-		console.log('selectPlace click .cancel ',Session.get("showCreateDialog"), this);
+		console.log('selectPlace click .cancel ', this);
 		// Session.set("showCreateDialog", false);
 		var radius = 50;
 		Session.set('radius', radius);
@@ -254,6 +253,7 @@ Template.selectPlace.events({
 		
 //		Session.set('gotPlaces', gotPlaces);	
 		var radius = Session.get('radius') + 200;
+		var elsewhere = 1;
 		Session.set('radius', radius);
 		Session.set('searching', true);
 //		Meteor.call('removeAllPlaces', Meteor.userId());
@@ -262,9 +262,11 @@ Template.selectPlace.events({
 			Meteor.userId(), 
 			Session.get('userLocation'), 
 			radius, 
+			elsewhere,
 			function(err,results){
 				gotPlaces = results;
 				console.log('selectPlace events elsewhere inside ', Session.get('userLocation').user_history_location_id, radius, results , this );
+				Session.set('searching', false);
 				return gotPlaces;
 			}
 		);
@@ -300,6 +302,7 @@ Template.selectPlace.events({
 		var userLocationId = Session.get('userLocation').user_history_location_id;
 		Session.set('place_id', place_id);
 		Session.set('placeName', placeName);
+		UserLocations.upsert({_id: Session.get('userLocation')._id}, {$set: {confirmed: 1, travel: ''}});		
 		console.log('set location', userLocationId, place_id, placeName);	
 
 		place = MerchantsCache.find({place_id: place_id}, {fields:{_id: 0}}).fetch()[0];
