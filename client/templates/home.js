@@ -312,13 +312,13 @@ UI.registerHelper('ifConfirmed2', function () {
 	if (!Session.get('userLocation'))
 		return Template._no_exp2;
 	
-	console.log('isBlock ifConfirmed2 ', isBlock, Session.get('userLocationId'), this.valueOf(), this);
+//	console.log('isBlock ifConfirmed2 ', isBlock, Session.get('userLocationId'), this.valueOf(), this);
 
   if (isBlock == Session.get('userLocation').user_history_location_id) {
 		console.log('isBlock check ', isBlock);
     return Template._show_exp2;
   } else {
-		console.log('isBlock check 2 ', isBlock);
+//		console.log('isBlock check 2 ', isBlock);
     return Template._no_exp2;
 	}
 });
