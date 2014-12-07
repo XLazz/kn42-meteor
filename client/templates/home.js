@@ -202,14 +202,14 @@ Template.selectExperience.helpers({
 	experiences: function(){
 		userId = Meteor.userId();
 		var userLocation = Session.get('userLocation');
-		var services = Experiences.find({ place_id: UserLocations.findOne({user_history_location_id: userLocation.user_history_location_id}).place_id , userId: userId });
-		console.log('experiences Experiences ', Session.get('userLocation'), UserLocations.findOne({user_history_location_id: userLocation.user_history_location_id}).place_id, services.fetch());
+		var services = Experiences.find({ place_id: userLocation.place_id, userId: userId });
+		console.log('experiences Experiences ', Session.get('userLocation'), userLocation.place_id, services.fetch());
 		if (services.count()) {
 			console.log('experiences return ', services.fetch());
 			return services.fetch();
 		}
-		var services = Services.find({place_id: UserLocations.findOne({user_history_location_id: userLocation.user_history_location_id}).place_id});
-		console.log('experiences Services ', UserLocations.findOne({user_history_location_id: userLocation.user_history_location_id}).place_id, services.fetch());
+		var services = Services.find({place_id: userLocation.place_id});
+		console.log('experiences Services ',userLocation.place_id, services.fetch());
 		if (services.count()) {
 			return services.fetch();
 		}
@@ -217,11 +217,14 @@ Template.selectExperience.helpers({
 	types: function(){
 		userId = Meteor.userId();
 		var userLocation = Session.get('userLocation');
-		var currentPlace = Places.findOne({place_id: UserLocations.findOne({user_history_location_id: userLocation.user_history_location_id}).place_id});
-		console.log('experiences Places ', UserLocations.findOne({user_history_location_id: userLocation.user_history_location_id}).place_id, currentPlace);
+		var currentPlace = Places.findOne({place_id: userLocation.place_id});
+		console.log('experiences Places ', userLocation.place_id, currentPlace);
 		if (currentPlace){		
 			return currentPlace.types;
 		}
+		currentPlace = MerchantsCache.findOne({place_id: userLocation.place_id});
+		console.log('experiences MerchantsCache ', userLocation.place_id, currentPlace);		
+		return currentPlace.types;
 	},
 	
 	currentPlace: function() {
@@ -239,7 +242,7 @@ Template.selectExperience.events({
 		Experiences.insert({
 			userId: Meteor.userId(),
 			experience: experience,
-			place_id: UserLocations.findOne({user_history_location_id: Session.get('userLocation')}).place_id,
+			place_id: Session.get('userLocation').place_id,
 			created: new Date(),
 		});		
 		/* experiences.forEach(function (item, index, array){
