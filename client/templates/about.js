@@ -52,7 +52,7 @@ Template.profileDetails.helpers({
 					create_profile = 1;
 					console.log('create_profile 1 ', Meteor.user());
 			}
-			if ((user_details.profile.foursquare) || (!user_details.profile.foursquareId)){
+			if ((user_details.profile.foursquare) && (!user_details.profile.foursquareId)){
 					create_profile = 1;
 					console.log('create_profile foursquare ', Meteor.user());
 			}

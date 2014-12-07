@@ -65,17 +65,21 @@ Template.homeinside.helpers({
 		
 //		lastPlaces.started = UserLocations.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {started: -1}}).started;
 //		console.log('home currentplaces lastPlaces 2 ', ready, places);
-		Session.set('userLocationId', userLocation.user_history_location_id);
-		return userLocation;
+		Session.set('userLocation', userLocation);
+		return userLocation._id;
 		
 	},
 	
 	currentplace: function(){
-		userLocation = UserLocations.findOne({user_history_location_id: Session.get('userLocationId')});
-		var place = Places.findOne({place_id: UserLocations.findOne({user_history_location_id: Session.get('userLocationId')}).place_id});
+		userLocation = Session.get('userLocation');
+		if (!userLocation)
+			return;
+		if (!userLocation.user_history_location_id)
+			return;
+		var place = Places.findOne({place_id: userLocation.place_id});
 		
 		if (!place) {
-			place = MerchantsCache.findOne({place_id: UserLocations.findOne({user_history_location_id: Session.get('userLocationId')}).place_id});
+			place = MerchantsCache.findOne({place_id: userLocation.place_id});
 		}
 		if (!place) {
 			console.log('no content, going for call to getPlaces');
@@ -86,13 +90,17 @@ Template.homeinside.helpers({
 			return place;
 		}
 		
-		place.timespent = moment(UserLocations.findOne({user_history_location_id: Session.get('userLocationId')}).started).fromNow();
-		console.log('currentplace started ', UserLocations.findOne({user_history_location_id: Session.get('userLocationId')}).started );
+		if (!userLocation.name) {
+			UserLocations.update({_id: userLocation._id}, {$set:{name: place.name}});
+		}
+			
+		place.timespent = moment(userLocation.started).fromNow();
+		console.log('currentplace started ', userLocation.started );
 		return place;
 	},
 	
 	placeconfirmed: function(){
-		currentPlace = UserLocations.findOne({user_history_location_id: Session.get('userLocationId'), confirmed: 1});
+		currentPlace = UserLocations.findOne({user_history_location_id: Session.get('userLocation').user_history_location_id, confirmed: 1});
 		if (currentPlace) {
 			console.log('experiences placeconfirmed ', currentPlace.place_id);
 			return currentPlace;
@@ -147,7 +155,7 @@ Template.homeinside.events({
 	},
 	
 	'click .confirm': function (event, template) {
-//		var userLocationId = $(event.currentTarget).attr("id");
+
 //		Meteor.call('getLocations','list');
 		var user_history_location_id = $(event.currentTarget).attr("id");
 		
@@ -193,32 +201,31 @@ Template.homeinside.events({
 Template.selectExperience.helpers({
 	experiences: function(){
 		userId = Meteor.userId();
-		var userLocationId = Session.get('userLocationId');
-//		var currentPlaceId = UserLocations.findOne({user_history_location_id: userLocationId}).place_id;
-		var services = Experiences.find({ place_id: UserLocations.findOne({user_history_location_id: userLocationId}).place_id , userId: userId });
-		console.log('experiences Experiences ', Session.get('userLocationId'), UserLocations.findOne({user_history_location_id: userLocationId}).place_id, services.fetch());
+		var userLocation = Session.get('userLocation');
+		var services = Experiences.find({ place_id: UserLocations.findOne({user_history_location_id: userLocation.user_history_location_id}).place_id , userId: userId });
+		console.log('experiences Experiences ', Session.get('userLocation'), UserLocations.findOne({user_history_location_id: userLocation.user_history_location_id}).place_id, services.fetch());
 		if (services.count()) {
 			console.log('experiences return ', services.fetch());
 			return services.fetch();
 		}
-		var services = Services.find({place_id: UserLocations.findOne({user_history_location_id: userLocationId}).place_id});
-		console.log('experiences Services ', UserLocations.findOne({user_history_location_id: userLocationId}).place_id, services.fetch());
+		var services = Services.find({place_id: UserLocations.findOne({user_history_location_id: userLocation.user_history_location_id}).place_id});
+		console.log('experiences Services ', UserLocations.findOne({user_history_location_id: userLocation.user_history_location_id}).place_id, services.fetch());
 		if (services.count()) {
 			return services.fetch();
 		}
 	},
 	types: function(){
 		userId = Meteor.userId();
-		var userLocationId = Session.get('userLocationId');
-		var currentPlace = Places.findOne({place_id: UserLocations.findOne({user_history_location_id: userLocationId}).place_id});
-		console.log('experiences Places ', UserLocations.findOne({user_history_location_id: userLocationId}).place_id, currentPlace);
+		var userLocation = Session.get('userLocation');
+		var currentPlace = Places.findOne({place_id: UserLocations.findOne({user_history_location_id: userLocation.user_history_location_id}).place_id});
+		console.log('experiences Places ', UserLocations.findOne({user_history_location_id: userLocation.user_history_location_id}).place_id, currentPlace);
 		if (currentPlace){		
 			return currentPlace.types;
 		}
 	},
 	
 	currentPlace: function() {
-		return Session.get('userLocationId');
+		return Session.get('userLocation').user_history_location_id;
 	},
 });
 
@@ -226,14 +233,13 @@ Template.selectExperience.events({
 	'submit form': function(event){
     event.preventDefault();
 		console.log(event.target.selected);
-		var experience = $( "#select-" + Session.get('userLocationId') +"-empty").val();
+		var experience = $( "#select-" + Session.get('userLocation').user_history_location_id +"-empty").val();
 //		var experiences = $.csv.toArray(experiences);
 		console.log('experiences selectExperience.events ', experience);
 		Experiences.insert({
 			userId: Meteor.userId(),
 			experience: experience,
-			place_id: UserLocations.findOne({user_history_location_id: Session.get('userLocationId')}).place_id,
-//			user_history_location_id: Session.get('userLocationId'),
+			place_id: UserLocations.findOne({user_history_location_id: Session.get('userLocation')}).place_id,
 			created: new Date(),
 		});		
 		/* experiences.forEach(function (item, index, array){
@@ -253,4 +259,67 @@ Template.selectExperience.events({
 		return experience;
 	},
 
+});
+
+Template.buttons.helpers({
+	userLocation: function(){
+		userLocation = UserLocations.findOne({user_history_location_id: Session.get('userLocation').user_history_location_id});
+//		console.log('buttons location ', Session.get('userLocationId'), userLocation);
+		return userLocation;
+	},
+});
+
+Template.buttons.events({
+	"click .confirm": function (event, template) {
+		var curr_event = template.find('input').value.replace(/\s+/g, '');
+		console.log('buttons click .confirm curr event ', curr_event, $(event.currentTarget) );
+		var userLocation = Session.get('userLocation');
+		console.log('click .confirm buttons confirming userLocation ', userLocation._id );
+		if (!userLocations.name) {
+			alert('Unknown name for that location. Please click on Change button first');
+			return;
+		}
+		UserLocations.upsert({_id: userLocation._id}, {$set: {confirmed: 1, travel: ''}});		
+	},	 
+	"click .undo": function (event, template) {
+		var userLocation = Session.get('userLocation');
+		console.log('click .confirm buttons confirming userLocation ', userLocation._id );
+		UserLocations.upsert({_id: userLocation._id}, {$set: {confirmed: '', travel: ''}});		
+	},	
+	"click .locations": function (event, template) {
+		Session.set('searching', false);
+		console.log('locations events ',this);
+		Session.set('radius', 50);
+		var userLocation = Session.get('userLocation');
+//		Meteor.call('getLocations','list');
+		console.log('locations events ', Session.get('userLocation'));	
+		UserLocations.upsert({_id: userLocation._id}, {$set: {confirmed: 1, travel: ''}});		
+		Overlay.show('selectPlace');	
+	},
+	"click .travel": function (event, template) {
+//		alert('coming soon');
+		var userLocation = Session.get('userLocation');
+		console.log('click .travel buttons confirming userLocation ', userLocation.user_history_location_id );
+		UserLocations.upsert({_id: userLocation._id}, {$set: {travel: 1, icon2: 'img/app/car.png'}});	
+	},		
+});
+
+UI.registerHelper('ifConfirmed2', function () {
+  // extract boolean value from data context. the data context is
+  // always an object -- in this case it's a wrapped boolean object.
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean
+  var isBlock = this.valueOf();
+//	isBlock = Number.isInteger(isBlock);
+	if (!Session.get('userLocation'))
+		return Template._no_exp2;
+	
+	console.log('isBlock ifConfirmed2 ', isBlock, Session.get('userLocationId'), this.valueOf(), this);
+
+  if (isBlock == Session.get('userLocation').user_history_location_id) {
+		console.log('isBlock check ', isBlock);
+    return Template._show_exp2;
+  } else {
+		console.log('isBlock check 2 ', isBlock);
+    return Template._no_exp2;
+	}
 });

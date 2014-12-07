@@ -170,32 +170,106 @@ Meteor.methods({
 	},
 	
 	'getPlaces': function(userId, userLocation, radius ){
-
+		if (!userLocation)
+			return;
+		if (!radius)
+			var radius = 50;
 		check(arguments, [Match.Any]);
-		console.log('calling php on server for lat and lng radius', userId, userLocation.longitude , radius);
+		
+		if (MerchantsCache.findOne({lat: userLocation.latitude, lng: userLocation.longitude})) {
+//			console.log ('request 1 ', userLocation.user_history_location_id, userLocation.place_id);
+			if (MerchantsCache.findOne({lat: userLocation.latitude, lng: userLocation.longitude}).name) {
+//			console.log ('already got places for the ', userLocation.user_history_location_id);
+				return MerchantsCache.findOne({lat: userLocation.latitude, lng: userLocation.longitude}).name;
+			} else {
+				var fromNow = moment().valueOf() - moment(MerchantsCache.findOne({lat: userLocation.latitude, lng: userLocation.longitude}).updated).valueOf();
+				
+				if (fromNow < 30000) {
+//					console.log ('request too recent, ski[[ong ', userLocation.user_history_location_id, userLocation.place_id);
+					return;
+				} else {
+					console.log ('request 1a ', userLocation.user_history_location_id, userLocation.place_id, fromNow, MerchantsCache.findOne({lat: userLocation.latitude, lng: userLocation.longitude}));
+				}
+			}
+			
+		} 
+		
+		MerchantsCache.upsert(
+			{
+				lat: userLocation.latitude,
+				lng: userLocation.longitude,
+			},
+			{$set:{
+				lat: userLocation.latitude,
+				lng: userLocation.longitude,
+				user_history_location_id: userLocation.user_history_location_id,
+				updated: new Date(),
+			}}
+		);	
+		
+		console.log('calling php on server for lat and lng radius', userId, userLocation.user_history_location_id , userLocation.place_id, radius);
 		var api_key = GetApi(userId);
 		var url = 'http://kn42.xlazz.com/server/request.php?api_key=';
 		var myJSON = Meteor.http.call('GET',url + api_key + '&location=places&lat=' + userLocation.latitude + '&long=' + userLocation.longitude + '&radius=' + radius);
 			
 		myMerchants = JSON.parse(myJSON.content);
 		myMerchants = myMerchants.google_places.results;
-//		console.log('inserting merchants 0 ', myMerchants[0]);
-		for (var i = 0; i < myMerchants.length; i++) {
-			console.log('inserting merchants ', myMerchants[i].place_id, myMerchants[i].name);
-			MerchantsCache.upsert(
-				{place_id: myMerchants[i].place_id},
-				{
-					icon: myMerchants[i].icon,
-					place_id: myMerchants[i].place_id,
-					name: myMerchants[i].name,
-					vicinity: myMerchants[i].vicinity,
-					types: myMerchants[i].types,
-					geometry: myMerchants[i].geometry,
-					lat: userLocation.latitude,
-					lng: userLocation.longitude
-				}
-			);
+		if (!myMerchants)
+			return;
+		if (!myMerchants[0])
+			return;
+			
+		if (!UserLocations.findOne({user_history_location_id: userLocation.user_history_location_id}).name) {
+			if (myMerchants[0].name) {
+				name = myMerchants[0].name;
+			} else if (myMerchants[1].name) {
+				name = myMerchants[1].name;
+			}			
+			console.log('updating userLocation with name ', name);
+			UserLocations.update({user_history_location_id: userLocation.user_history_location_id}, {$set: {name: name}});
 		}
+//		console.log('inserting merchants 0 ', myMerchants[0]);
+		for (var i = 0; i < myMerchants.length; i++) {		
+			if (MerchantsCache.findOne({lat: userLocation.latitude, lng: userLocation.longitude,	place_id: {$size: 0} })){
+				console.log('inserting merchants ', myMerchants[i].place_id, myMerchants[i].name);
+				MerchantsCache.upsert(
+					{
+						lat: userLocation.latitude,
+						lng: userLocation.longitude,					
+					},{
+						icon: myMerchants[i].icon,
+						place_id: myMerchants[i].place_id,
+						name: myMerchants[i].name,
+						vicinity: myMerchants[i].vicinity,
+						types: myMerchants[i].types,
+						geometry: myMerchants[i].geometry,
+						lat: userLocation.latitude,
+						lng: userLocation.longitude,
+						updated: new Date(),
+						user_history_location_id: userLocation.user_history_location_id,
+					}
+				);			
+			} else if (!MerchantsCache.findOne({place_id: myMerchants[i].place_id })){
+				MerchantsCache.upsert(
+					{
+						place_id: myMerchants[i].place_id,	
+					},{
+						icon: myMerchants[i].icon,
+						place_id: myMerchants[i].place_id,
+						name: myMerchants[i].name,
+						vicinity: myMerchants[i].vicinity,
+						types: myMerchants[i].types,
+						geometry: myMerchants[i].geometry,
+						lat: userLocation.latitude,
+						lng: userLocation.longitude,
+						updated: new Date(),
+						user_history_location_id: userLocation.user_history_location_id,
+					}
+				);					
+			}
+		}
+		if (!myMerchants[0])
+			return;
 		if (myMerchants[0].name) {
 			return myMerchants[0];
 		} else {

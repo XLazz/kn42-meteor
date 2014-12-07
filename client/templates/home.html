@@ -87,7 +87,7 @@
 	<div>
 		<div style="display: inline-block; width: auto; vertical-align: top; ">
 			<form class="form-inline buttons" id="{{userLocation.user_history_location_id}}">
-				<input type="button" class="button {{#if userLocation.confirmed}}undo{{else}}confirm{{/if}} btn btn-small" data-toggle="modal" data-target="#myModal" id="{{userLocation.user_history_location_id}}" value="
+				<input type="button" class="button {{#if userLocation.confirmed}}undo{{else}}confirm{{/if}} btn btn-small" id="{{userLocation.user_history_location_id}}" value="
 					{{#if userLocation.confirmed}}Undo{{else}}Conf{{/if}}
 				" />
 				{{#with userLocation}}
@@ -135,4 +135,11 @@
 		});
 		</script>
 	</div>
+</template>
+
+<template name="_show_exp2">
+	{{> buttons}}
+</template>
+
+<template name="_no_exp2">
 </template>

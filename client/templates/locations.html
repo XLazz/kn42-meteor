@@ -36,6 +36,7 @@
 		{{> selectPlace}}
 	{{/if}} -->
 	{{#unless isInOverlay}}
+		{{#if latest}}{{latest}}{{/if}}
 		{{#each locations}}
 				<div style="width: 100%; height: auto; padding: 5px">
 					<div class="div-locations" style="width: 100%; height: auto" id="{{user_history_location_id}}">
@@ -61,6 +62,9 @@
 					</div>
 					{{#if ifDebug}}<div> {{finished}}</div>{{/if}}
 					<div style="width: 100%; height: auto">
+<!-- 					{{#if selected}}
+						{{> buttons}}
+					{{/if}} -->
 						{{#ifConfirmed2 user_history_location_id}}
 							content
 						{{/ifConfirmed2}}
@@ -139,12 +143,7 @@
 <template name="_no_exp">
 </template>
 
-<template name="_show_exp2">
-	{{> buttons}}
-</template>
 
-<template name="_no_exp2">
-</template>
 
 
 
