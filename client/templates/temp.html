@@ -3,16 +3,31 @@
     {{> nav title='Profile' black=true}}
 
     <div class="content-scrollable">
-      <div class="bg-image about">
+<!--       <div class="bg-image about">
         <h1 class="title-about">
           <img src="img/app/title-about.svg" alt="Temp"/>
         </h1>
       </div>
       <div class="description-about">
 				This part of the app comes soon
-      </div>
+				
+				
+      </div> -->
+			{{> entrySignIn}}
     </div>
     <a href="https://www.meteor.com" class="btn-primary js-open" target="_blank">Built with meteor</a>
-  </div>	
+
+  </div>
+	
+
+</template>
+
+<template name="signin">
+<button class="kn-signin btn-twitter">Sign In With Google</button>
+{{ special }}
+<!-- {{> createAccountForm}}
+{{> passwordRecoveryForm}} -->
+{{> loginForm}}
+
 
 </template>

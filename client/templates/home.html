@@ -25,8 +25,9 @@
 
 		<h2 class="list-title">You are at:</h2>
 		<div class="list-subtitle">See more</div>
-		<div class="list-activities">
-			{{#if ifUser}}
+		
+		{{#if ifUser}}
+			<div class="list-activities">
 				{{#if currentlocation}}
 					<div style="width: 100%; height: auto; padding: 5px">
 						<div class="div-locations" style="width: 100%; height: auto" id="{{user_history_location_id}}">
@@ -46,17 +47,22 @@
 						<div>status: {{#if currentlocation.moving}} moving {{else}} stationary {{/if}}</div>
 						<div>{{> buttons}}</div>
 					</div>
-				{{/if}}
-			{{else}}
-				We need to create profile for you before you can start using service
-				<a href="{{pathFor 'about'}}"> <button class="btn btn-primary" id="goprofile" style="width:100%">Login</button></a>
+				{{else}}
 				
-			{{/if}}
-			<br />			
+				{{/if}}
+			</div>
+		{{else}}
+		
+			<div style="width: 100%; height: auto; padding: 5px">
+				We need to create profile for you before you can start using service			
+			</div>
+			<a href="{{pathFor 'about'}}" class="btn-primary" id="goprofile">Login</a>
+			<br />
+		{{/if}}
+			
+		<div >		
 		</div>
-		<div >
 
-		</div>
 		<div>
 <!-- 		{{#if changeplace}}
 			{{> selectPlace}}
@@ -142,4 +148,8 @@
 </template>
 
 <template name="_no_exp2">
+</template>
+
+<template name="common-kn">
+
 </template>

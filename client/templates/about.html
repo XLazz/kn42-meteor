@@ -3,65 +3,57 @@
     {{> nav title='Profile' black=true}}
 
     <div class="content-scrollable">
-      <div class="bg-image about">
-        <h1 class="title-about">
-          <img src="img/app/title-about.svg" alt="Profile"/>
-        </h1>
-      </div>
-      <div class="description-about">
-        profile details
-      </div>
-			<br /> <br />
-      <div>
-				{{> profile}}
-				{{> overlay}}
-      </div>
+			{{#if userId}}
+				<div class="bg-image about">
+					<h1 class="title-about">
+						<img src="img/app/title-about.svg" alt="Profile"/>
+					</h1>
+				</div>
+				<div class="description-about">
+					profile details
+				</div>
+				<br /> <br />
+				<div>
+					{{> profileDetails}}
+				</div>
+			{{else}}
+				{{> entrySignIn}}
+			{{/if}}
     </div>
-    <a href="https://www.meteor.com" class="btn-primary js-open" target="_blank">Built with meteor</a>
+		{{#if userId}}
+			<a href="{{pathFor 'entrySignOut'}}" class="btn-primary js-open">{{{beforeSignOut}}}{{t9n "signOut"}}</a>
+		{{/if}}
   </div>
 </template>
 
-<template name="profile">
-<div style="padding: 5px">
-	{{> loginButtons}}
-	{{#if userId}}
-
-		{{> profileDetails}}
-	{{else}}
-		
-	{{/if}}
-</div>
-<!-- 	<button class="btn-primary btn logmein" style="bottom:auto">Log me in</button> -->
-</template>
 
 <template name="profileDetails">
 
-	<div style="float:left; width: 30%; max-width: 600px">
-		<div id="profile_update"><img src="{{user_details.profile.picture}}" style="width:100%"/></div>
-		<div>{{user_details.profile.firstName}} {{user_details.profile.lastName}}</div>
-		<div>{{user_details.profile.country}} {{user_details.profile.place}}</div>
+	<div style="padding: 5px">
+		<div style="float:left; width: 30%; max-width: 600px">
+			<div id="profile_update"><img src="{{user_details.profile.picture}}" style="width:100%"/></div>
+			<div>{{user_details.profile.name}}</div>
+			<div>{{user_details.profile.country}} {{user_details.profile.place}}</div>
+		</div>
+		<div style="float:right">
+			Connect your accounts: <br />
+			{{#if user_details.profile.google}} Google connected {{else}} <button class="btn button" id='connect_google'>Google</button> {{/if}}<br />
+			{{#if user_details.profile.facebook}} FB connected {{else}} <button class="btn button" id='connect_fb'>Facebook</button> {{/if}}<br />
+			{{#if user_details.profile.twitter}} Twtr connected {{else}} <button class="btn button" id='connect_twtr'>Twitter</button> {{/if}}<br />
+			{{#if user_details.profile.foursquare}} Foursquare connected {{else}} <button class="btn button" id='connect_fsqr'>Foursquare</button> {{/if}}<br />
+			<button class="btn button" id='update_profile'>check</button>
+		</div>
 	</div>
-	<div style="float:right">
-		Connect your accounts: <br />
-		{{#if user_details.profile.google}} Google connected {{else}} <button class="btn button" id='connect_google'>Google</button> {{/if}}<br />
-		{{#if user_details.profile.facebook}} FB connected {{else}} <button class="btn button" id='connect_fb'>Facebook</button> {{/if}}<br />
-		{{#if user_details.profile.twitter}} Twtr connected {{else}} <button class="btn button" id='connect_twtr'>Twitter</button> {{/if}}<br />
-		{{#if user_details.profile.foursquare}} Foursquare connected {{else}} <button class="btn button" id='connect_fsqr'>Foursquare</button> {{/if}}<br />
-		<button class="btn button" id='update_profile'>check</button>
-	</div>
-
+	
 </template>
 
 <template name="profilePic">
 	<div>
 		<div id="profile_update"><a href="/profile"><img src="{{user_details.profile.picture}}" style="width:100%"/></a></div>
-<!-- 		<div>{{user_details.profile.firstName}} {{user_details.profile.lastName}}</div> -->
+<!-- 		<div>{{user_details.profile.name}}</div> -->
 	</div>
 </template>
 
-<template name="loginoverlay">
-	{{> loginButtons}}
-</template>
 
 
 

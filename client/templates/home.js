@@ -326,3 +326,16 @@ UI.registerHelper('ifConfirmed2', function () {
     return Template._no_exp2;
 	}
 });
+
+Template.common-kn.helpers({
+	status: function() {
+		if (Session.get('geoback')) {
+			return 'running';
+		} else {
+			return 'stopped';
+		}
+	},
+	ifService: function() {
+		return Session.get('geoback')
+	},
+});

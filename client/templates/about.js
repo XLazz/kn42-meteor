@@ -6,35 +6,6 @@ Template.about.helpers({
 	},
 });
 
-Template.profile.helpers({
-	userId: function(){
-		var userId = Meteor.userId();
-		console.log ('profile helpers ', Meteor.userId(), Meteor.user()); 
-		if (userId){
-
-			return userId;
-		} else {
-			Overlay.show('loginoverlay');		
-		}
-	},
-});
-
-Template.profile.events({
-	'click .logmein': function (event, template) {
-		Overlay.show('loginoverlay');		
-	},
-});
-
-Template.loginoverlay.helpers({
-	userId: function(){
-		var userId = Meteor.userId();
-		if (userId){
-			Overlay.hide();		
-			return userId;
-		} 
-	},
-});
-
 Template.profileDetails.helpers({
 	user_details: function(){
 		var user_email;
@@ -77,11 +48,21 @@ Template.profileDetails.helpers({
 
 Template.profilePic.helpers({
 	user_details: function(){
+		var user_email;
+		var userId = Meteor.userId();
+		var api_key;
+		var create_profile;
 //		var user_emails = Meteor.user().emails;
 		if (Meteor.userId()) {
-			return Meteor.user();
+			var user_details = Meteor.user();
+			console.log('Meteor.user() ', Meteor.user());
+			if (!user_details) {
+				return;
+			}
 		}
+		return user_details;
 	},
+	
 });
 
 Template.profileDetails.events({
