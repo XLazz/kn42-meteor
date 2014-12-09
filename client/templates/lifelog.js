@@ -189,8 +189,14 @@ Template.showlocations.events({
 			return;
 		}
 		console.log('click on div ', userLocationId, place);
-		var myId = UserLocations.findOne({user_history_location_id: userLocationId});
-		UserLocations.update({_id: myId._id}, {$set:{name: place.name}});
+		if (!userLocation.name){
+			var myId = UserLocations.findOne({user_history_location_id: userLocationId});
+			UserLocations.update({_id: myId._id}, {$set:{name: place.name}});
+			userLocation = UserLocations.findOne({user_history_location_id: userLocationId});
+			Session.set('userLocation', userLocation);
+		}
+//		userLocation = UserLocations.findOne({user_history_location_id: userLocationId});
+//		Session.set('userLocation', userLocation);
 		
 //		Session.get('userLocationId');
 	},	
@@ -299,10 +305,8 @@ Template.selectPlace.events({
 /* 		icon = $(template.find('img')).attr("src");
 		console.log('icon find ', icon); */
 		
-		var userLocationId = Session.get('userLocation').user_history_location_id;
-		Session.set('place_id', place_id);
-		Session.set('placeName', placeName);
-		UserLocations.upsert({_id: Session.get('userLocation')._id}, {$set: {confirmed: 1, travel: ''}});		
+		var userLocationId = Session.get('userLocation')._id;
+
 		console.log('set location', userLocationId, place_id, placeName);	
 
 		place = MerchantsCache.find({place_id: place_id}, {fields:{_id: 0}}).fetch()[0];
@@ -311,15 +315,16 @@ Template.selectPlace.events({
 		console.log(' Places.findOne ', myId);
 		
 		if (!Session.get('allloc')) {
-			var myId = UserLocations.findOne({user_history_location_id: userLocationId});		
-			UserLocations.update({_id: myId._id}, {$set: {name: place.name, place_id: place_id, icon2: place.icon, confirmed: 1}});	
+			UserLocations.update({_id: userLocationId}, {$set: {name: place.name, place_id: place_id, icon2: place.icon, confirmed: 1, travel: ''}});	
 		} else {
 			Meteor.call('UserLocationsUpdate', Meteor.userId(), userLocationId, place_id, place.name, function(err,results){
 				console.log('UserLocationsUpdate call results ', results);
 			});
-			var myId = UserLocations.findOne({user_history_location_id: userLocationId});		
-			UserLocations.update({_id: myId._id}, {$set: {name: place.name, place_id: place_id, icon2: place.icon, confirmed: 1}});	
+
+			UserLocations.update({_id: userLocationId}, {$set: {name: place.name, place_id: place_id, icon2: place.icon, confirmed: 1, travel: ''}});	
 		}
+		var userLocation = UserLocations.findOne({user_history_location_id: userLocationId});
+		Session.set('userLocation', userLocation);
 		// And add it to the confirmed places
 
 		

@@ -79,9 +79,15 @@
 		<h2 class="list-title">Events and places around you</h2>
 		<div class="list-subtitle">Hand-picked by the wisdom of automated processing</div>
 		<div class="list-recipes">
+			{{#if ifUser}}
+				{{#if currentUser.profile.foursquare}}		
+					{{> venues}}
+				{{/if}}
+			{{/if}}
 <!-- 			{{#each featuredRecipes}}
 				{{> recipeItem recipe=this size='small'}}
 			{{/each}} -->
+			
 		</div>
 
 		<a href="{{pathFor 'lifelog'}}" class="btn-primary">Explore your recent locations</a>
@@ -143,13 +149,31 @@
 	</div>
 </template>
 
+<template name="venues">
+	{{#if venuesNearby}}
+		{{#each venuesNearby}}
+			<div>
+				{{#if url}}
+					<a href="{{url}}" target=_blank>{{name}}</a>
+				{{else}}
+					{{name}}
+				{{/if}}
+				distance {{location.distance}}
+			</div>
+		{{/each}}
+	{{/if}}
+
+<!-- 	<button class="button updatevenues btn btn-primary btn-xs btn-modal" style="bottom:0"> Update Venues</button> -->
+</template>
+
 <template name="_show_exp2">
 	{{> buttons}}
+	{{> venues}}
 </template>
 
 <template name="_no_exp2">
 </template>
 
-<template name="common-kn">
+<template name="common_kn">
 
 </template>

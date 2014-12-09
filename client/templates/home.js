@@ -45,6 +45,12 @@ Template.homeinside.helpers({
 		if (Meteor.userId()) {return 'true'};
 	},
 	
+	currentUser: function(){
+		if (!Meteor.userId()) {return;}
+		console.log('curr user ',  Meteor.user());
+		return Meteor.user();
+	},
+	
 	currentlocation: function(){
 		if (!Meteor.userId()) {return;};
 //		if (!Session.get('changeplace')) {return};
@@ -327,7 +333,7 @@ UI.registerHelper('ifConfirmed2', function () {
 	}
 });
 
-Template.common-kn.helpers({
+Template.common_kn.helpers({
 	status: function() {
 		if (Session.get('geoback')) {
 			return 'running';
@@ -338,4 +344,105 @@ Template.common-kn.helpers({
 	ifService: function() {
 		return Session.get('geoback')
 	},
+});
+
+Template.venues.helpers({
+	venuesNearby: function(){
+		var userId = Meteor.userId();
+		var callFsqr;
+		var query = {}
+/* 		query.radius = 1000;
+		query.what = 'coffee'; */
+		var userLocation = Session.get('userLocation');
+		console.log('venuesNearby 1 ', userLocation);
+		if (userLocation.name) {
+			var name = userLocation.name;
+			name = name.split(" ");
+			query.what = name[0];
+			query.radius = 50;
+			console.log('venuesNearby 1.2 ', name, query);
+		}
+		if (!userId) {return} ;
+//		var userLocation = GeoLog.findOne({userId: userId}, {sort: {created: -1}}).location;
+		
+		var venues = VenuesCache.findOne(
+		{
+			latitude: userLocation.latitude,
+			longitude: userLocation.longitude,
+		});
+		
+/* 		if (venues) {
+			console.log('venuesNearby ', venues.foursquare);
+			return venues.foursquare;
+		} */
+		if (!userLocation)  {return} ;
+		if (!venues) {
+			console.log('venuesNearby 2 ', venues);
+			callFsqr = true;
+		} else {
+			if (!venues.foursquare) {
+				console.log('venuesNearby 3 ', venues);
+				callFsqr = true;
+			} else {
+				console.log('venuesNearby 3.5 ', venues.foursquare);
+				if (!venues.foursquare.length) {
+					console.log('venuesNearby 3.6 ', venues.foursquare);
+					callFsqr = true;
+				} else {
+					var name = venues.foursquare[0].name;
+					name = name.substr(0,name.indexOf(' '));
+					console.log('venuesNearby 3.6 ', venues.foursquare[0].name);
+					if (query.what !== name) {
+						console.log('venuesNearby 4 ', venues);
+						callFsqr = true;
+					}
+				}
+			}
+		}
+		var timediff = moment().valueOf() - Session.get('fsqrStamp');
+		console.log('venuesNearby 5 ', userLocation.user_history_location_id, callFsqr, timediff, venues);	
+//		if ((!venues) && ((Session.get('fsqrStamp') < moment().valueOf() - 10) || (!Session.get('fsqrStamp'))) ) {	
+		if ((callFsqr) && ((moment().valueOf() - Session.get('fsqrStamp') > 1000) || (!Session.get('fsqrStamp'))) ) {
+			Session.set('fsqrStamp', moment().valueOf());
+			Meteor.call('venuesFsqr', userId, userLocation, query, function(err, results) {
+				console.log('Meteor.call venuesFsqr', results);
+				return results;
+			});
+		}
+		if (venues) {
+			return venues.foursquare;
+		}
+	},
+});
+
+Template.venues.events({
+	"click .updatevenues": function (event, template) {
+		var userId = Meteor.userId();
+		var userLocation = Session.get('userLocation');
+		var query = {};
+		
+		var venues;
+		
+		if (!Meteor.userId()) {
+			return;
+		}
+		if (!userLocation) {
+			var userLocation = GeoLog.findOne({userId: userId}, {sort: {created: -1}}).location;
+		} else {
+			var name = userLocation.name;
+			query.what = name.substr(0,name.indexOf(' '));
+			query.radius = 200;
+		}
+		console.log('updatevenues events ', query.what, userLocation );
+		Meteor.call('removevenuesFsqr', userId, userLocation, query, function(err, results) {
+			console.log('Meteor.call event removevenuesFsqr', userLocation.name, results);
+			return results;
+		});
+/* 		Meteor.call('venuesFsqr', userId, userLocation, query, function(err, results) {
+			console.log('Meteor.call event venuesFsqr', userLocation.name, results);
+			return results;
+		}); */
+		return venues;
+	},
+
 });

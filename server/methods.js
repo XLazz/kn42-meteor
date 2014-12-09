@@ -160,11 +160,11 @@ Meteor.methods({
 		return userLocations;
 	},
 	
-	'UserLocationsUpdate':function( userId, user_history_location_id, place_id, placeName){
-		var old_place = UserLocations.findOne({user_history_location_id: user_history_location_id}, {fields: {place_id: 1, _id:0}});	
+	'UserLocationsUpdate':function( userId, userLocationId, place_id, placeName){
+		var old_place = UserLocations.findOne({_id: userLocationId}, {fields: {place_id: 1, _id:0}});	
 		var found = UserLocations.find({userId: userId, place_id: old_place.place_id}).fetch();	
 		UserLocations.update({userId: userId, place_id: old_place.place_id}, {$set:{name: placeName, place_id: place_id}}, {multi:true});	
-//		UserLocations.update({userId: userId, updating: user_history_location_id}, {$set: {updating: '', place_id: place_id}});	
+
 		console.log('updated UserLocations for all ', userId, ' old place ', old_place.place_id, ' new place ', place_id, placeName);
 		return found;
 	},
@@ -326,7 +326,7 @@ console.log('calling php on server for lat and lng radius 4 ', userId);
 		return {user: user, config: config};
 	},
 	
-	uploadCoords: function(userId, api_key){
+	'uploadCoords': function(userId, api_key){
 		if (!userId) {
 			return;
 		}
@@ -341,7 +341,7 @@ console.log('calling php on server for lat and lng radius 4 ', userId);
 		return coords;
 	},
 
-	submitCoords: function(userId, timestamp, coords){
+	'submitCoords': function(userId, timestamp, coords){
 		if (!userId) {
 			return;
 		}
@@ -354,5 +354,7 @@ console.log('calling php on server for lat and lng radius 4 ', userId);
 		got_location = JSON.parse(myJSON.content);
 		console.log('submitCoords got_location ', api_key, coords, got_location, url);
 		return got_location;
-	}
+	},
+
+
 });

@@ -3,24 +3,43 @@
     {{> nav title='Friends' black=true}}
 
     <div class="content-scrollable">
-<!--       <div class="bg-image about">
-        <h1 class="title-about">
-          <img src="img/app/title-about.svg" alt="Temp"/>
-        </h1>
-      </div>
-      <div class="description-about">
-				This part of the app comes soon
-				
-				
-      </div> -->
-			{{> foursquare}}
+			<div class="bg-image about">
+				<h1 class="title-about">
+					<img src="img/app/title-about.svg" alt="Profile"/>
+				</h1>
+			</div>
+			<div class="description-about">
+				Friends
+			</div>
+			<br />
+			<div style="opaque: 0.8">
+				{{> friends_details}}
+			</div>
     </div>
+		<button class="button updatefriends btn btn-primary btn-xs btn-modal" style="bottom:0"> Update Friends</button>
   </div>
 
 </template>
 
+<template name="friends_details">
+	{{#if currentUser}}
+		{{currentUser.profile.name}}
+		{{> foursquare}}
+		{{friends}}
+	{{/if}}
+	<div>
+		
+	</div>
+</template>
+
 <template name="foursquare">
-
-
-
+	{{#if friends}}
+		Your FSQR friends
+		{{#each friends}}
+			<div>
+				<!-- <img src="{{photo.prefix}}{{photo.suffix}}" /> -->{{firstName}} {{lastName}}
+			</div>
+		{{/each}}
+	{{/if}}
+	
 </template>
