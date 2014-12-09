@@ -21,10 +21,10 @@ Meteor.methods({
 		var friends = JSON.parse(myJSON.content);
 		var friends = friends.response.friends.items;
 		console.log('friends Fsqr http call 2 ', url, friends );
-/* 		Friends.upsert(
+		Friends.upsert(
 			{	userId: userId },
 			{foursquare: friends}
-		) */
+		)
 		return friends;
 	},
 	
