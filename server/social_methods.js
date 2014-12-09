@@ -1,6 +1,10 @@
 fsqrApi = function(userId){
-	var fsqrToken = Meteor.users.findOne({_id: userId}, {fields:{'services.foursquare.accessToken':1, _id:0}});
-	fsqrToken = fsqrToken.services.foursquare.accessToken;
+	var user_details = Meteor.users.findOne({_id: userId}, {fields:{'services.foursquare.accessToken':1, _id:0}});
+	if (!fsqrToken)
+		return;
+	if (!user_details.profile.foursquareId)
+		Meteor.users.upsert({_id: userId}, {$set:{'profile.foursquare':1, 'profile.foursquareId': user_details.services.foursquare.id}});
+	fsqrToken = user_details.services.foursquare.accessToken;
 	console.log ('token ', fsqrToken);
 	return fsqrToken;
 }

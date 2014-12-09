@@ -1,12 +1,3 @@
-GetFsqr = function(userId){
-	if (!userId) {
-		console.error('FsqrApi no userId, no key');
-		return;
-	}
-	var fsqrOauth = Meteor.users.findOne({_id: userId}, {'user_details.services.foursquare.accessToken': 1, _id:0});
-	return fsqrOauth; 
-}
-
 UpdateProfile = function(userId){
 	var user_details = Meteor.users.findOne({_id: userId}, {_id:0});
 	var user_email;
