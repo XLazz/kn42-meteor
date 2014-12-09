@@ -8,7 +8,7 @@ UpdateProfile = function(userId){
 //		console.log(' adding ss details ', user_details);
 		if (user_details.services.google) {
 //			console.log(' adding ss details google ');
-			Meteor.users.update({_id: userId}, {$set:{'profile.google':1}});
+			Meteor.users.update({_id: userId}, {$set:{'profile.google':1, 'profile.googleId': user_details.services.google.id}});
 			user_email = user_details.services.google.email;
 			if (!user_details.emails) {
 				console.log('adding google service details t- profile for user with no email ', userId); 
