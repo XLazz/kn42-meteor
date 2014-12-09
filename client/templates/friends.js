@@ -24,10 +24,10 @@ Template.foursquare.helpers({
 			return friends.foursquare;
 			//empty UserLocations, lets load from php
 		}	
-/* 		Meteor.call('friendsFsqr', Meteor.userId(), function(err, results) {
+		Meteor.call('friendsFsqr', Meteor.userId(), function(err, results) {
 			console.log('Meteor.call friendsFsqr', results);
 			return;
-		}); */
+		});
 	},
 });
 
