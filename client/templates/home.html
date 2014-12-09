@@ -151,6 +151,7 @@
 
 <template name="venues">
 	{{#if venuesNearby}}
+		Foursquare venues <br />
 		{{#each venuesNearby}}
 			<div>
 				{{#if url}}
@@ -161,6 +162,8 @@
 				distance {{location.distance}}
 			</div>
 		{{/each}}
+	{{else}}
+		We cant find any foursquare venues around
 	{{/if}}
 
 <!-- 	<button class="button updatevenues btn btn-primary btn-xs btn-modal" style="bottom:0"> Update Venues</button> -->

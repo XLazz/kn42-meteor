@@ -61,6 +61,15 @@ Meteor.methods({
 					foursquare: venues
 				}
 			) 
+		} else {
+			VenuesCache.remove(
+				{	
+					userId: userId,
+					latitude: userLocation.latitude,
+					longitude: userLocation.longitude,
+				}
+			) 		
+		
 		}
 		return venues;		
 	},
