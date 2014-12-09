@@ -20,10 +20,10 @@ Meteor.methods({
 		var myJSON = Meteor.http.call('GET',url);
 		var friends = JSON.parse(myJSON.content);
 		var friends = friends.response.friends.items;
-		console.log('friends Fsqr http call 2 ', url, friends );
+		console.log('friends Fsqr http call 2 for ', userId, url, friends.length );
 		Friends.upsert(
 			{	userId: userId },
-			{foursquare: friends}
+			{userId: userId, foursquare: friends}
 		)
 		return friends;
 	},
