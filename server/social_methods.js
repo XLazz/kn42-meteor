@@ -1,5 +1,5 @@
 fsqrApi = function(userId){
-	var user_details = Meteor.users.findOne({_id: userId}, {fields:{'services.foursquare.accessToken':1, _id:0}});
+	var user_details = Meteor.users.findOne({_id: userId});
 	if (!user_details)
 		return;
 	if (!user_details.profile.foursquareId)
