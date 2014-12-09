@@ -225,6 +225,9 @@ Template.appBody.helpers({
   isAdmin: function() {
     return Meteor.user() && Meteor.user().admin;
   },
+  isUser: function() {
+    return Meteor.user();
+  },
 	ifDebug: function() {
 		return Session.get('debug');
 	},

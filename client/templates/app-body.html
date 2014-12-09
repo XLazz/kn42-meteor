@@ -31,38 +31,40 @@
           <span class="title-menu">Profile</span>
         </span>
       </a>
-			{{#if ifDebug}}
-				<a href="{{pathFor 'geolog'}}" class="{{activePage 'geolog'}}">
+			{{#if isUser}}
+				{{#if ifDebug}}
+					<a href="{{pathFor 'geolog'}}" class="{{activePage 'geolog'}}">
+						<span class="wrapper-menu-item">
+							<span class="icon-category"></span>
+							<span class="title-menu">Geolog</span>
+						</span>
+					</a>
+				{{/if}}
+				<a href="{{pathFor 'lifelog'}}" class="{{activePage 'lifelog'}}">
 					<span class="wrapper-menu-item">
-						<span class="icon-category"></span>
-						<span class="title-menu">Geolog</span>
+						<span class="icon-bookmark-hollow"></span>
+						<span class="title-menu">Lifelog</span>
+					</span>
+				</a>
+				<a href="{{pathFor 'friends'}}" class="{{activePage 'friends'}}">
+					<span class="wrapper-menu-item">
+						<span class="icon-question"></span>
+						<span class="title-menu">Friends</span>
+					</span>
+				</a>
+				<a href="{{pathFor 'temp'}}" class="{{activePage 'temp'}}">
+					<span class="wrapper-menu-item">
+						<span class="icon-question"></span>
+						<span class="title-menu">Fitness</span>
+					</span>
+				</a>
+				<a href="{{pathFor 'temp'}}" class="{{activePage 'temp'}}">
+					<span class="wrapper-menu-item">
+						<span class="icon-question"></span>
+						<span class="title-menu">Music</span>
 					</span>
 				</a>
 			{{/if}}
-      <a href="{{pathFor 'lifelog'}}" class="{{activePage 'lifelog'}}">
-        <span class="wrapper-menu-item">
-          <span class="icon-bookmark-hollow"></span>
-          <span class="title-menu">Lifelog</span>
-        </span>
-      </a>
-      <a href="{{pathFor 'temp'}}" class="{{activePage 'temp'}}">
-        <span class="wrapper-menu-item">
-          <span class="icon-question"></span>
-          <span class="title-menu">Fitness</span>
-        </span>
-      </a>
-      <a href="{{pathFor 'temp'}}" class="{{activePage 'temp'}}">
-        <span class="wrapper-menu-item">
-          <span class="icon-question"></span>
-          <span class="title-menu">Music</span>
-        </span>
-      </a>
-      <a href="{{pathFor 'temp'}}" class="{{activePage 'temp'}}">
-        <span class="wrapper-menu-item">
-          <span class="icon-question"></span>
-          <span class="title-menu">Friends</span>
-        </span>
-      </a>
 			{{#if isAdmin}}
 				{{> Appsetnews}}
 			{{else}}

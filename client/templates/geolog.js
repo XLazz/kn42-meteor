@@ -191,12 +191,14 @@ Template.footergeo.events({
 		if (!Session.get('geoback')){
 			btn.innerHTML = 'Start';
 			Session.set('geoback', true);
+			Meteor.user.update({'profile.geoback': true});
 			Session.set('interval', 500000);
 			PollingGeo();
 			return;	
 		} else {
 			btn.innerHTML = 'Stop';
 			Session.set('geoback', false);
+			Meteor.user.update({'profile.geoback': ''});
 			Session.set('interval', 5000000);
 			PollingGeo();
 			return;
