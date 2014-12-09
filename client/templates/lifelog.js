@@ -55,9 +55,10 @@ Template.lifelog.events({
 	},
 });
 
+
 Template.showlocations.helpers({
 	ifDebug: function(){
-		console.log('ifDebug ', Session.get('debug'));
+//		console.log('ifDebug ', Session.get('debug'));
 		return Session.get('debug');
 	},
 	userId: function(){
@@ -172,7 +173,6 @@ Template.showlocations.events({
 	"click .div-locations": function (event, template) {
 		var userLocationId = $(event.currentTarget).attr("id");
 		var userLocation = UserLocations.findOne({user_history_location_id: userLocationId});
-		Session.set('userLocation', userLocation);
 		
 		var place = MerchantsCache.findOne({place_id: userLocation.place_id});
 		console.log('click on div before call ', userLocationId, userLocation, place);
@@ -195,8 +195,8 @@ Template.showlocations.events({
 			userLocation = UserLocations.findOne({user_history_location_id: userLocationId});
 //			Session.set('userLocation', userLocation);
 		}
-//		userLocation = UserLocations.findOne({user_history_location_id: userLocationId});
-//		Session.set('userLocation', userLocation);
+		userLocation = UserLocations.findOne({user_history_location_id: userLocationId});
+		Session.set('userLocation', userLocation);
 		
 //		Session.get('userLocationId');
 	},	

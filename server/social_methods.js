@@ -45,8 +45,9 @@ Meteor.methods({
 		var myJSON = Meteor.http.call('GET',url);
 		var venues = JSON.parse(myJSON.content);
 		var venues = venues.response.venues;
-		console.log('venues Fsqr http call 2', userLocation.user_history_location_id, ' # of results', venues.length, ' url ', url  );
-		if (venues.length) {
+		
+		if (venues.length !== 0) {
+			console.log('venues Fsqr http call 2 update ', userLocation.user_history_location_id, ' # of results', venues.length, ' url ', url  );
 			VenuesCache.upsert(
 				{	
 					userId: userId,
@@ -62,6 +63,7 @@ Meteor.methods({
 				}
 			) 
 		} else {
+			console.log('venues Fsqr http call 2 remove ', userLocation.user_history_location_id, ' # of results', venues.length, ' url ', url  );
 			VenuesCache.remove(
 				{	
 					userId: userId,
@@ -78,3 +80,4 @@ Meteor.methods({
 		VenuesCache.remove({});
 	},
 });
+

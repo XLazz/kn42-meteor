@@ -6,6 +6,7 @@ Template.about.helpers({
 	},
 });
 
+
 Template.profileDetails.helpers({
 	user_details: function(){
 		var user_email;
@@ -15,7 +16,7 @@ Template.profileDetails.helpers({
 //		var user_emails = Meteor.user().emails;
 		if (Meteor.userId()) {
 			var user_details = Meteor.user();
-			console.log('Meteor.user() ', Meteor.user());
+//			console.log('Meteor.user() ', Meteor.user());
 			if (!user_details) {
 				return;
 			}
@@ -55,7 +56,7 @@ Template.profilePic.helpers({
 //		var user_emails = Meteor.user().emails;
 		if (Meteor.userId()) {
 			var user_details = Meteor.user();
-			console.log('Meteor.user() ', Meteor.user());
+//			console.log('Meteor.user() ', Meteor.user());
 			if (!user_details) {
 				return;
 			}
