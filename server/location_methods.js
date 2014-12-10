@@ -1,9 +1,9 @@
-GetGoogleLoc = function(userId, userLocation){
+GetGoogleLoc = function(userId, userLocation, radius){
 var response;
 
   try {	
 		var location = userLocation.latitude + ',' + userLocation.longitude;
-		var radius = 50;
+		var radius = radius;
 		var google_server_key = 'AIzaSyAQH9WdmrwMKphSHloMai5iYlcS5EsXMQA';
 		var url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
 		console.log('calling google 0 ', url);
@@ -22,7 +22,7 @@ var response;
 //    return false;
   } finally {
 		response =  JSON.parse(response.content);
-		console.log('response 3 ', response);
+//		console.log('response 3 ', response);
 		return response;
 	}
 
@@ -31,10 +31,17 @@ var response;
 
 Meteor.methods({
 
-	getGLoc: function(userId, timestamp, userLocation){
+	getGLoc: function(userId, timestamp, userLocation, radius){
 		if (!userId) {
 			return;
 		}
-		return GetGoogleLoc(userId, userLocation);
+		return GetGoogleLoc(userId, userLocation, radius);
 	},
+	
+/* 	ifStatic: function(userId){
+		if (!userId) {
+			return;
+		}
+		return GetGoogleLoc(userId, userLocation, radius);
+	}, */
 });

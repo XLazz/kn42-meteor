@@ -10,6 +10,18 @@ Deps.autorun(function(){
 	return; */
 });
 
+ifStatic = function(userId, currentPlace){
+	timestamp = moment().valueOf() - 600;
+	var lastLoc = GeoLog.findOne({timestamp: {$lt: timestamp}, userId: userId});
+	if (!lastLoc)
+		return;
+	console.log('lastLoc User has moved from ', lastLoc);
+	if (lastLoc.place_id !== currentPlace.place_id) {
+		console.log('User has moved from ', lastLoc.place_id, ' to ', currentPlace.place_id);
+//		alert ('moved');
+	}
+}
+
 PollingGeo = function(){
 	var myInterval = Session.get('interval');
 	if (!Session.get('interval')) {
@@ -39,13 +51,14 @@ PollingGeo = function(){
 
 upsertPlaceId = function (location){
 	userId =  Meteor.userId();
+	var radius = 30; //stationary and google search radius
 	var results;
 	var currentPlace;
 	var current_status;
 	var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId})._id;
 	if (location){
 //	 if (location.speed){
-		Meteor.call('getGLoc', userId, location.timestamp, location.coords, function(err,results){
+		Meteor.call('getGLoc', userId, location.timestamp, location.coords, radius, function(err,results){
 			console.log('getGLoc call  ', results);
 			if (results.results) {
 				if (results.results.length) {
@@ -72,29 +85,39 @@ upsertPlaceId = function (location){
 			}
 			GeoLog.upsert(
 				{_id: geoId},
-				{$set: {place_id: currentPlace.place_id, status: current_status}}
+				{$set: 
+					{
+						place_id: currentPlace.place_id, 
+						status: current_status
+					}
+				}
 			)
+			ifStatic(userId, currentPlace);
 		});
 	}
-	Meteor.call('submitCoords',  userId, location.timestamp, location.coords, function(err,results){
+/* 	Meteor.call('submitCoords',  userId, location.timestamp, location.coords, function(err,results){
 		gotPlaces = results;
 		Session.set('gotPlaces', gotPlaces);
 		
 		console.log('submitCoords to php, gor results ', userId,  results);
 		console.log('submitCoords to php, gor results ', userId, ' results.google_places.results[0] ', results.google_places.results[0], ' coords ', location.coords, ' geoId ', geoId);			
-/* 		GeoLog.upsert(
-			{_id: geoId},
-			{$set: {place_id: results.google_places.results[0].place_id, status: results.current_status}}
-		); */
+		// GeoLog.upsert(
+			// {_id: geoId},
+			// {$set: {place_id: results.google_places.results[0].place_id, status: results.current_status}}
+		// );
 
-	});
+	}); */
 }
 
 UpdateGeo = function (){
 //	var handle = Deps.autorun(function () {
+	var userId = Meteor.userId();
 	var location = Geolocation.currentLocation();
+	var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
 	console.log('UpdateGeo event ', location, this);
-	GeoLog.insert({
+	GeoLog.upsert(
+	{ _id: geoId
+	},{
 		location: location.coords,
 		uuid: Meteor.uuid(),
 		device: 'browser',
@@ -109,6 +132,7 @@ UpdateGeo = function (){
 
 
 UpdateGeoCordova = function(){
+	var userId = Meteor.userId();
 	GeolocationFG.get(function(location) {
 		console.log('UpdateGeoCordova ',  location, this);
 		if (location.coords.speed) {
@@ -116,15 +140,18 @@ UpdateGeoCordova = function(){
 		} else {
 			Session.set('interval', 800000);
 		}
-		GeoLog.insert({
+		var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
+		GeoLog.upsert(
+		{ _id: geoId
+		},{
 			location: location.coords,
-			uuid: GeolocationBG2.uuid(),
-			device: GeolocationBG2.device(),
+			uuid: Meteor.uuid(),
+			device: 'browser',
 			userId: Meteor.userId(),
 			created: new Date(),
 			timestamp: location.timestamp
-		});
-//		Session.set('interval', 60000);
+		});	
+	//		Session.set('interval', 60000);
 		upsertPlaceId(location);
 		return location;
 	});
@@ -138,21 +165,32 @@ Template.geolog.helpers({
 });
 
 Template.coords.helpers({
+
 	geologs: function(){
+		return GeoLog.find({}, {sort: {timestamp: -1}});
+	},
+
+	geoPlace: function() {
+		// We use this helper inside the {{#each posts}} loop, so the context
+		// will be a post object. Thus, we can use this.authorId.
+		var place = Places.findOne({place_id: this.place_id});
+		console.log('geoPlace ', this.place_id, place);
+		return place;
+	},
+	geoMerchant: function() {
 		var userId = Meteor.userId();
-		if (!userId) {
-			return;
+		// We use this helper inside the {{#each posts}} loop, so the context
+		// will be a post object. Thus, we can use this.authorId.
+		var place = MerchantsCache.findOne({place_id: this.place_id});
+		if (!place) {
+			var radius = 50;
+			GetGoogleLoc(userId, this, radius, function(err, results) {
+				console.log('GetGoogleLoc call ', results);
+				return results;
+			});
 		}
-		var geologs = GeoLog.find({userId: userId}, {sort: {created: -1}, limit: 5}).fetch();
-		var api_key2 = Meteor.users.find({_id: userId}, {api_key:1, _id:0}).fetch();
-		api_key = api_key2[0].api_key;
-/* 		coords = Meteor.call('uploadCoords', userId, api_key, function(err,results){
-			console.log('Meteor.call coords ', api_key, results);
-			return results;
-		});		 */
-/* 		var coords2 = GeoLog.find({api_key: api_key}, {sort: {created: -1}, limit: 5).fetch();
-		console.log('Geolog find coords2 for key ', api_key2, api_key, ' result ', coords2); */
-		return geologs;
+		console.log('geoMerchant ', this.place_id, place);
+		return place;
 	},
 });
 

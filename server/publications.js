@@ -32,4 +32,49 @@ Meteor.publish(null, function() {
       'services.twitter.profile_image_url_https': 1
     }
   });
-})
+});
+
+Meteor.publish('UserGeolog', function() {
+	var lastGeoLogs = GeoLog.find(this.userId, {sort: {timestamp: -1}, limit: 40});
+	var geoPlaces = lastGeoLogs.map(function(p) {return p.place_id});
+  return [
+		lastGeoLogs,
+		Places.find({place_id: {$in: geoPlaces}})
+	];
+});
+
+Meteor.publish("UserPlaces", function (place_ids) {
+  return Places.find({place_id: {$in: place_ids}});
+});
+
+Meteor.publishComposite('placesByGeo', function(userId, limit) {
+	return {
+		find: function() {
+			// Find posts made by user. Note arguments for callback function
+			// being used in query.
+			return GeoLog.find({userId: userId}, {sort: {timestamp: -1}, limit: 40})
+		},
+		children: [
+			{
+				find: function(geolog) {
+					// Find post author. Even though we only want to return
+					// one record here, we use "find" instead of "findOne"
+					// since this function should return a cursor.
+					return Places.find(
+						{ place_id: geolog.place_id },
+						{ limit: 1 });
+				}
+			},
+			{
+				find: function(geolog) {
+					// Find post author. Even though we only want to return
+					// one record here, we use "find" instead of "findOne"
+					// since this function should return a cursor.
+					return MerchantsCache.find(
+						{ place_id: geolog.place_id },
+						{ limit: 1 });
+				}
+			}
+		]
+	}
+});

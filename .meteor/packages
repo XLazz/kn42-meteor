@@ -33,7 +33,6 @@ accounts-ui-unstyled
 accounts-ui
 mrt:moment
 dburles:collection-helpers
-reywood:publish-composite
 accounts-google
 jeremy:selectize
 mrt:jquery-csv
@@ -44,4 +43,5 @@ msamoylov:foursquare
 ipstas:connect-with
 joshowens:accounts-entry
 fortawesome:fontawesome
+reywood:publish-composite
 
