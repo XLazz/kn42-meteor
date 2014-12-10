@@ -201,14 +201,16 @@ Meteor.methods({
 			);
 		}
 		
-		console.log('calling php on server for lat and lng radius', userId, userLocation.user_history_location_id , userLocation.place_id, radius);
+		
+		
 		var api_key = GetApi(userId);
-		var url = 'http://kn42.xlazz.com/server/request.php?api_key=';
-		var myJSON = Meteor.http.call('GET',url + api_key + '&location=places&lat=' + userLocation.latitude + '&long=' + userLocation.longitude + '&radius=' + radius);
+		var url = 'http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&location=places&lat=' + userLocation.latitude + '&long=' + userLocation.longitude + '&radius=' + radius;
+		console.log('calling php on server for lat and lng radius', userId, userLocation.user_history_location_id , userLocation.place_id, radius, url);
+		var myJSON = Meteor.http.call('GET', url );
 			
 		myMerchants = JSON.parse(myJSON.content);
 		myMerchants = myMerchants.google_places.results;
-console.log('calling php on server for lat and lng radius 2 ', userId);
+		console.log('calling php on server for lat and lng radius 2 ', userId);
 		if (!myMerchants) {
 			console.log('calling php on server for lat and lng radius 2a ', userId);	
 			return myMerchants;
@@ -217,8 +219,9 @@ console.log('calling php on server for lat and lng radius 2 ', userId);
 			console.log('calling php on server for lat and lng radius 2b ', userId);	
 			return myMerchants;
 		}
-console.log('calling php on server for lat and lng radius 3 ', userId);			
-		if (!UserLocations.findOne({user_history_location_id: userLocation.user_history_location_id}).name) {
+		userLocation = UserLocations.findOne({user_history_location_id: userLocation.user_history_location_id});
+		console.log('calling php on server for lat and lng radius 3 ', userId, userLocation.user_history_location_id);			
+		if (!userLocation.name) {
 			if (myMerchants[0].name) {
 				name = myMerchants[0].name;
 			} else if (myMerchants[1].name) {
@@ -341,9 +344,10 @@ console.log('calling php on server for lat and lng radius 4 ', userId);
 		var url;
 		var api_key = GetApi(userId);
 		var url = 'http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&location=list&lat=' + coords.latitude + '&long=' + coords.longitude + '&alt=' + coords.altitude + '&speed=' + coords.speed + '&accuracy=' + coords.accuracy + '&timestamp=' + timestamp;
+		console.log('submitCoords got_location 1 ', api_key, url);
 		var myJSON = Meteor.http.call('GET',url);
 		got_location = JSON.parse(myJSON.content);
-		console.log('submitCoords got_location ', api_key, coords, got_location, url);
+		console.log('submitCoords got_location 2 ', api_key, got_location.location_id, url);
 		return got_location;
 	},
 

@@ -37,24 +37,56 @@ PollingGeo = function(){
 	}
 }
 
-function upsertPlaceId(location){
-	Meteor.call('submitCoords',  Meteor.userId(), location.timestamp, location.coords, function(err,results){
+upsertPlaceId = function (location){
+	userId =  Meteor.userId();
+	var results;
+	var currentPlace;
+	var current_status;
+	var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId})._id;
+	if (location){
+//	 if (location.speed){
+		Meteor.call('getGLoc', userId, location.timestamp, location.coords, function(err,results){
+			console.log('getGLoc call  ', results);
+			if (results.results) {
+				if (results.results.length) {
+					if (results.results.length > 1) {
+						currentPlace = results.results[1];
+					} else {
+						currentPlace = results.results[0];
+					}
+				}
+			}
+					
+			if (!currentPlace)
+				return;
+
+			oldPlace = GeoLog.findOne({userId: userId, timestamp:{$ne: location.timestamp}}, {sort: {timestamp: -1}});
+			console.log('place from Gcall ', currentPlace.place_id, oldPlace);			
+			if (oldPlace.place_id == currentPlace.place_id) {
+				console.log('Same place ', currentPlace.place_id);
+				current_status = 'stationary';
+			} else {
+				console.log('moved ', currentPlace.place_id, ' from ',oldPlace.place_id, oldPlace );
+				current_status = 'moving';
+				// updating geolog with new place
+			}
+			GeoLog.upsert(
+				{_id: geoId},
+				{$set: {place_id: currentPlace.place_id, status: current_status}}
+			)
+		});
+	}
+	Meteor.call('submitCoords',  userId, location.timestamp, location.coords, function(err,results){
 		gotPlaces = results;
 		Session.set('gotPlaces', gotPlaces);
-		var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: Meteor.userId()})._id;
-		console.log('submitCoords to php, gor results ', Meteor.userId(),  results);
-		console.log('submitCoords to php, gor results ', Meteor.userId(), ' results.google_places.results[0] ', results.google_places.results[0], ' coords ', location.coords, ' geoId ', geoId);			
-		GeoLog.upsert(
+		
+		console.log('submitCoords to php, gor results ', userId,  results);
+		console.log('submitCoords to php, gor results ', userId, ' results.google_places.results[0] ', results.google_places.results[0], ' coords ', location.coords, ' geoId ', geoId);			
+/* 		GeoLog.upsert(
 			{_id: geoId},
 			{$set: {place_id: results.google_places.results[0].place_id, status: results.current_status}}
-		);
-/* 		results.google_places.results.forEach(function (item, index, array) {
-			console.log('inserting item ', item);
-			GooglePlaces.upsert(
-				{place_id: item.place_id},
-				item
-			);
-		});	 */
+		); */
+
 	});
 }
 
@@ -71,6 +103,7 @@ UpdateGeo = function (){
 		timestamp: location.timestamp
 	});	
 	upsertPlaceId(location);
+
 	return location;
 };
 
