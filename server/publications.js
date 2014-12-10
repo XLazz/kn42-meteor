@@ -34,17 +34,30 @@ Meteor.publish(null, function() {
   });
 });
 
-Meteor.publish('UserGeolog', function() {
+/* Meteor.publish('UserGeolog', function() {
 	var lastGeoLogs = GeoLog.find(this.userId, {sort: {timestamp: -1}, limit: 40});
 	var geoPlaces = lastGeoLogs.map(function(p) {return p.place_id});
   return [
 		lastGeoLogs,
 		Places.find({place_id: {$in: geoPlaces}})
 	];
-});
+}); */
 
-Meteor.publish("UserPlaces", function (place_ids) {
-  return Places.find({place_id: {$in: place_ids}});
+Meteor.publishComposite('placesByUser', function(userId, limit) {
+	return {
+		find: function() { return UserPlaces.find({userId: userId}, {sort: {timestamp: -1}, limit: limit}) },
+		children: [
+			{
+				find: function(geolog){return UserPlaces.find({place_id: geolog.place_id },{ sort: {timestamp: -1}, limit: 1 })}
+			},{
+				find: function(geolog){return Places.find({place_id: geolog.place_id },{ limit: 1 })}
+			},{
+				find: function(geolog){return MerchantsCache.find({place_id: geolog.place_id },{ limit: 1 })}
+			},{
+				find: function(geolog){return VenuesCache.find({place_id: geolog.place_id },{ limit: 1 })}
+			}
+		]
+	}
 });
 
 Meteor.publishComposite('placesByGeo', function(userId, limit) {
@@ -52,7 +65,7 @@ Meteor.publishComposite('placesByGeo', function(userId, limit) {
 		find: function() {
 			// Find posts made by user. Note arguments for callback function
 			// being used in query.
-			return GeoLog.find({userId: userId}, {sort: {timestamp: -1}, limit: 40})
+			return GeoLog.find({userId: userId}, {sort: {timestamp: -1}, limit: limit})
 		},
 		children: [
 			{

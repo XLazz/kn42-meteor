@@ -53,8 +53,61 @@ Template.homeinside.helpers({
 	
 	currentlocation: function(){
 		if (!Meteor.userId()) {return;};
+		userId = Meteor.userId();
+		var currentPlace = GeoLog.findOne({userId: userId}, {sort: {created: -1}});
+//		console.log('currentlocation ', this, this.place_id);
+		
+		return currentPlace;
+	},
+
+	userPlace: function() {
+		console.log('userPlace 0 ', this, this.status);
+		if (!this.status) {
+			console.log('userPlace 0.5 ', this, this.status);
+			return;
+		}
+		if (this.status !== 'stationary') {
+			console.log('userPlace 1 ', this, this.status);
+			return;
+		}
+		var place;
+		// We use this helper inside the {{#each posts}} loop, so the context
+		// will be a post object. Thus, we can use this.authorId.
+		place = UserPlaces.findOne({place_id: this.place_id});
+		console.log('userPlace 2 ', this, this.place_id, place);
+		Session.set('userLocation', place);
+		return place;
+	},
+	
+	geoPlace: function() {
+		var place;
+		// We use this helper inside the {{#each posts}} loop, so the context
+		// will be a post object. Thus, we can use this.authorId.
+		place = Places.findOne({place_id: this.place_id});
+//		console.log('geoPlace ', this, this.place_id, place);
+		return place;
+	},
+
+	geoMerchant: function() {
+		var userId = Meteor.userId();
+		// We use this helper inside the {{#each posts}} loop, so the context
+		// will be a post object. Thus, we can use this.authorId.
+		var place = MerchantsCache.findOne({place_id: this.place_id});
+		if (!place) {
+			var radius = 50;
+/* 			GetGoogleLoc(userId, this, radius, function(err, results) {
+				console.log('GetGoogleLoc call ', results);
+				return results;
+			}); */
+		}
+		console.log('geoMerchant ', this, this.place_id, place);
+		return place;
+	},	
+		
+/* 	currentPlace: function(){	
 //		if (!Session.get('changeplace')) {return};
-		var ready = Meteor.subscribe('UserLocations').ready();
+//		var ready = Meteor.subscribe('UserLocations').ready();
+	
 		if (!UserLocations.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}})) {
 			//empty UserLocations, lets load from php
 			Meteor.call('getLocations', Meteor.userId(), 'list', function(err, results) {
@@ -63,17 +116,17 @@ Template.homeinside.helpers({
 			});
 		}
 //		console.log('currentplaces before findOne ', i++, UserLocations.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {started: -1}}) );
-		var userLocation = UserLocations.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {started: -1}});
-		if (!userLocation) {return;}
+//		var userLocation = UserLocations.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {started: -1}});
+//		if (!userLocation) {return;}
 		
 //		ready = places.ready();
 		
 //		lastPlaces.started = UserLocations.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {started: -1}}).started;
 //		console.log('home currentplaces lastPlaces 2 ', ready, places);
-		Session.set('userLocation', userLocation);
-		return userLocation._id;
+		Session.set('userLocation', currentPlace);
+		return currentPlace;
 		
-	},
+	}, */
 	
 	currentplace: function(){
 		userLocation = Session.get('userLocation');
@@ -270,10 +323,10 @@ Template.selectExperience.events({
 });
 
 Template.buttons.helpers({
-	userLocation: function(){
-		userLocation = UserLocations.findOne({user_history_location_id: Session.get('userLocation').user_history_location_id});
-//		console.log('buttons location ', Session.get('userLocationId'), userLocation);
-		return userLocation;
+	buttons: function(){
+		place = UserPlaces.findOne({_id: Session.get('userLocation')._id});
+		console.log('buttons location ', Session.get('userLocation'), place);
+		return place;
 	},
 });
 

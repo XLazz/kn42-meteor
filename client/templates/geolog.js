@@ -10,7 +10,8 @@ Deps.autorun(function(){
 	return; */
 });
 
-ifStatic = function(userId, currentPlace){
+ifStatic = function(userId, currentPlace, timestamp){
+	var upsert_it;
 	timestamp = moment().valueOf() - 600;
 	var lastLoc = GeoLog.findOne({timestamp: {$lt: timestamp}, userId: userId});
 	if (!lastLoc)
@@ -18,8 +19,37 @@ ifStatic = function(userId, currentPlace){
 	console.log('lastLoc User has moved from ', lastLoc);
 	if (lastLoc.place_id !== currentPlace.place_id) {
 		console.log('User has moved from ', lastLoc.place_id, ' to ', currentPlace.place_id);
-//		alert ('moved');
+	} else {
+		//since user static for 600, let;s add UserPlace
+		var myId = UserPlaces.findOne({userId: userId}, {sort: {created: -1}});
+		if (!myId) {
+			upsert_it = 1;
+		} else {
+			if (myId.place_id !== currentPlace.place_id){
+				upsert_it = 1;
+			}
+		}
+		if (upsert_it) {
+			console.log('User was stationary for 600 at ', currentPlace.place_id, currentPlace.name);
+			var place = Places.findOne({place_id: currentPlace.place_id});
+			if (!place) {
+				Places.insert(currentPlace);			
+				place = Places.findOne({place_id: currentPlace.place_id});
+			}
+			UserPlaces.insert(
+				{
+					placesId: place._id,
+					userId: userId,
+					place_id: currentPlace.place_id,
+					created: new Date(),
+					timestamp: timestamp
+				}
+			);
+
+		}
 	}
+//		alert ('moved');
+	
 }
 
 PollingGeo = function(){
@@ -92,7 +122,7 @@ upsertPlaceId = function (location){
 					}
 				}
 			)
-			ifStatic(userId, currentPlace);
+			ifStatic(userId, currentPlace, location.timestamp);
 		});
 	}
 /* 	Meteor.call('submitCoords',  userId, location.timestamp, location.coords, function(err,results){
@@ -114,17 +144,17 @@ UpdateGeo = function (){
 	var userId = Meteor.userId();
 	var location = Geolocation.currentLocation();
 	var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
-	console.log('UpdateGeo event ', location, this);
-	GeoLog.upsert(
-	{ _id: geoId
-	},{
-		location: location.coords,
-		uuid: Meteor.uuid(),
-		device: 'browser',
-		userId: Meteor.userId(),
-		created: new Date(),
-		timestamp: location.timestamp
-	});	
+	console.log('UpdateGeo event ', location, geoId, this);
+	if (!geoId) {
+		GeoLog.insert({
+			location: location.coords,
+			uuid: Meteor.uuid(),
+			device: 'browser',
+			userId: Meteor.userId(),
+			created: new Date(),
+			timestamp: location.timestamp
+		});	
+	}
 	upsertPlaceId(location);
 
 	return location;
@@ -141,16 +171,16 @@ UpdateGeoCordova = function(){
 			Session.set('interval', 800000);
 		}
 		var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
-		GeoLog.upsert(
-		{ _id: geoId
-		},{
-			location: location.coords,
-			uuid: Meteor.uuid(),
-			device: 'browser',
-			userId: Meteor.userId(),
-			created: new Date(),
-			timestamp: location.timestamp
-		});	
+		if (!geoId) {
+			GeoLog.insert({
+				location: location.coords,
+				uuid: GeolocationBG2.uuid(),
+				device: GeolocationBG2.device(),
+				userId: Meteor.userId(),
+				created: new Date(),
+				timestamp: location.timestamp
+			});
+		}
 	//		Session.set('interval', 60000);
 		upsertPlaceId(location);
 		return location;
@@ -174,7 +204,7 @@ Template.coords.helpers({
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
 		var place = Places.findOne({place_id: this.place_id});
-		console.log('geoPlace ', this.place_id, place);
+		console.log('geoPlace ', this.place_id);
 		return place;
 	},
 	geoMerchant: function() {
@@ -189,7 +219,7 @@ Template.coords.helpers({
 				return results;
 			});
 		}
-		console.log('geoMerchant ', this.place_id, place);
+		console.log('geoMerchant ', this.place_id);
 		return place;
 	},
 });
