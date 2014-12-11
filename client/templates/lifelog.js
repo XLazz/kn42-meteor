@@ -56,7 +56,7 @@ Template.lifelog.events({
 });
 
 
-Template.showlocations.helpers({
+Template.showlocations2.helpers({
 	ifDebug: function(){
 //		console.log('ifDebug ', Session.get('debug'));
 		return Session.get('debug');
@@ -157,6 +157,60 @@ Template.showlocations.helpers({
 			return userLocations;
 		}
 		
+	},
+	
+	'showExp': function(){
+		return Session.get('showExp');
+	},
+	
+	updated: function() {
+//		Meteor.setInterval(Meteor.call('getLocations','list'), 1000000);	
+	}
+});
+
+Template.showlocations2.helpers({
+	ifDebug: function(){
+//		console.log('ifDebug ', Session.get('debug'));
+		return Session.get('debug');
+	},
+	userId: function(){
+		Session.set('elsewhere', false);
+		return Meteor.userId();
+	},
+	latest: function(){
+		var merchantLatest = MerchantsCache.findOne({}, {sort: {updated: -1}});
+		if (merchantLatest) {
+				return merchantLatest.updated;
+			}
+	},
+	
+	geologs: function(){
+		return GeoLog.find({}, {sort: {timestamp: -1}});
+	},
+	
+	locations: function(){
+		var limit = 10;
+//		return 'nothing';
+		console.log('locations ',this);
+		if (!Meteor.userId()) {
+			return;
+		}
+		if (!Session.get('radius')) {
+			Session.set('radius', 50);
+		}
+		var userId = Meteor.userId();
+		var places = UserPlaces.find({userId: userId}, {sort: {timestamp: -1}, limit: limit});
+		console.log('showlocations userPlaces', places);
+		return places;
+	},
+
+	geoPlace: function() {
+		var place;
+		// We use this helper inside the {{#each posts}} loop, so the context
+		// will be a post object. Thus, we can use this.authorId.
+		place = Places.findOne({place_id: this.place_id});
+		console.log('geoPlace ', this, this.place_id, place);
+		return place;
 	},
 	
 	'showExp': function(){

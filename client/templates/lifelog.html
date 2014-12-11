@@ -8,16 +8,16 @@
 					</div> -->
     <div class="content-scrollable">
       <div class="list-recipes">
-				{{#if userId}}
+<!-- 				{{#if userId}} -->
 					<hr>
 					<div>
-						{{> showlocations}}
+						{{> showlocations2}}
 						{{> overlay}}
 					</div>
-				{{else}}
-					Please log in to see your LifeLog<br>
-					{{> loginButtons}}
-				{{/if}}
+<!-- 				{{else}} -->
+<!-- 					Please log in to see your LifeLog<br>
+					{{> loginButtons}} -->
+<!-- 				{{/if}} -->
       </div>
     </div>
 		{{#if ifDebug}}
@@ -31,12 +31,22 @@
   </div>
 </template>
 
-<template name="showlocations">
-<!-- 	{{#if isInOverlay}}
-		{{> selectPlace}}
-	{{/if}} -->
-	{{#unless isInOverlay}}
-		{{#if latest}}{{latest}}{{/if}}
+<template name="showlocations2">
+	<h4>Your places</h4>	
+	<div>
+<!-- 		{{#each geologs}}
+			<div style="font-size:smaller">
+				<div>date: {{created}}</div>
+				<div>lng: {{location.coords.longitude}} lat: {{location.coords.latitude}}</div>
+				<div>speed: 
+					{{#if location.coords.speed}} {{location.coords.speed}} {{else}} 0 {{/if}} accuracy: {{location.coords.accuracy}}&nbsp;
+				</div>
+				<div>{{status}} at {{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}</div>
+			</div>
+			<hr>
+		{{/each}} -->
+	</div>
+	<div>
 		{{#each locations}}
 				<div style="width: 100%; height: auto; padding: 5px">
 					<div class="div-locations" style="width: 100%; height: auto" id="{{user_history_location_id}}">
@@ -46,21 +56,21 @@
 								{{#if travel}}
 									Travel
 								{{else}}
-									{{#if name}} {{name}} {{else}} Unknown {{/if}} 
+									{{#if geoPlace.name}} {{geoPlace.name}} {{else}} Unknown {{/if}} 
 								{{/if}}
 							</div>
 							<div style="font-size:smaller">
-								{{vicinity}} <br />
+								{{geoPlace.vicinity}} <br />
 								{{started}} <br />
 								spent {{timespent}}
 							</div>
 						</div>
 						<div style="display:inline-block; width: 10%; max-width: 40px; vertical-align: top;">
 <!-- 							<img style="width: auto; height: auto; max-width: 40px" src="{{#unless travel}}{{icon}}{{/unless}}" /> -->
-							<img style="width: auto; height: auto; max-width: 40px" src="{{#if icon2}}  {{icon2}} {{else}} {{icon}} {{/if}}" />
+							<img style="width: auto; height: auto; max-width: 40px" src="{{#if geoPlace.icon}}  {{geoPlace.icon}} {{else}} {{icon2}} {{/if}}" />
 						</div>
 					</div>
-					{{#if ifDebug}}<div> {{finished}}</div>{{/if}}
+					{{#if ifDebug}}<div> stopped: {{finished}}</div>{{/if}}
 					<div style="width: 100%; height: auto">
 <!-- 					{{#if selected}}
 						{{> buttons}}
@@ -72,7 +82,7 @@
 					</div>
 				</div>
 		{{/each}}
-	{{/unless}}
+	</div>
 </template>
 
 <template name="selectPlace">

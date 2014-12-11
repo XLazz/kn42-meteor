@@ -1,0 +1,10 @@
+added local geolog
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch v008-google
+# Changes to be committed:
+#	modified:   client/templates/geolog.js
+#	new file:   server/location-ss.js
+#	new file:   server/location_methods.js
+#	modified:   server/methods.js
+#

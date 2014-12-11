@@ -3,12 +3,16 @@ Meteor.subscribe('basic');
 Session.set('location', Geolocation.currentLocation());
 var location = {};
 
-Deps.autorun(function(){
-/* 	myInterval = Session.get('interval');
-	PollingGeo();
-	console.log('resetting PollingGeo with myInterval', myInterval);
-	return; */
-});
+submitCoords = function(userId, geoId, location ){
+	Meteor.call('submitCoords',  userId, location.timestamp, location.coords, function(err,results){
+		console.log('submitCoords to php, gor results ', userId,  results);
+		console.log('submitCoords to php, gor results ', userId, ' results.location_id ', results.location_id, ' coords ', location.coords, ' geoId ', geoId);			
+		GeoLog.upsert(
+			{_id: geoId},
+			{$set: {location_id: results.location_id}}
+		);
+	});
+}
 
 ifStatic = function(userId, currentPlace, timestamp){
 	var upsert_it;
@@ -17,13 +21,18 @@ ifStatic = function(userId, currentPlace, timestamp){
 	if (!lastLoc)
 		return;
 	console.log('lastLoc User has moved from ', lastLoc);
+	var myId = UserPlaces.findOne({userId: userId}, {sort: {started: -1}});
 	if (lastLoc.place_id !== currentPlace.place_id) {
 		console.log('User has moved from ', lastLoc.place_id, ' to ', currentPlace.place_id);
+		// Add finished
+		if (!myId.timestampEnd) {
+			UserPlaces.upsert({_id: myId._id}, {timestampEnd: lastLoc.timestamp});
+		}
 	} else {
 		//since user static for 600, let;s add UserPlace
 		currentPlace.timestamp = lastLoc.timestamp;
 		currentPlace.geoId = lastLoc._id
-		var myId = UserPlaces.findOne({userId: userId}, {sort: {created: -1}});
+		
 		if (!myId) {
 			upsert_it = 1;
 		} else {
@@ -43,7 +52,7 @@ ifStatic = function(userId, currentPlace, timestamp){
 					placesId: place._id,
 					userId: userId,
 					place_id: currentPlace.place_id,
-					created: new Date(),
+					started: new Date(),
 					timestamp: lastLoc.timestamp,
 					geoId: lastLoc._id,
 					location: lastLoc.location,
@@ -129,20 +138,9 @@ upsertPlaceId = function (location){
 				}
 			)
 			ifStatic(userId, currentPlace, location.timestamp);
+			submitCoords(userId, geoId, location );
 		});
 	}
-/* 	Meteor.call('submitCoords',  userId, location.timestamp, location.coords, function(err,results){
-		gotPlaces = results;
-		Session.set('gotPlaces', gotPlaces);
-		
-		console.log('submitCoords to php, gor results ', userId,  results);
-		console.log('submitCoords to php, gor results ', userId, ' results.google_places.results[0] ', results.google_places.results[0], ' coords ', location.coords, ' geoId ', geoId);			
-		// GeoLog.upsert(
-			// {_id: geoId},
-			// {$set: {place_id: results.google_places.results[0].place_id, status: results.current_status}}
-		// );
-
-	}); */
 }
 
 UpdateGeo = function (){
@@ -165,7 +163,6 @@ UpdateGeo = function (){
 
 	return location;
 };
-
 
 UpdateGeoCordova = function(){
 	var userId = Meteor.userId();
