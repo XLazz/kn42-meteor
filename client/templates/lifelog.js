@@ -32,17 +32,17 @@ Template.lifelog.helpers({
 
 Template.lifelog.events({
 
-	"click .locations2": function (event, template) {
-//		Modal.show('locationModal2');
-		console.log('locations events 2 ',Session.get("showCreateDialog"), this);
+	"click .clickme2": function(event, template) {
+		console.log('clickedme 1');
 	},
+	
 	"click .reloadlocations": function (event, template) {
 		if (!Meteor.userId()) {
 			return;
 		}
 		console.log('reloadlocations events ');
 		Meteor.call('removeAllLocations', Meteor.userId());
-		Meteor.call('getLocations', Meteor.userId(), 'list');
+//		Meteor.call('getLocations', Meteor.userId(), 'list');
 //		Meteor.call('getLocations','list',function(err,results));
 	},
 	"click .updatelocations": function (event, template) {
@@ -50,125 +50,14 @@ Template.lifelog.events({
 			return;
 		}
 		console.log('updatelocations events ');
-		Meteor.call('getLocations', Meteor.userId(), 'list');
+		Meteor.call('getLocations', Meteor.userId(), 'list', function(err, results){
+			console.log('getLocations http call ', results);
+		});
 //		Meteor.call('getLocations','list',function(err,results));
 	},
 });
 
-
-Template.showlocations2.helpers({
-	ifDebug: function(){
-//		console.log('ifDebug ', Session.get('debug'));
-		return Session.get('debug');
-	},
-	userId: function(){
-		Session.set('elsewhere', false);
-		return Meteor.userId();
-	},
-	latest: function(){
-		var merchantLatest = MerchantsCache.findOne({}, {sort: {updated: -1}});
-		if (merchantLatest) {
-				return merchantLatest.updated;
-			}
-	},
-	locations: function(){
-		var userLocations;
-		console.log('locations ',this);
-		if (!Meteor.userId()) {
-			return;
-		}
-		if (!Session.get('radius')) {
-			Session.set('radius', 50);
-		}
-		
-		if (UserLocations.find({userId: Meteor.userId()}).count() === 0 ){
-			console.log('calling php server for json ', Session.get('userLocation'), UserLocations.find({userId: Meteor.userId()}).count());
-			Meteor.call('getLocations', Meteor.userId(), 'list', function(err,results){
-				console.log('calling php server for json 2 ', results);
-			});
-		} else {
-//			console.log('calling mongo for json', Session.get('userLocations'));
-//			console.log(' checking mongo UserLocations ', UserLocations.find({}, {sort: {started: -1}}));
-			userLocations = UserLocations.find({
-				userId: Meteor.userId()
-			}, {
-				sort: {started: -1},
-				transform: function(doc){
-//					console.log('inside userLocations ', doc);
-					if (Session.get('userLocation')) {
-						if (doc.user_history_location_id == Session.get('userLocation').user_history_location_id) {
-							doc.selected = 1;
-						}
-					}
-					var content =	Places.findOne({place_id: doc.place_id}, {fields:{user_history_location_id: 0, selected:0}});
-					
-					if (!content) {
-						content = MerchantsCache.findOne({place_id: doc.place_id}, {fields:{user_history_location_id: 0, selected:0}});
-						if (!content) {
-							console.log('no content from MerchantsCache.findOne({place_id: doc.place_id}), callin server for userlocation ', doc.place_id, doc.user_history_location_id);
-	//						if (Session.get('lastCall') > new Date().valueOf() + 500) {
-	//							Session.set('lastCall', new Date().valueOf());
-
-								Meteor.call( 'getPlaces', Meteor.userId(), doc, Session.get('radius'), function(err,results){
-									console.log('gotPlaces MerchantsCache http call for 2 ', Session.get('radius'), results);
-									return;
-								});					
-	//						}
-						}
-					}
-						
-					var then = doc.started;
-					var now = doc.finished;
-					if (!now) {
-						now = moment().format("YYYY-MM-DD HH:mm:ss");
-//						now = moment(now).format
-					};
-					var duration = moment(now,"YYYY-MM-DD HH:mm:ss").diff(moment(then,"YYYY-MM-DD HH:mm:ss"));
-					duration = moment.duration(duration).humanize();
-					doc.names = content;
-					if (content) {
-						content.timespent = duration;
-						content.started = moment(doc.started).format("MM/DD/YY");
-					}
-					
-//					console.log('locations inside MerchantsCache transform for 1 ', doc.place_id, doc);
-//					console.log('locations inside MerchantsCache transform for 2 ', doc.place_id, duration, now);
-					Session.set('currentPlace', doc.place_id);
-					doc = _.extend(doc, _.omit(content, '_id'));
-					return doc;
-				}
-			});
-			
-			var test = userLocations.forEach(function (item, index, array) {
-				var then = item.started;
-				var now = item.finished;
-				if (now) {
-					var duration = moment(now,"DD/MM/YYYY HH:mm:ss").diff(moment(then,"DD/MM/YYYY HH:mm:ss"));
-					duration = moment.duration(duration).humanize();
-//					console.log('inserting item ', item.started, item.finished, duration, moment(item.started).fromNow());
-				}			
-			});
-			
-			
-//			var duration = moment.duration(finished - started).humanize()
-//			var hours = duration.asHours();
-//			userlocation['timespent'] = 
-//			console.log('userLocations', userLocations, test);
-			return userLocations;
-		}
-		
-	},
-	
-	'showExp': function(){
-		return Session.get('showExp');
-	},
-	
-	updated: function() {
-//		Meteor.setInterval(Meteor.call('getLocations','list'), 1000000);	
-	}
-});
-
-Template.showlocations2.helpers({
+Template.showlocations.helpers({
 	ifDebug: function(){
 //		console.log('ifDebug ', Session.get('debug'));
 		return Session.get('debug');
@@ -189,18 +78,22 @@ Template.showlocations2.helpers({
 	},
 	
 	locations: function(){
-		var limit = 10;
-//		return 'nothing';
-		console.log('locations ',this);
 		if (!Meteor.userId()) {
 			return;
 		}
+		var places;
+		var userId = Meteor.userId();
+		console.log('locations ',this);
 		if (!Session.get('radius')) {
 			Session.set('radius', 50);
 		}
-		var userId = Meteor.userId();
-		var places = UserPlaces.find({userId: userId}, {sort: {timestamp: -1}, limit: limit});
-		console.log('showlocations userPlaces', places);
+		places = UserPlaces.find({userId: userId}, {sort: {started: -1}});
+		if (!places){
+			console.log('calling php server for json for ', userId );
+			Meteor.call('getLocations', userId, 'list', function(err,results){
+				console.log('calling php server for json 2 ', results.length);
+			});
+		} 
 		return places;
 	},
 
@@ -209,9 +102,32 @@ Template.showlocations2.helpers({
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
 		place = Places.findOne({place_id: this.place_id});
-		console.log('geoPlace ', this, this.place_id, place);
+//		console.log('geoPlace ', this, this.place_id, place);
 		return place;
 	},
+	
+	geoMerchant: function() {
+		var userId = Meteor.userId();
+		// We use this helper inside the {{#each posts}} loop, so the context
+		// will be a post object. Thus, we can use this.authorId.
+		var place = MerchantsCache.findOne({'place_id': this.place_id});
+		return place;
+		
+		if (!place) {
+			var radius = 50;
+			console.log('getGLoc call 0 ', userId, this, radius);
+			Meteor.call('getGLoc', userId, this.location, radius, function(err, results) {
+				console.log('getGLoc call 1 ', results);
+				return results;
+			});
+		} else {
+			if (!Session.get('userLocation')) {
+				Session.set('userLocation', place);
+			}
+		}
+//		console.log('geoMerchant ', this, this.place_id, place);
+		return place;
+	},	
 	
 	'showExp': function(){
 		return Session.get('showExp');
@@ -224,21 +140,27 @@ Template.showlocations2.helpers({
 
 Template.showlocations.events({
 
-	"click .div-locations": function (event, template) {
+	"click .selectplace": function (event, template) {
+		var userId = Meteor.userId();
+		var radius = 50;
 		var userLocationId = $(event.currentTarget).attr("id");
-		var userLocation = UserLocations.findOne({user_history_location_id: userLocationId});
+		var userLocation = UserPlaces.findOne(userLocationId);
 		
 		var place = MerchantsCache.findOne({place_id: userLocation.place_id});
 		console.log('click on div before call ', userLocationId, userLocation, place);
 		
 		if (!place) {
-			Meteor.call( 'getPlaces', Meteor.userId(), userLocation, 50, function(err,results){
+			Meteor.call('getGLoc', userId, this.location, radius, function(err, results) {
+				console.log('getGLoc events call 1 ', results);
+				return results;
+			});
+/* 			Meteor.call( 'getPlaces', Meteor.userId(), userLocation, 50, function(err,results){
 				Session.set('lastCall', new Date().valueOf());
 				place = results;
 				console.log('click on div inside call ', userLocationId, place);
 				UserLocations.update({_id: userLocation._id}, {$set:{name: place.name}});
 				return;
-			});
+			}); */
 
 			return;
 		}
@@ -423,7 +345,6 @@ Template._show_exp.events({
 	},
 });
 
-
 Template.overlay.events({
 	'click .cancel':function () {
 		console.log('overlay click .cancel');
@@ -431,7 +352,7 @@ Template.overlay.events({
 	}
 });
 
-UI.registerHelper('ifConfirmed', function (context, options) {
+/* UI.registerHelper('ifConfirmed', function (context, options) {
   // extract boolean value from data context. the data context is
   // always an object -- in this case it's a wrapped boolean object.
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean
@@ -444,7 +365,7 @@ UI.registerHelper('ifConfirmed', function (context, options) {
   } else {
     return Template._no_exp;
 	}
-});
+}); */
 
 
 

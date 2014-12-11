@@ -2,11 +2,14 @@ fsqrApi = function(userId){
 	var user_details = Meteor.users.findOne({_id: userId});
 	if (!user_details)
 		return;
-	if (!user_details.profile.foursquareId)
-		Meteor.users.upsert({_id: userId}, {$set:{'profile.foursquare':1, 'profile.foursquareId': user_details.services.foursquare.id}});
-	fsqrToken = user_details.services.foursquare.accessToken;
-	console.log ('token ', fsqrToken);
-	return fsqrToken;
+	if (!user_details.profile.foursquareId) {
+		if (user_details.services.foursquareId) {
+			Meteor.users.upsert({_id: userId}, {$set:{'profile.foursquare':1, 'profile.foursquareId': user_details.services.foursquare.id}});
+			fsqrToken = user_details.services.foursquare.accessToken;
+			console.log ('token ', fsqrToken);
+			return fsqrToken;
+		}
+	}
 }
 
 Meteor.methods({

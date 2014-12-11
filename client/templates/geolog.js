@@ -56,6 +56,7 @@ ifStatic = function(userId, currentPlace, timestamp){
 					timestamp: lastLoc.timestamp,
 					geoId: lastLoc._id,
 					location: lastLoc.location,
+					location_id: lastLoc.location_id,
 				}
 			);
 
@@ -214,11 +215,11 @@ Template.coords.helpers({
 		var userId = Meteor.userId();
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
-		var place = MerchantsCache.findOne({place_id: this.place_id});
+		var place = MerchantsCache.findOne({'place_id': this.place_id});
 		if (!place) {
 			var radius = 50;
 			Meteor.call('getGLoc', userId, this, radius, function(err, results) {
-				console.log('getGLoc call ', results);
+				console.log('getGLoc call in geoMerchant ', userId, this, results);
 				return results;
 			});
 		}

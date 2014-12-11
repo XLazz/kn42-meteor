@@ -61,20 +61,20 @@ Template.homeinside.helpers({
 	},
 
 	userPlace: function() {
-		console.log('userPlace 0 ', this, this.status);
+//		console.log('userPlace 0 ', this, this.status);
 		if (!this.status) {
-			console.log('userPlace 0.5 ', this, this.status);
+//			console.log('userPlace 0.5 ', this, this.status);
 			return;
 		}
 		if (this.status !== 'stationary') {
-			console.log('userPlace 1 ', this, this.status);
+//			console.log('userPlace 1 ', this, this.status);
 			return;
 		}
 		var place;
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
 		place = UserPlaces.findOne({place_id: this.place_id});
-		console.log('userPlace 2 ', this, this.place_id, place);
+//		console.log('userPlace 2 ', this, this.place_id, place);
 		Session.set('userLocation', place);
 		return place;
 	},
@@ -84,7 +84,7 @@ Template.homeinside.helpers({
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
 		place = Places.findOne({place_id: this.place_id});
-		console.log('geoPlace ', this, this.place_id, place);
+		console.log('geoPlace ', this.place_id, place);
 		return place;
 	},
 
@@ -92,11 +92,11 @@ Template.homeinside.helpers({
 		var userId = Meteor.userId();
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
-		var place = MerchantsCache.findOne({place_id: this.place_id});
+		var place = MerchantsCache.findOne({'googlePlace.place_id': this.place_id});
 		if (!place) {
 			var radius = 50;
-			Meteor.call('getGLoc', userId, this, radius, function(err, results) {
-				console.log('getGLoc call ', results);
+			Meteor.call('getGLoc', userId, this.place, radius, function(err, results) {
+				console.log('getGLoc call ', this.place_id, results);
 				return results;
 			});
 		} else {

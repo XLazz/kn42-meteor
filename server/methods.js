@@ -119,35 +119,74 @@ Meteor.methods({
 		UpdateProfile(userId);
 	},
 
-	'getLocations':function(userId, location){
+	'getLocations':function(userId, list){
 		if (!userId) {
 			return;
 		}
 		check(arguments, [Match.Any]);
 		console.log('getLocations method for user ', userId);
+		var location;
 		var last_loc;
 		var api_key = GetApi(userId);
-		console.log('getLocations method for user ', userId, api_key);
-		var url = 'http://kn42.xlazz.com/server/desktop.php?api_key=' + api_key + '&location=' + location;
+//		console.log('getLocations method for user ', userId, api_key);
+		var url = 'http://kn42.xlazz.com/server/desktop.php?api_key=' + api_key + '&location=' + list;
 		var myJSON = Meteor.http.call('GET', url);
-		console.log('calling php server for json 2 ', url);
+//		console.log('calling php server for json 2 ', url);
 		var userLocations = JSON.parse(myJSON.content).user_locations;
-//		console.log('calling php server for json 3. First el ', userLocations[0]);
-		var last_loc2 = UserLocations.findOne({userId: userId}, {sort: {started:	 -1}});
-		if (last_loc2) {
-			last_loc = parseInt(last_loc2.user_history_location_id);
-		}
+		console.log('calling php server for json 3. num of els ', userLocations.length);
 		userLocations.forEach(function (item, index, array) {
-			item.userId = userId;
-			if ((parseInt(item.user_history_location_id) > last_loc) || (!last_loc) && (!UserLocations.findOne({user_history_location_id: item.user_history_location_id}))) {
-				console.log('inserting item for user ', userId, api_key, ' last_loc ', last_loc, item.user_history_location_id, item.name);
+//			console.log('inserting item for user 1 ', userId, api_key, ' last_loc ', last_loc, item.user_history_location_id, item.name, item);
+			if (!UserLocations.findOne({userId: userId, location_id: item.location_id})) {
+				var timestamp; 
+				var timestampEnd;
+				if (item.finished) 
+					timestampEnd = moment(item.finished).valueOf();
+				timestamp = moment(item.started).valueOf();
+				console.log('inserting item for user ', userId, item.user_history_location_id, item.name);
 				UserLocations.insert(
-					item
+					{
+						userId: userId,
+						user_history_location_id: item.user_history_location_id,
+						location_id: item.location_id,
+						location: {
+							coords: {
+								latitude: item.latitude,
+								longitude: item.longitude
+							}
+						},
+						place_id: item.place_id,
+						started: item.started,
+						timestamp: timestamp,
+						timestampEnd: timestampEnd
+					}
+				);
+			}
+			if (!UserPlaces.findOne({userId: userId, location_id: item.location_id})) {
+				var timestamp;
+				var timestampEnd;
+				if (item.finished) 
+					timestampEnd = moment(item.finished).valueOf();
+				timestamp = moment(item.started).valueOf();
+				console.log('inserting item for user ', userId, api_key, item.user_history_location_id);
+				coords = {latitude: item.latitude, longitude: item.longitude};
+				location = {coords: coords};
+				UserPlaces.insert(
+					{
+						userId: userId,
+						user_history_location_id: item.user_history_location_id,
+						location_id: item.location_id,
+						location: location,
+						place_id: item.place_id,
+						started: item.started,
+						timestamp: timestamp,
+						timestampEnd: timestampEnd
+					}
 				);
 			}
 		});
 
 		UserLocations._ensureIndex( { user_history_location_id: 1 }, { unique: true, dropDups: true } );
+//		UserPlaces._ensureIndex( { user_history_location_id: 1 }, { unique: true, dropDups: true } );
 		return userLocations;
 	},
 	
@@ -228,9 +267,9 @@ Meteor.methods({
 				name = myMerchants[1].name;
 			}			
 			console.log('updating userLocation with name ', name);
-			UserLocations.update({user_history_location_id: userLocation.user_history_location_id}, {$set: {name: name}});
+//			UserLocations.update({user_history_location_id: userLocation.user_history_location_id}, {$set: {name: name}});
 		}
-		console.log('inserting merchants 0 ', myMerchants[0].name);
+/* 		console.log('inserting merchants 0 ', myMerchants[0].name);
 		for (var i = 0; i < myMerchants.length; i++) {		
 			console.log('inserting merchants 1 ', myMerchants[i].name);
 
@@ -250,8 +289,8 @@ Meteor.methods({
 					user_history_location_id: userLocation.user_history_location_id,
 				}
 			);					
-		}
-console.log('calling php on server for lat and lng radius 4 ', userId);			
+		} */
+		console.log('calling php on server for lat and lng radius 4 ', userId);			
 		return myMerchants;
 /* 		if (myMerchants[0]) {
 			if (myMerchants[0].name) {
@@ -298,6 +337,7 @@ console.log('calling php on server for lat and lng radius 4 ', userId);
 		console.log('removing all locations ');
 		MerchantsCache.remove({});
 		Places.remove({});	
+		UserPlaces.remove({userId: userId});
 		return UserLocations.remove({userId: userId});
 	},	
 	
@@ -336,6 +376,7 @@ console.log('calling php on server for lat and lng radius 4 ', userId);
 	},
 
 	'submitCoords': function(userId, timestamp, coords){
+	// v008
 		if (!userId) {
 			return;
 		}
@@ -351,5 +392,22 @@ console.log('calling php on server for lat and lng radius 4 ', userId);
 		return got_location;
 	},
 
+	'submitPlace': function(userId, timestamp, coords){
+	// v008
+		if (!userId) {
+			return;
+		}
+		check(arguments, [Match.Any]);
+		var response;
+		var url;
+		var api_key = GetApi(userId);
+		var url = 'http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&had=' + experience + '&stars=' + stars + '&comment=' + comment + '&location_id='+ location_id + '&google_place='+ place_id;
+		console.log('submitPlace  1 ', api_key, url);
+		var myJSON = Meteor.http.call('GET',url);
+		response = JSON.parse(myJSON.content);
+		console.log('submitPlace answer 2 ', api_key, response, url);
+		return response;
+	},
+	
 
 });

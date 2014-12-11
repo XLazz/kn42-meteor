@@ -23,7 +23,7 @@ GetGoogleLoc = function(userId, coords, radius){
 										}
 									}); */
 		response =  JSON.parse(response1.content);
-		console.error('response calling google ', response.results.length);
+		console.log('response calling google ', response.results.length);
 		return response;
   } catch (e) {
     // Got a network error, time-out or HTTP error in the 400 or 500 range.
@@ -37,40 +37,32 @@ GetGoogleLoc = function(userId, coords, radius){
 Meteor.methods({
 
 	getGLoc: function(userId, userLocation, radius){
+		var myError;
+		// userlocation.coords.latitude
 		if (!userId) {
 			return;
 		}
 		var coords = userLocation.coords;
 		var response = GetGoogleLoc(userId, coords, radius);
 		console.log('GetGoogleLoc ', userId, response.results.length, userLocation);
-		if (response.results) {
+		if (!response) 
+			return;
+			
+		if (!response.results)
 			console.error('GetGoogleLoc empty call, increase radius?');
-		}
 		
 		for (var i = 0; i < response.results.length; i++) {		
-			console.log('inserting merchants 1 ', response.results[i].name);
-			MerchantsCache.upsert(
-				{
-					'googlePlace.place_id': response.results[i].place_id,	
-				},{
-					googlePlace: response.results[i],
-					coords: coords,
-					updated: new Date(),
-					greoId: userLocation.geoId
-				}
-			);					
+			if (!MerchantsCache.find({place_id: response.results[i].place_id, 'coords.latitude': coords.latitude,  'coords.longitude': coords.longitude})) { 
+				console.log('inserting merchants 1 ', response.results[i].name);
+				response.results[i].coords = coords;
+				response.results[i].updated = new Date(),
+				response.results[i].geoId = userLocation.geoId;
+				MerchantsCache.upsert(
+					{ 'place_id': response.results[i].place_id	},
+					{	$set: response.results[i]	}
+				);	
+			}
 		}
-/* 		MerchantsCache.upsert(
-			{
-				'coords.latitude': coords.latitude,
-				'coords.longitude': coords.longitude,
-			},
-			{$set:{
-				coords: coords
-				res
-				updated: new Date(),
-			}}
-		); */
 		return response;
 	},
 	

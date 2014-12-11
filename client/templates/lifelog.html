@@ -11,7 +11,7 @@
 <!-- 				{{#if userId}} -->
 					<hr>
 					<div>
-						{{> showlocations2}}
+						{{> showlocations}}
 						{{> overlay}}
 					</div>
 <!-- 				{{else}} -->
@@ -31,32 +31,21 @@
   </div>
 </template>
 
-<template name="showlocations2">
+<template name="showlocations">
 	<h4>Your places</h4>	
 	<div>
-<!-- 		{{#each geologs}}
-			<div style="font-size:smaller">
-				<div>date: {{created}}</div>
-				<div>lng: {{location.coords.longitude}} lat: {{location.coords.latitude}}</div>
-				<div>speed: 
-					{{#if location.coords.speed}} {{location.coords.speed}} {{else}} 0 {{/if}} accuracy: {{location.coords.accuracy}}&nbsp;
-				</div>
-				<div>{{status}} at {{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}</div>
-			</div>
-			<hr>
-		{{/each}} -->
 	</div>
 	<div>
 		{{#each locations}}
 				<div style="width: 100%; height: auto; padding: 5px">
-					<div class="div-locations" style="width: 100%; height: auto" id="{{user_history_location_id}}">
+					<div class="selectplace" style="width: 100%; height: auto" id="{{_id}}">
 						<div style="display:inline-block; width: 20%; vertical-align: top;">{{>profilePic}}</div> 
 						<div style="display:inline-block; width: 55%; vertical-align: top;">
 							<div>
 								{{#if travel}}
 									Travel
 								{{else}}
-									{{#if geoPlace.name}} {{geoPlace.name}} {{else}} Unknown {{/if}} 
+									{{place_id}} {{id}} {{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}
 								{{/if}}
 							</div>
 							<div style="font-size:smaller">
@@ -67,11 +56,12 @@
 						</div>
 						<div style="display:inline-block; width: 10%; max-width: 40px; vertical-align: top;">
 <!-- 							<img style="width: auto; height: auto; max-width: 40px" src="{{#unless travel}}{{icon}}{{/unless}}" /> -->
-							<img style="width: auto; height: auto; max-width: 40px" src="{{#if geoPlace.icon}}  {{geoPlace.icon}} {{else}} {{icon2}} {{/if}}" />
+							<img style="width: auto; height: auto; max-width: 40px" src="{{#if geoPlace.icon}}  {{geoPlace.icon}} {{else}} {{geoMerchant.icon}} {{/if}}" />
 						</div>
 					</div>
 					{{#if ifDebug}}<div> stopped: {{finished}}</div>{{/if}}
 					<div style="width: 100%; height: auto">
+
 <!-- 					{{#if selected}}
 						{{> buttons}}
 					{{/if}} -->
