@@ -32,9 +32,6 @@ Template.lifelog.helpers({
 
 Template.lifelog.events({
 
-	"click .clickme2": function(event, template) {
-		console.log('clickedme 1');
-	},
 	
 	"click .reloadlocations": function (event, template) {
 		if (!Meteor.userId()) {
@@ -87,7 +84,25 @@ Template.showlocations.helpers({
 		if (!Session.get('radius')) {
 			Session.set('radius', 50);
 		}
-		places = UserPlaces.find({userId: userId}, {sort: {started: -1}});
+		places = UserPlaces.find(
+			{userId: userId}, 
+			{
+				sort: {started: -1},
+				transform: function(doc){		
+					var then = doc.timestamp;
+					var now = doc.timestampEnd;
+					if (!now) {
+						now = moment().valueOf();
+					};
+					var duration = then - now;
+					duration = moment.duration(duration).humanize();
+					doc.timespent = duration;
+					doc.started = moment(then).format("MM/DD/YY HH:mm");
+					doc.finished = moment(now).format("MM/DD/YY HH:mm");
+					return doc;
+				}
+			}
+		);
 		if (!places){
 			console.log('calling php server for json for ', userId );
 			Meteor.call('getLocations', userId, 'list', function(err,results){
@@ -146,32 +161,28 @@ Template.showlocations.events({
 		var userLocationId = $(event.currentTarget).attr("id");
 		var userLocation = UserPlaces.findOne(userLocationId);
 		
-		var place = MerchantsCache.findOne({place_id: userLocation.place_id});
-		console.log('click on div before call ', userLocationId, userLocation, place);
+		var place = Places.findOne({place_id: userLocation.place_id});
+		if (!place)
+			place = MerchantsCache.findOne({place_id: userLocation.place_id});
+			
+		console.log('click on div before call ', userLocation.place_id, userLocationId, userLocation, place.name);
 		
-		if (!place) {
+/* 		if (!place) {
 			Meteor.call('getGLoc', userId, this.location, radius, function(err, results) {
 				console.log('getGLoc events call 1 ', results);
 				return results;
 			});
-/* 			Meteor.call( 'getPlaces', Meteor.userId(), userLocation, 50, function(err,results){
-				Session.set('lastCall', new Date().valueOf());
-				place = results;
-				console.log('click on div inside call ', userLocationId, place);
-				UserLocations.update({_id: userLocation._id}, {$set:{name: place.name}});
-				return;
-			}); */
-
 			return;
+		} */
+
+		if (!place){
+			Meteor.call('getGPlace', userLocation.place_id, function(err, results) {
+				console.log('getGPlace events call 1 ', results);
+				return results;
+			});
+		} else {
+//			console.log('click on div before call 2 ', userLocation.place_id, userLocationId, userLocation, place.name);
 		}
-		console.log('click on div ', userLocationId, place);
-		if (!userLocation.name){
-			var myId = UserLocations.findOne({user_history_location_id: userLocationId});
-			UserLocations.update({_id: myId._id}, {$set:{name: place.name}});
-			userLocation = UserLocations.findOne({user_history_location_id: userLocationId});
-//			Session.set('userLocation', userLocation);
-		}
-		userLocation = UserLocations.findOne({user_history_location_id: userLocationId});
 		Session.set('userLocation', userLocation);
 		
 //		Session.get('userLocationId');
