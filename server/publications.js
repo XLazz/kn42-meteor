@@ -55,7 +55,9 @@ Meteor.publishComposite('placesByUser', function(userId, limit) {
 				find: function(geolog){return MerchantsCache.find({place_id: geolog.place_id },{ limit: 1 })}
 			},{
 				find: function(geolog){return VenuesCache.find({place_id: geolog.place_id },{ limit: 1 })}
-			}
+			},{
+				find: function(geolog){return GeoLog.find({timestamp: geolog.timestamp },{ limit: 1 })}
+			}			
 		]
 	}
 });

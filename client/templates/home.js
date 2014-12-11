@@ -84,7 +84,7 @@ Template.homeinside.helpers({
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
 		place = Places.findOne({place_id: this.place_id});
-//		console.log('geoPlace ', this, this.place_id, place);
+		console.log('geoPlace ', this, this.place_id, place);
 		return place;
 	},
 
@@ -95,10 +95,14 @@ Template.homeinside.helpers({
 		var place = MerchantsCache.findOne({place_id: this.place_id});
 		if (!place) {
 			var radius = 50;
-/* 			GetGoogleLoc(userId, this, radius, function(err, results) {
-				console.log('GetGoogleLoc call ', results);
+			Meteor.call('getGLoc', userId, this, radius, function(err, results) {
+				console.log('getGLoc call ', results);
 				return results;
-			}); */
+			});
+		} else {
+			if (!Session.get('userLocation')) {
+				Session.set('userLocation', place);
+			}
 		}
 		console.log('geoMerchant ', this, this.place_id, place);
 		return place;
@@ -324,11 +328,17 @@ Template.selectExperience.events({
 
 Template.buttons.helpers({
 	buttons: function(){
-		place = UserPlaces.findOne({_id: Session.get('userLocation')._id});
-		console.log('buttons location ', Session.get('userLocation'), place);
-		return place;
+		if (Session.get('userLocation')) {
+			place = UserPlaces.findOne({place_id: Session.get('userLocation').place_id});
+			console.log('buttons location ', Session.get('userLocation'), place);
+			return Session.get('userLocation');
+		}
+	},
+	session: function(){
+		return Session.get('userLocation');
 	},
 });
+
 
 Template.buttons.events({
 	"click .confirm": function (event, template) {
@@ -349,12 +359,18 @@ Template.buttons.events({
 		UserLocations.upsert({_id: userLocation._id}, {$set: {confirmed: '', travel: ''}});		
 	},	
 	"click .locations": function (event, template) {
-		Session.set('searching', false);
-		console.log('locations events ',this);
-		Session.set('radius', 50);
+		var radius = 50;
+		var timestamp;
+		var userId = Meteor.userId();
 		var userLocation = Session.get('userLocation');
+		console.log('locations events 1 ',this.place_id, userLocation);
 //		Meteor.call('getLocations','list');
+/* 		Meteor.call('getGLoc', userId, userLocation.location, radius, function(err, results){
+			console.log('locations events getGLoc results ', results.results);	
+		}); */
 		console.log('locations events ', Session.get('userLocation'));	
+		Session.set('searching', false);
+		Session.set('radius', radius);
 		Overlay.show('selectPlace');	
 	},
 	"click .travel": function (event, template) {

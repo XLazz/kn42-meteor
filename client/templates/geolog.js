@@ -21,6 +21,8 @@ ifStatic = function(userId, currentPlace, timestamp){
 		console.log('User has moved from ', lastLoc.place_id, ' to ', currentPlace.place_id);
 	} else {
 		//since user static for 600, let;s add UserPlace
+		currentPlace.timestamp = lastLoc.timestamp;
+		currentPlace.geoId = lastLoc._id
 		var myId = UserPlaces.findOne({userId: userId}, {sort: {created: -1}});
 		if (!myId) {
 			upsert_it = 1;
@@ -42,7 +44,9 @@ ifStatic = function(userId, currentPlace, timestamp){
 					userId: userId,
 					place_id: currentPlace.place_id,
 					created: new Date(),
-					timestamp: timestamp
+					timestamp: lastLoc.timestamp,
+					geoId: lastLoc._id,
+					location: lastLoc.location,
 				}
 			);
 
@@ -88,7 +92,7 @@ upsertPlaceId = function (location){
 	var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId})._id;
 	if (location){
 //	 if (location.speed){
-		Meteor.call('getGLoc', userId, location.timestamp, location.coords, radius, function(err,results){
+		Meteor.call('getGLoc', userId, location, radius, function(err,results){
 			console.log('getGLoc call  ', results);
 			if (results.results) {
 				if (results.results.length) {
@@ -104,14 +108,16 @@ upsertPlaceId = function (location){
 				return;
 
 			oldPlace = GeoLog.findOne({userId: userId, timestamp:{$ne: location.timestamp}}, {sort: {timestamp: -1}});
-			console.log('place from Gcall ', currentPlace.place_id, oldPlace);			
-			if (oldPlace.place_id == currentPlace.place_id) {
-				console.log('Same place ', currentPlace.place_id);
-				current_status = 'stationary';
-			} else {
-				console.log('moved ', currentPlace.place_id, ' from ',oldPlace.place_id, oldPlace );
-				current_status = 'moving';
-				// updating geolog with new place
+			console.log('place from Gcall ', currentPlace.place_id, oldPlace);		
+			if (oldPlace) {
+				if (oldPlace.place_id == currentPlace.place_id) {
+					console.log('Same place ', currentPlace.place_id);
+					current_status = 'stationary';
+				} else {
+					console.log('moved ', currentPlace.place_id, ' from ',oldPlace.place_id, oldPlace );
+					current_status = 'moving';
+					// updating geolog with new place
+				}
 			}
 			GeoLog.upsert(
 				{_id: geoId},
@@ -147,7 +153,7 @@ UpdateGeo = function (){
 	console.log('UpdateGeo event ', location, geoId, this);
 	if (!geoId) {
 		GeoLog.insert({
-			location: location.coords,
+			location: location,
 			uuid: Meteor.uuid(),
 			device: 'browser',
 			userId: Meteor.userId(),
@@ -173,7 +179,7 @@ UpdateGeoCordova = function(){
 		var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
 		if (!geoId) {
 			GeoLog.insert({
-				location: location.coords,
+				location: location,
 				uuid: GeolocationBG2.uuid(),
 				device: GeolocationBG2.device(),
 				userId: Meteor.userId(),
@@ -214,8 +220,8 @@ Template.coords.helpers({
 		var place = MerchantsCache.findOne({place_id: this.place_id});
 		if (!place) {
 			var radius = 50;
-			GetGoogleLoc(userId, this, radius, function(err, results) {
-				console.log('GetGoogleLoc call ', results);
+			Meteor.call('getGLoc', userId, this, radius, function(err, results) {
+				console.log('getGLoc call ', results);
 				return results;
 			});
 		}

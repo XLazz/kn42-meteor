@@ -219,28 +219,28 @@ Template.selectPlace.helpers({
 	},
 	places: function(){
 		var location;
-		console.log('places selectPlace ', Session.get('userLocation').place_id, Session.get('elsewhere'), this);
+		var radius = 30;
+		var userLocation = Session.get('userLocation');
+		console.log('places selectPlace ', userLocation.location, Session.get('elsewhere'), this);
 		
-		gotPlaces = MerchantsCache.find({lat: Session.get('userLocation').latitude, lng: Session.get('userLocation').longitude, place_id: {$exists: true }});
+		gotPlaces = MerchantsCache.find({'coords.latitude': userLocation.location.coords.latitude, 'coords.longitude': userLocation.location.coords.longitude, 'googlePlace.place_id': {$exists: true }});
 //		gotPlaces = MerchantsCache.find({lat: Session.get('userLocation').latitude, lng: Session.get('userLocation').longitude});
-		if (gotPlaces.count()) {
-			console.log('got places from MerchantsCache ', gotPlaces.count(), gotPlaces.fetch(), Session.get('userLocation').user_history_location_id);
-			return gotPlaces;		
+		if (gotPlaces) {
+			if (gotPlaces.count()) {
+				console.log('got places from MerchantsCache ', gotPlaces.count(), gotPlaces.fetch(), Session.get('userLocation').user_history_location_id);
+				return gotPlaces;		
+			}	
 		}
 		
-		console.log('gotPlaces no MerchantsCache ', UserLocations.findOne({user_history_location_id: Session.get('userLocation').user_history_location_id}, {sort: {started: -1}}), Session.get('radius'));
+//		console.log('gotPlaces no MerchantsCache ', UserLocations.findOne({user_history_location_id: Session.get('userLocation').user_history_location_id}, {sort: {started: -1}}), Session.get('radius')); 
 		
-		Meteor.call( 'getPlaces', Meteor.userId(), Session.get('userLocation'), Session.get('radius'), function(err,results){
-//			Session.set('searching', false);
-			console.log('gotPlaces MerchantsCache http call for 2 ', Session.get('radius'), results);
-//			return results;
+		var gotPlaces = Meteor.call('getGLoc', userId, userLocation.location, radius, function(err, results){
+			console.log('selectPlace helpers getGLoc results ', results.results);	
+			return results.results;
 		});
-
 		
-		// Nothing yet, lets load from php
-		
-		console.log(' got places - from call ', gotPlaces.count(), gotPlaces, Session.get('userLocation').user_history_location_id, Session.get('gotPlaces'));
-//		return gotPlaces;
+		console.log(' got places - from call ', userLocation, gotPlaces);
+		return gotPlaces;
 	},
 });
 

@@ -54,9 +54,9 @@
 		{{#each geologs}}
 			<div style="font-size:smaller">
 				<div>date: {{created}}</div>
-				<div>lng: {{location.longitude}} lat: {{location.latitude}}</div>
+				<div>lng: {{location.coords.longitude}} lat: {{location.coords.latitude}}</div>
 				<div>speed: 
-					{{#if location.speed}} {{location.speed}} {{else}} 0 {{/if}} accuracy: {{location.accuracy}}&nbsp;
+					{{#if location.coords.speed}} {{location.coords.speed}} {{else}} 0 {{/if}} accuracy: {{location.coords.accuracy}}&nbsp;
 				</div>
 				<div>{{status}} at {{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}</div>
 			</div>

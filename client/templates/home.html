@@ -33,7 +33,9 @@
 						<div class="div-locations" style="width: 100%; height: auto" id="{{_id}}">
 							<div style="display:inline-block; width: 85%; vertical-align: top;">
 								<div>
-									{{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}
+									{{#if userPlace.name}} {{userPlace.name}} {{else}}
+										{{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}
+									{{/if}}
 								</div>
 								<div style="font-size: smaller">
 									{{geoPlace.vicinity}} <br />
@@ -97,7 +99,7 @@
 </template>
 
 <template name="buttons">
-	{{#with buttons}}
+	{{#if buttons}}
 		<div>
 			<div style="display: inline-block; width: auto; vertical-align: top; ">
 				<form class="form-inline buttons" id="{{_id}}">
@@ -106,8 +108,8 @@
 					" />
 
 					{{#unless confirmed}}
-						<input type="button" class="button locations btn btn-small" data-toggle="modal" data-target="#myModal" id="{{user_history_location_id}}" value="Change" />
-						<input type="button" class="button travel btn btn-small" data-toggle="modal" data-target="#myModal" id="{{user_history_location_id}}" value="Travel" />
+						<input type="button" class="button locations btn btn-small" data-toggle="modal" data-target="#myModal" id="{{_id}}" value="Change" />
+						<input type="button" class="button travel btn btn-small" data-toggle="modal" data-target="#myModal" id="{{_id}}" value="Travel" />
 					{{/unless}}
 
 					<input type="hidden" id="lat-{{_id}}" value="{{latitude}}">
@@ -120,7 +122,7 @@
 				{{/if}}
 			</div>
 		</div>
-	{{/with}}
+	{{/if}}
 </template>
 
 <template name="selectExperience">
