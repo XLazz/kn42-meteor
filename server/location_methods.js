@@ -65,7 +65,8 @@ Meteor.methods({
 	getGLoc: function(userId, userLocation, radius){
 		var myError;
 		// userlocation.coords.latitude
-		if (!userId) {
+		if ((!userId) || (!userLocation)){
+			console.error('Called getGLoc, but ', userId, userLocation);
 			return;
 		}
 		var coords = userLocation.coords;

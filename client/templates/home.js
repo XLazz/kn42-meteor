@@ -54,7 +54,25 @@ Template.homeinside.helpers({
 	currentlocation: function(){
 		if (!Meteor.userId()) {return;};
 		userId = Meteor.userId();
-		var currentPlace = GeoLog.findOne({userId: userId}, {sort: {created: -1}});
+		var currentPlace = GeoLog.findOne(
+			{userId: userId}, 
+			{
+				sort: {created: -1},
+				transform: function(doc){		
+					var then = doc.timestamp;
+					var now = doc.timestampEnd;
+					if (!now) {
+						now = moment().valueOf();
+					};
+					var duration = then - now;
+					duration = moment.duration(duration).humanize();
+					doc.timespent = duration;
+					doc.started = moment(then).format("MM/DD/YY HH:mm");
+					doc.finished = moment(now).format("MM/DD/YY HH:mm");
+					return doc;
+				}
+			}
+		);
 //		console.log('currentlocation ', this, this.place_id);
 		
 		return currentPlace;
@@ -73,7 +91,9 @@ Template.homeinside.helpers({
 		var place;
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
-		place = UserPlaces.findOne({place_id: this.place_id});
+		place = UserPlaces.findOne(
+			{place_id: this.place_id}
+		);
 //		console.log('userPlace 2 ', this, this.place_id, place);
 		Session.set('userLocation', place);
 		return place;
