@@ -260,22 +260,13 @@ Template.selectPlace.events({
 //		Session.set('gotPlaces', gotPlaces);	
 		var radius = Session.get('radius') + 200;
 		var elsewhere = 1;
+		var userLocation = Session.get('userLocation');
 		Session.set('radius', radius);
-		Session.set('searching', true);
 //		Meteor.call('removeAllPlaces', Meteor.userId());
-		Meteor.call(
-			'getPlaces', 
-			Meteor.userId(), 
-			Session.get('userLocation'), 
-			radius, 
-			elsewhere,
-			function(err,results){
-				gotPlaces = results;
-				console.log('selectPlace events elsewhere inside ', Session.get('userLocation').user_history_location_id, radius, results , this );
-				Session.set('searching', false);
-				return gotPlaces;
-			}
-		);
+		var gotPlaces = Meteor.call('getGLoc', userId, userLocation.location, radius, function(err, results){
+			console.log('selectPlace helpers getGLoc results ', results.results);	
+			return results.results;
+		});
 
 		console.log('selectPlace events elsewhere outside ', this );
 //		LoadPlaces();

@@ -51,7 +51,7 @@ Meteor.methods({
 			console.log('inserting merchants 1 ', response.results[i].name);
 			MerchantsCache.upsert(
 				{
-					place_id: response.results[i].place_id,	
+					'googlePlace.place_id': response.results[i].place_id,	
 				},{
 					googlePlace: response.results[i],
 					coords: coords,
