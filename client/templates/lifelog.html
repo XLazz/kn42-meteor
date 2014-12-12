@@ -59,14 +59,16 @@
 							{{/if}}
 						</div>
 						<div style="display:inline-block; width: 10%; max-width: 40px; vertical-align: top;">
-<!-- 							<img style="width: auto; height: auto; max-width: 40px" src="{{#unless travel}}{{icon}}{{/unless}}" /> -->
-							<img style="width: auto; height: auto; max-width: 40px" src="
-								{{#if travel}}
-									img/app/car.png
-								{{else}}
-									{{#if geoPlace.icon}}  {{geoPlace.icon}} {{else}} {{geoMerchant.icon}} {{/if}}
-								{{/if}}
-							" />
+							<div>
+								<img style="width: auto; height: auto; max-width: 40px" src="
+									{{#if travel}}
+										img/app/car.png
+									{{else}}
+										{{#if geoPlace.icon}}  {{geoPlace.icon}} {{else}} {{geoMerchant.icon}} {{/if}}
+									{{/if}}
+								" />
+							</div>
+							{{#unless travel}}<div style="font-size: smaller">been: {{count}}</div>{{/unless}}
 						</div>
 					</div>
 					{{#if ifDebug}}<div style="font-size:50%"> finished: {{finished}}</div>{{/if}}

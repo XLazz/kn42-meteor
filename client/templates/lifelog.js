@@ -135,6 +135,8 @@ Template.showlocations.helpers({
 					doc.timespent = duration;
 					doc.started = moment(then).format("MM/DD/YY HH:mm");
 					doc.finished = moment(now).format("MM/DD/YY HH:mm");
+					var count = UserPlaces.find({userId: userId, place_id: doc.place_id}).count();
+					doc.count = count;
 					return doc;
 				}
 			}
@@ -166,8 +168,9 @@ Template.showlocations.helpers({
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
 		var place = MerchantsCache.findOne({'place_id': this.place_id});
-		if (Session.get('userLocation')._id == this._id)
-			place.showbut = true;
+		if (Session.get('userLocation'))
+			if (Session.get('userLocation')._id == this._id)
+				place.showbut = true;
 		if ((!place) && (!Session.get('googleCall'))){
 			console.log('Google call getGPlace in geoMerchant function showlocations ', this.place_id);
 //			getGPlace(this.place_id);

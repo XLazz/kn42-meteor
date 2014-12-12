@@ -34,6 +34,12 @@ Meteor.publish(null, function() {
   });
 });
 
+/* Meteor.publish(null, function() {
+	if (this.userId) {
+		return Meteor.users.find({_id: this.userId}, {fields: {api_key: 1, profile: 1}});
+	}
+}); */
+
 /* Meteor.publish('UserGeolog', function() {
 	var lastGeoLogs = GeoLog.find(this.userId, {sort: {timestamp: -1}, limit: 40});
 	var geoPlaces = lastGeoLogs.map(function(p) {return p.place_id});

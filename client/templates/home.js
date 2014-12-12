@@ -439,8 +439,16 @@ Template.buttons.events({
 	"click .travel": function (event, template) {
 //		alert('coming soon');
 		var locId = Session.get('userLocation')._id;
-		console.log('click .confirm buttons confirming userLocation ',locId );
+		console.log('click .travel buttons confirming userLocation ',locId );
 		UserPlaces.upsert(locId, {$set: {confirmed: '', travel: true}});		
+	},		
+	"click .claim": function (event, template) {
+//		alert('coming soon');
+		var locId = Session.get('userLocation')._id;
+		console.log('click .claim buttons confirming userLocation ',locId );
+		// ClaimedPlaces.insert({place_id: place_id});
+		// UserPlaces.upsert(locId, {$set: {claimed: true}});		
+		Overlay.show('claimPlace');	
 	},		
 });
 
@@ -653,4 +661,10 @@ Template.venues.events({
 	
 
 
+});
+
+Template.claimPlace.events({
+	'submit form': function(event){
+		event.preventDefault();
+	},
 });

@@ -20,6 +20,21 @@ percolate:wireframing
 mdg:camera
 mdg:geolocation
 
+#autoform
+dburles:collection-helpers
+aldeed:collection2
+sacha:spin
+zimme:iron-router-active
+reactive-var
+aldeed:delete-button
+rajit:bootstrap3-datepicker
+aldeed:autoform-bs-datepicker
+aldeed:autoform-select2
+natestrauser:select2
+aldeed:autoform
+zimme:select2-bootstrap3-css
+aldeed:autoform-bs-button-group-input
+
 # Packages from the app:
 houston:admin
 insecure
@@ -32,7 +47,6 @@ grigio:overlay
 accounts-ui-unstyled
 accounts-ui
 mrt:moment
-dburles:collection-helpers
 accounts-google
 jeremy:selectize
 mrt:jquery-csv
