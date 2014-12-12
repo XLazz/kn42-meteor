@@ -14,44 +14,50 @@ submitCoords = function(userId, geoId, location ){
 	});
 }
 
-ifStatic = function(userId, currentPlace, timestamp){
+ifStatic = function(userId, currentPlace, currentPlaceAlt, timestamp){
 	var upsert_it;
 	timestamp = moment().valueOf() - 600;
 	var lastLoc = GeoLog.findOne({timestamp: {$lt: timestamp}, userId: userId});
 	if (!lastLoc)
 		return;
-	console.log('lastLoc User has moved from ', lastLoc);
+	console.log('lastLoc if user has moved from ', lastLoc.stationary_place_id);
 	var myId = UserPlaces.findOne({userId: userId}, {sort: {started: -1}});
-	if (lastLoc.place_id !== currentPlace.place_id) {
-		console.log('User has moved from ', lastLoc.place_id, ' to ', currentPlace.place_id);
+	if (lastLoc.stationary_place_id !== currentPlaceAlt.place_id) {
+		console.log('User has moved from ', lastLoc.stationary_place_id, ' to ', currentPlaceAlt.place_id);
 		// Add finished
-		if (!myId.timestampEnd) {
-			UserPlaces.upsert({_id: myId._id}, {timestampEnd: lastLoc.timestamp});
+		if (myId) {
+			if (!myId.timestampEnd) {
+				UserPlaces.upsert({_id: myId._id}, {timestampEnd: lastLoc.timestamp});
+			}
 		}
 	} else {
 		//since user static for 600, let;s add UserPlace
+		console.log('User stationary ', lastLoc.stationary_place_id);
 		currentPlace.timestamp = lastLoc.timestamp;
 		currentPlace.geoId = lastLoc._id
 		
 		if (!myId) {
 			upsert_it = 1;
 		} else {
-			if (myId.place_id !== currentPlace.place_id){
+			if (myId.place_id !== currentPlaceAlt.place_id){
 				upsert_it = 1;
 			}
 		}
 		if (upsert_it) {
-			console.log('User was stationary for 600 at ', currentPlace.place_id, currentPlace.name);
-			var place = Places.findOne({place_id: currentPlace.place_id});
+			console.log('User was stationary for 600 at ', currentPlaceAlt.place_id, currentPlaceAlt.name);
+			var place = Places.findOne({place_id: currentPlaceAlt.place_id});
 			if (!place) {
-				Places.insert(currentPlace);			
-				place = Places.findOne({place_id: currentPlace.place_id});
+				Places.upsert(
+					{place_id:  currentPlaceAlt.place_id},
+					currentPlaceAlt
+				);			
+				place = Places.findOne({place_id: currentPlaceAlt.place_id});
 			}
 			UserPlaces.insert(
 				{
 					placesId: place._id,
 					userId: userId,
-					place_id: currentPlace.place_id,
+					place_id: currentPlaceAlt.place_id,
 					started: new Date(),
 					timestamp: lastLoc.timestamp,
 					geoId: lastLoc._id,
@@ -59,9 +65,10 @@ ifStatic = function(userId, currentPlace, timestamp){
 					location_id: lastLoc.location_id,
 				}
 			);
-
+			return true;
 		}
 	}
+	
 //		alert ('moved');
 	
 }
@@ -104,28 +111,25 @@ upsertPlaceId = function (location){
 //	 if (location.speed){
 		Meteor.call('getGLoc', userId, location, radius, function(err,results){
 			console.log('getGLoc call  ', results);
-			if (results.results) {
-				if (results.results.length) {
-					if (results.results.length > 1) {
-						currentPlace = results.results[1];
-					} else {
-						currentPlace = results.results[0];
-					}
-				}
-			}
 					
-			if (!currentPlace)
+			if (!results)
 				return;
-
+			currentPlace = results.results[0];
+			currentPlaceAlt = results.results[1];
+			
 			oldPlace = GeoLog.findOne({userId: userId, timestamp:{$ne: location.timestamp}}, {sort: {timestamp: -1}});
-			console.log('place from Gcall ', currentPlace.place_id, oldPlace);		
+			console.log('place from Gcall ', oldPlace);		
 			if (oldPlace) {
-				if (oldPlace.place_id == currentPlace.place_id) {
-					console.log('Same place ', currentPlace.place_id);
+				if (oldPlace.stationary_place_id == currentPlaceAlt.place_id) {
+					console.log('Same place ', currentPlaceAlt.place_id);
 					current_status = 'stationary';
+					
+
+					// and let's replace the address with place
 				} else {
-					console.log('moved ', currentPlace.place_id, ' from ',oldPlace.place_id, oldPlace );
-					current_status = 'moving';
+					console.log('moved ', currentPlaceAlt.place_id, ' from ',oldPlace.stationary_place_id, oldPlace );
+					current_status = '';
+
 					// updating geolog with new place
 				}
 			}
@@ -133,12 +137,13 @@ upsertPlaceId = function (location){
 				{_id: geoId},
 				{$set: 
 					{
-						place_id: currentPlace.place_id, 
-						status: current_status
+						place_id: results.results[0].place_id,
+						stationary_place_id: results.results[1].place_id,
+						status: current_status,
 					}
 				}
 			)
-			ifStatic(userId, currentPlace, location.timestamp);
+			var ifThat = ifStatic(userId, currentPlace, currentPlaceAlt, location.timestamp);
 			submitCoords(userId, geoId, location );
 		});
 	}
@@ -158,9 +163,10 @@ UpdateGeo = function (){
 			userId: Meteor.userId(),
 			created: new Date(),
 			timestamp: location.timestamp
-		});	
+		});
+		upsertPlaceId(location);
 	}
-	upsertPlaceId(location);
+	
 
 	return location;
 };
@@ -201,14 +207,20 @@ Template.geolog.helpers({
 Template.coords.helpers({
 
 	geologs: function(){
-		return GeoLog.find({}, {sort: {timestamp: -1}});
+		return GeoLog.find({}, {sort: {timestamp: -1}, 
+			transform: function(doc){	
+				if (doc.confirmed)
+					doc.place_id = doc.confirmed;
+				return doc;
+			}
+		});
 	},
 
 	geoPlace: function() {
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
 		var place = Places.findOne({place_id: this.place_id});
-		console.log('geoPlace ', this.place_id);
+//		console.log('geoPlace ', this.place_id);
 		return place;
 	},
 	geoMerchant: function() {
@@ -223,7 +235,7 @@ Template.coords.helpers({
 				return results;
 			});
 		}
-		console.log('geoMerchant ', this.place_id);
+//		console.log('geoMerchant ', this.place_id);
 		return place;
 	},
 });

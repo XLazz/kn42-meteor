@@ -60,18 +60,28 @@
 						</div>
 						<div style="display:inline-block; width: 10%; max-width: 40px; vertical-align: top;">
 <!-- 							<img style="width: auto; height: auto; max-width: 40px" src="{{#unless travel}}{{icon}}{{/unless}}" /> -->
-							<img style="width: auto; height: auto; max-width: 40px" src="{{#if geoPlace.icon}}  {{geoPlace.icon}} {{else}} {{geoMerchant.icon}} {{/if}}" />
+							<img style="width: auto; height: auto; max-width: 40px" src="
+								{{#if travel}}
+									img/app/car.png
+								{{else}}
+									{{#if geoPlace.icon}}  {{geoPlace.icon}} {{else}} {{geoMerchant.icon}} {{/if}}
+								{{/if}}
+							" />
 						</div>
 					</div>
 					{{#if ifDebug}}<div style="font-size:50%"> finished: {{finished}}</div>{{/if}}
 					<div style="width: 100%; height: auto">
 
-<!-- 					{{#if selected}}
+					{{#if geoPlace.showbut}}
 						{{> buttons}}
-					{{/if}} -->
-						{{#ifConfirmed2 user_history_location_id}}
+						{{else}}
+							{{#if geoMerchant.showbut}}
+								{{> buttons}}
+							{{/if}}
+					{{/if}}
+<!-- 						{{#ifConfirmed2 user_history_location_id}}
 							content
-						{{/ifConfirmed2}}
+						{{/ifConfirmed2}} -->
 						<hr>
 					</div>
 				</div>
@@ -82,15 +92,15 @@
 <template name="selectPlace">
 
 	<div class="content-scrollable">
-		{{#if places}}
+		{{#if gPlaces}}
+			have some
 			<br /><br />
 			{{> confirm}}
-			{{#each places}}
+			{{#each gPlaces}}
 				{{#each content}} 
 					content
 					{{content}}
 				{{/each}}
-				{{#with googlePlace}}
 				<div class="kn-container setlocations {{place_id}}" style="overflow:hidden; height: auto; min-height: 40px; padding:5px" id="{{place_id}}">
 					<div class="kn-leftcol">{{#if name}} {{name}} {{else}} Unknown {{user_history_location_id}}  {{/if}}</div>
 					<div class="kn-rightcol">
@@ -103,7 +113,6 @@
 						</form>	
 					</div>
 				</div>	
-				{{/with}}
 			{{/each}}
 			<div class="kn-container elsewhere {{place_id}}" style="overflow:hidden; height: auto; min-height: 40px; padding:5px" id="{{place_id}}">
 				<div class="kn-leftcol">Elsewhere</div>

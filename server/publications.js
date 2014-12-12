@@ -89,7 +89,17 @@ Meteor.publishComposite('placesByGeo', function(userId, limit) {
 						{ place_id: geolog.place_id },
 						{ limit: 1 });
 				}
-			}
+			},
+/* 			{
+				find: function(geolog) {
+					// Find post author. Even though we only want to return
+					// one record here, we use "find" instead of "findOne"
+					// since this function should return a cursor.
+					return PlacesSubst.find(
+						{ old_place_id: geolog.place_id },
+						{ limit: 1 });
+				}
+			} */
 		]
 	}
 });

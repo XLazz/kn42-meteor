@@ -135,6 +135,7 @@ Meteor.methods({
 		var userLocations = JSON.parse(myJSON.content).user_locations;
 		console.log('calling php server for json 3. num of els ', userLocations.length);
 		userLocations.forEach(function (item, index, array) {
+			Meteor.call('getGPlace', item.place_id);
 //			console.log('inserting item for user 1 ', userId, api_key, ' last_loc ', last_loc, item.user_history_location_id, item.name, item);
 			if (!UserLocations.findOne({userId: userId, location_id: item.location_id})) {
 				var timestamp; 
@@ -190,12 +191,12 @@ Meteor.methods({
 		return userLocations;
 	},
 	
-	'UserLocationsUpdate':function( userId, userLocationId, place_id, placeName){
-		var old_place = UserLocations.findOne({_id: userLocationId}, {fields: {place_id: 1, _id:0}});	
-		var found = UserLocations.find({userId: userId, place_id: old_place.place_id}).fetch();	
-		UserLocations.update({userId: userId, place_id: old_place.place_id}, {$set:{name: placeName, place_id: place_id}}, {multi:true});	
+	'UserLocationsUpdate':function( userId, userLocationId, place_id){
+		var old_place = UserPlaces.findOne({_id: userLocationId}, {fields: {place_id: 1, _id:0}});	
+		var found = UserPlaces.find({userId: userId, place_id: old_place.place_id}).fetch();	
+		UserPlaces.update({userId: userId, place_id: old_place.place_id}, {$set: {place_id: place_id}}, {multi:true});	
 
-		console.log('updated UserLocations for all ', userId, ' old place ', old_place.place_id, ' new place ', place_id, placeName);
+		console.log('updated UserLocations for all ', userId, ' old place ', old_place.place_id, ' new place ', place_id);
 		return found;
 	},
 	
@@ -239,9 +240,7 @@ Meteor.methods({
 				}}
 			);
 		}
-		
-		
-		
+				
 		var api_key = GetApi(userId);
 		var url = 'http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&location=places&lat=' + userLocation.latitude + '&long=' + userLocation.longitude + '&radius=' + radius;
 		console.log('calling php on server for lat and lng radius', userId, userLocation.user_history_location_id , userLocation.place_id, radius, url);
@@ -267,29 +266,8 @@ Meteor.methods({
 				name = myMerchants[1].name;
 			}			
 			console.log('updating userLocation with name ', name);
-//			UserLocations.update({user_history_location_id: userLocation.user_history_location_id}, {$set: {name: name}});
 		}
-/* 		console.log('inserting merchants 0 ', myMerchants[0].name);
-		for (var i = 0; i < myMerchants.length; i++) {		
-			console.log('inserting merchants 1 ', myMerchants[i].name);
 
-			MerchantsCache.upsert(
-				{
-					place_id: myMerchants[i].place_id,	
-				},{
-					icon: myMerchants[i].icon,
-					place_id: myMerchants[i].place_id,
-					name: myMerchants[i].name,
-					vicinity: myMerchants[i].vicinity,
-					types: myMerchants[i].types,
-					geometry: myMerchants[i].geometry,
-					lat: userLocation.latitude,
-					lng: userLocation.longitude,
-					updated: new Date(),
-					user_history_location_id: userLocation.user_history_location_id,
-				}
-			);					
-		} */
 		console.log('calling php on server for lat and lng radius 4 ', userId);			
 		return myMerchants;
 /* 		if (myMerchants[0]) {
@@ -303,26 +281,7 @@ Meteor.methods({
 		} */
 	},
 	 
-	'UpdatePlaces': function(userLocationId, place_id){
-		check(arguments, [Match.Any]);
-		if (place_id === 0){
-			Places.remove(
-				{userLocationId: userLocationId}
-			);			
-		} else {
-			Places.upsert(
-				{
-					place_id: place_id,
-					updated: moment()
-				},
-					{$set: {
-						place_id: place_id,
-					}
-				}
-			);
-		}
-	},
-	
+
 	'removeAllPlaces': function(userId) {
 		if (!userId) {
 			return;

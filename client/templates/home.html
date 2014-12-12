@@ -28,31 +28,8 @@
 		
 		{{#if ifUser}}
 			<div class="list-activities">
-				{{#with currentlocation}}
-					<div style="width: 100%; height: auto; padding: 5px">
-						<div class="div-locations" style="width: 100%; height: auto" id="{{_id}}">
-							<div style="display:inline-block; width: 85%; vertical-align: top;">
-								<div>
-									{{#if userPlace.name}} {{userPlace.name}} {{else}}
-										{{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}
-									{{/if}}
-								</div>
-								<div style="font-size: smaller">
-									{{geoPlace.vicinity}} <br />
-									{{status}} since {{started}} {{#if timespent}}  for {{timespent}} {{/if}}
-<!-- 						<div>{{> venuesSelected}}</div> -->							
-								</div>
-								
-							</div>
-							<div style="display:inline-block; width: 10%; max-width: 40px; vertical-align: top;">
-								<img style="width: auto; height: auto; max-width: 40px" src="{{geoPlace.icon}}" />
-							</div>
-						</div>
-					</div>
-					<div>{{> buttons}}</div>
-				{{/with}}
-			</div>
-				
+				{{> homelocation}}
+			</div>		
 		{{else}}
 		
 			<div style="width: 100%; height: auto; padding: 5px">
@@ -97,22 +74,114 @@
 	</div>
 </template>
 
+<template name="homelocation">
+	{{#with currentlocation}}
+		<div style="width: 100%; height: auto; padding: 5px">
+			<div class="selectplace" style="width: 100%; height: auto" id="
+				{{#if status}}
+					{{userPlace._id}}
+				{{/if}}
+			">
+				<div style="display:inline-block; width: 85%; vertical-align: top;">
+					{{#if userPlace.travel}}
+						<div>
+							Travelling<br />
+							{{#if location.coords.speed}}speed {{location.coords.speed}} {{/if}}
+							{{status}} since {{started}} {{#if timespent}}  for {{timespent}} {{/if}}
+						</div>
+					{{else}}
+						<div>
+							{{#if userPlace.name}} {{userPlace.name}} {{else}}
+								{{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}
+							{{/if}}
+						</div>
+						<div style="font-size: smaller">
+							{{#if geoPlace.name}}{{geoPlace.vicinity}} {{else}}{{geoMerchant.vicinity}} {{/if}}<br />
+							{{status}} {{currentlocation.status}} {{#if currentlocation.status}} since {{started}} {{#if timespent}}  for {{timespent}} {{/if}} {{/if}}
+<!-- 						<div>{{> venuesSelected}}</div> -->							
+						</div>
+					{{/if}}
+					
+				</div>
+				<div style="display:inline-block; width: 10%; max-width: 40px; vertical-align: top;">
+					<img style="width: auto; height: auto; max-width: 40px" src="
+						{{#if geoPlace.name}}{{geoPlace.icon}} {{else}}{{geoMerchant.icon}} {{/if}}
+					" />
+				</div>
+			</div>
+			<div>
+				{{#if status}}
+					{{> buttons}}
+				{{/if}}
+			</div>
+		</div>
+	{{/with}}
+</template>
+
+<template name="locationstat">
+
+</template>
+
+<template name="locationmove">
+		<div style="width: 100%; height: auto; padding: 5px">
+			<div class="selectplace" style="width: 100%; height: auto" id="
+				{{#if currentlocation.status}}
+					{{userPlace._id}}
+				{{/if}}
+			">
+				<div style="display:inline-block; width: 85%; vertical-align: top;">
+					{{#if userPlace.travel}}
+						<div>
+							Travelling<br />
+							{{#if location.coords.speed}}speed {{location.coords.speed}} {{/if}}
+							{{status}} since {{started}} {{#if timespent}}  for {{timespent}} {{/if}}
+						</div>
+					{{else}}
+						<div>
+							{{#if userPlace.name}} {{userPlace.name}} {{else}}
+								{{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}
+							{{/if}}
+						</div>
+						<div style="font-size: smaller">
+							{{geoPlace.vicinity}} <br />
+							{{status}} since {{started}} {{#if timespent}}  for {{timespent}} {{/if}}
+<!-- 						<div>{{> venuesSelected}}</div> -->							
+						</div>
+					{{/if}}
+					
+				</div>
+				<div style="display:inline-block; width: 10%; max-width: 40px; vertical-align: top;">
+					<img style="width: auto; height: auto; max-width: 40px" src="{{geoPlace.icon}}" />
+				</div>
+			</div>
+			<div>
+				{{#if status}}
+					{{> buttons}}
+				{{/if}}
+			</div>
+		</div>
+</template>
+
 <template name="buttons">
-	{{#if buttons}}
+	{{#with buttonsPlace}}
 		<div>
 			<div style="display: inline-block; width: auto; vertical-align: top; ">
 				<form class="form-inline buttons" id="{{_id}}">
-					<input type="button" class="button {{#if confirmed}}undo{{else}}confirm{{/if}} btn btn-small" id="{{_id}}" value="
-						{{#if confirmed}}Undo{{else}}Conf{{/if}}
+					<input type="button" class="button 
+						{{#if confirmed}}undo{{else}}{{#if travel}}undo{{else}}confirm{{/if}}{{/if}}
+						btn btn-small" id="{{_id}}" value="
+						{{#if confirmed}}undo{{else}}{{#if travel}}undo{{else}}confirm{{/if}}{{/if}}
 					" />
 
 					{{#unless confirmed}}
-						<input type="button" class="button locations btn btn-small" data-toggle="modal" data-target="#myModal" id="{{_id}}" value="Change" />
-						<input type="button" class="button travel btn btn-small" data-toggle="modal" data-target="#myModal" id="{{_id}}" value="Travel" />
+						{{#unless travel}}
+							<input type="button" class="button locations btn btn-small" data-toggle="modal" data-target="#myModal" id="{{_id}}" value="Change" />
+							<input type="button" class="button travel btn btn-small" data-toggle="modal" data-target="#myModal" id="{{_id}}" value="Travel" />
+						{{/unless}}
 					{{/unless}}
 
-					<input type="hidden" id="lat-{{_id}}" value="{{latitude}}">
-					<input type="hidden" id="lng-{{_id}}" value="{{longitude}}">
+					<input type="hidden" id="lat-{{userPlace._id}}" value="{{latitude}}">
+					<input type="hidden" id="lng-{{userPlace._id}}" value="{{longitude}}">
 				</form>
 			</div>
 			<div style="display: inline-block; width: 65%">
@@ -121,7 +190,7 @@
 				{{/if}}
 			</div>
 		</div>
-	{{/if}}
+	{{/with}}
 </template>
 
 <template name="selectExperience">
