@@ -74,22 +74,19 @@
 					{{#if ifDebug}}<div style="font-size:50%"> finished: {{finished}}</div>{{/if}}
 					<div style="width: 100%; height: auto; padding-top:10px">
 
-					{{#if geoPlace.showbut}}
-						{{> buttons}}
-							{{#unless travel}}
-								{{> venuesSelected}}
-							{{/unless}}
-						{{else}}
-							{{#if geoMerchant.showbut}}
-								{{> buttons}}
+						{{#if geoPlace.showbut}}
+							{{> buttons}}
 								{{#unless travel}}
 									{{> venuesSelected}}
 								{{/unless}}
-							{{/if}}
-					{{/if}}
-<!-- 						{{#ifConfirmed2 user_history_location_id}}
-							content
-						{{/ifConfirmed2}} -->
+							{{else}}
+								{{#if geoMerchant.showbut}}
+									{{> buttons}}
+									{{#unless travel}}
+										{{> venuesSelected}}
+									{{/unless}}
+								{{/if}}
+						{{/if}}
 						<hr>
 					</div>
 				</div>

@@ -44,26 +44,6 @@ Template.profileDetails.helpers({
 		if (Meteor.userId()) {
 			var user_details = Meteor.user();
 //			console.log('Meteor.user() ', Meteor.user());
-			if (!user_details) {
-				return;
-			}
-			if ((!user_details.profile.name) || (!user_details.profile.picture)){
-					create_profile = 1;
-					console.log('create_profile 1 ', Meteor.user());
-			}
-			if ((user_details.profile.foursquare) && (!user_details.profile.foursquareId)){
-					create_profile = 1;
-					console.log('create_profile foursquare ', Meteor.user());
-			}
-			if ((create_profile) && (user_details)) {
-				console.log('user_details ', user_details);
-			
-				Session.set('profileCall', true);
-				Meteor.call('updateProfile', Meteor.userId(), function(err, results){
-					user_details = Meteor.user();
-					Session.set('profileCall', false);
-				});
-			}
 		}
 //		console.log('checking profile ', user_details);
 /*     if (user_details.services.google !== undefined) {
@@ -105,24 +85,6 @@ Template.connectAccounts.helpers({
 		if (Meteor.userId()) {
 			var user_details = Meteor.user();
 //			console.log('Meteor.user() ', Meteor.user());
-			if (!user_details) {
-				return;
-			}
-			if ((!user_details.profile.name) || (!user_details.profile.picture)){
-					create_profile = 1;
-					console.log('create_profile 1 ', Meteor.user());
-			}
-			if ((user_details.profile.foursquare) && (!user_details.profile.foursquareId)){
-					create_profile = 1;
-					console.log('create_profile foursquare ', Meteor.user());
-			}
-			if ((create_profile) && (user_details)) {
-				console.log('user_details ', user_details);
-			
-				Meteor.call('updateProfile', Meteor.userId(), function(err, results){
-					user_details = Meteor.user();
-				});
-			}
 		}
 	
 		return user_details;

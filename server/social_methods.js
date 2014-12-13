@@ -12,6 +12,30 @@ fsqrApi = function(userId){
 	}
 }
 
+CreateProfile = function(userId){
+	user_details = Meteor.users.findOne(userId);
+	if (!user_details) {
+		return;
+	}
+	if ((!user_details.profile.name) || (!user_details.profile.picture)){
+			create_profile = 1;
+			console.log('create_profile 1 ', Meteor.user());
+	}
+	if ((user_details.profile.foursquare) && (!user_details.profile.foursquareId)){
+			create_profile = 1;
+			console.log('create_profile foursquare ', Meteor.user());
+	}
+	if ((create_profile) && (user_details)) {
+		console.log('user_details ', user_details);
+	
+		Session.set('profileCall', true);
+		Meteor.call('updateProfile', Meteor.userId(), function(err, results){
+			user_details = Meteor.user();
+			Session.set('profileCall', false);
+		});
+	}
+}
+
 Meteor.methods({
 
 	'friendsFsqr': function(userId){

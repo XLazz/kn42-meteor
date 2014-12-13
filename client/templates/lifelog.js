@@ -141,6 +141,8 @@ Template.showlocations.helpers({
 				}
 			}
 		);
+		if (!places)
+			return;
 		console.log('locations helper places ', userId, places.fetch() );
 		if (!places.count()){
 			console.log('calling php server for json for ', userId );

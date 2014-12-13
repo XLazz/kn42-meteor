@@ -126,9 +126,10 @@ Template.homelocation.helpers({
 		var place;
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
-		place = UserPlaces.findOne({place_id: this.place_id},{sort: {timestamp: -1}});
-		if (place) 
-			Session.set('userLocation', place);
+		place = UserPlaces.findOne({userId:userId, place_id: this.place_id},{sort: {timestamp: -1}});
+		if (!place)
+			return;
+		Session.set('userLocation', place);
 		var count = UserPlaces.find({userId:userId, place_id: this.place_id}).count();
 		place.count = count;
 	//	console.log('userPlace 2 ', this, this.place_id, place, count);
@@ -230,7 +231,7 @@ Template.homelocation.helpers({
 			if (!Session.get('geoback')) {
 				return 'service is not running';
 			} else {
-				return 'we are waiting for the location update';
+				return 'we are waiting for more data to see if you are stationary';
 			}
 		}
 		return lastGeoLog.status;	
@@ -487,8 +488,10 @@ Template.claimIt.events({
 
 //		alert('coming soon');
 		var userLocation = Session.get('userLocation');
-		if (!userLocation)
+		if (!userLocation) {
+			alert('You need to start geolog service before we can set you');
 			return;
+		}
 		var locId = userLocation._id;
 		console.log('click claim userlocation ', userLocation);
 		if (!userLocation.confirmed) {

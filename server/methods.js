@@ -70,6 +70,8 @@ GetApi = function(userId){
 	var create_profile;
 	var user_email;
 	var user_details = Meteor.users.findOne({_id: userId}, {_id:0});
+	if (!user_details)
+		return;
 //	console.log('GetApi checking api_key 1 for user ', userId, ' user details ', user_details); 
 
 	// It should be social network account
@@ -137,7 +139,7 @@ Meteor.methods({
 		userLocations.forEach(function (item, index, array) {
 			Meteor.call('getGPlace', item.place_id);
 //			console.log('inserting item for user 1 ', userId, api_key, ' last_loc ', last_loc, item.user_history_location_id, item.name, item);
-			if (!UserLocations.findOne({userId: userId, location_id: item.location_id})) {
+/* 			if (!UserLocations.findOne({userId: userId, location_id: item.location_id})) {
 				var timestamp; 
 				var timestampEnd;
 				if (item.finished) 
@@ -161,7 +163,7 @@ Meteor.methods({
 						timestampEnd: timestampEnd
 					}
 				);
-			}
+			} */
 			if (!UserPlaces.findOne({userId: userId, location_id: item.location_id})) {
 				var timestamp;
 				var timestampEnd;

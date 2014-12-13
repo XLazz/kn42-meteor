@@ -8,6 +8,9 @@ console.log ('onCreateUser ', user);
   if (Meteor.users.find().count() === 0)
     user.admin = true;
 
+/* 	if (!UserPlaces.findOne({userId:user._id}))
+		Meteor.call('getLocations',user._id, 'list'); */
+
 /* 	Meteor.call('updateProfile', _, function(err, results){
 		console.log ('onCreateUser ', user);
 		user_details = user;

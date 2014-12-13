@@ -15,6 +15,8 @@ submitCoords = function(userId, geoId, location ){
 }
 
 ifStatic = function(userId, currentPlace, currentPlaceAlt, timestamp){
+	if (!userId)
+		return;
 	var upsert_it;
 	timestamp = moment().valueOf() - 600;
 	var lastLoc = GeoLog.findOne({timestamp: {$lt: timestamp}, userId: userId});
@@ -46,13 +48,13 @@ ifStatic = function(userId, currentPlace, currentPlaceAlt, timestamp){
 		if (upsert_it) {
 			console.log('User was stationary for 600 at ', currentPlaceAlt.place_id, currentPlaceAlt.name);
 			var place = Places.findOne({place_id: currentPlaceAlt.place_id});
-			if (!place) {
-				Places.upsert(
-					{place_id:  currentPlaceAlt.place_id},
+			if (!place) {					
+				Places.insert(
 					currentPlaceAlt
 				);			
 				place = Places.findOne({place_id: currentPlaceAlt.place_id});
 			}
+			//dding new stationary place to UserPlaces - LifeLog
 			UserPlaces.insert(
 				{
 					placesId: place._id,
@@ -106,47 +108,74 @@ upsertPlaceId = function (location){
 	var results;
 	var currentPlace;
 	var current_status;
-	var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId})._id;
-	if (location){
-//	 if (location.speed){
-		Meteor.call('getGLoc', userId, location, radius, function(err,results){
-			console.log('getGLoc call  ', results);
-					
-			if (!results)
-				return;
-			currentPlace = results.results[0];
-			currentPlaceAlt = results.results[1];
-			
-			oldPlace = GeoLog.findOne({userId: userId, timestamp:{$ne: location.timestamp}}, {sort: {timestamp: -1}});
-			console.log('place from Gcall ', oldPlace);		
-			if (oldPlace) {
-				if (oldPlace.stationary_place_id == currentPlaceAlt.place_id) {
-					console.log('Same place ', currentPlaceAlt.place_id);
-					current_status = 'stationary';
-					
+	if (!location)
+		return;
+	if (!location.coords)
+		return;
 
-					// and let's replace the address with place
-				} else {
-					console.log('moved ', currentPlaceAlt.place_id, ' from ',oldPlace.stationary_place_id, oldPlace );
-					current_status = '';
+	//Lets add check for non-significant coords changes in here	
+	// check come here!
+		
+	//we have coords, lets check google
+	Meteor.call('getGLoc', userId, location, radius, function(err,results){
+		console.log('getGLoc call  ', results);
+				
+		if (!results)
+			return;
+		currentPlace = results.results[0];
+		currentPlaceAlt = results.results[1];
 
-					// updating geolog with new place
+		var geolog = GeoLog.findOne({timestamp: location.timestamp, userId: userId});
+		if (!geolog)
+			return;
+		var geoId = geolog._id;
+		// updating geolog with google details
+		if (results.results[0])
+			var place_id_0 = results.results[0].place_id
+		if (results.results[1])
+			var place_id_1 = results.results[1].place_id		
+		GeoLog.upsert(
+			geoId,
+			{$set: 
+				{
+					userId: userId,
+					place_id: place_id_0,
+					stationary_place_id: place_id_1
 				}
 			}
-			GeoLog.upsert(
-				{_id: geoId},
-				{$set: 
-					{
-						place_id: results.results[0].place_id,
-						stationary_place_id: results.results[1].place_id,
-						status: current_status,
+		);
+		
+		oldPlace = GeoLog.findOne({userId: userId, timestamp:{$ne: location.timestamp}}, {sort: {timestamp: -1}});
+		if (!oldPlace)
+			return;
+		console.log('place from Gcall ', oldPlace);		
+		if (oldPlace) {
+			// if previous stationary place_id from GeoLog is the same as new one, we are stationary
+			if (oldPlace.stationary_place_id == currentPlaceAlt.place_id) {
+				// updating geolog with new stationary status
+				console.log('Same place ', currentPlaceAlt.place_id);
+				current_status = 'stationary';
+				GeoLog.upsert(
+					geoId,
+					{$set: 
+						{
+							status: current_status,
+						}
 					}
-				}
-			)
-			var ifThat = ifStatic(userId, currentPlace, currentPlaceAlt, location.timestamp);
-			submitCoords(userId, geoId, location );
-		});
-	}
+				);				
+
+				// and let's replace the address with place
+			} else {
+				console.log('moved ', currentPlaceAlt.place_id, ' from ',oldPlace.stationary_place_id, oldPlace );
+				current_status = '';
+
+				// updating geolog with new place
+			}
+		}
+		var ifThat = ifStatic(userId, currentPlace, currentPlaceAlt, location.timestamp);
+		submitCoords(userId, geoId, location );
+	});
+
 }
 
 UpdateGeo = function (){
@@ -166,8 +195,6 @@ UpdateGeo = function (){
 		});
 		upsertPlaceId(location);
 	}
-	
-
 	return location;
 };
 
@@ -218,13 +245,21 @@ Template.coords.helpers({
 
 	geoPlace: function() {
 		// We use this helper inside the {{#each posts}} loop, so the context
-		// will be a post object. Thus, we can use this.authorId.
+		// will be a post object. Thus, we can use this.place_id.
+		if (!this.place_id) {
+			console.error('geoPlace this ', this);
+			return;
+		}
 		var place = Places.findOne({place_id: this.place_id});
 //		console.log('geoPlace ', this.place_id);
 		return place;
 	},
 	geoMerchant: function() {
 		var userId = Meteor.userId();
+		if (!this.place_id) {
+			console.error('geoMerchant this ', userId, this);
+			return;
+		}
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
 		var place = MerchantsCache.findOne({'place_id': this.place_id});
