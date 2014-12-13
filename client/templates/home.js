@@ -461,6 +461,10 @@ Template.claimIt.helpers({
 		if (result) {		
 			var coords = result.location.coords;
 		} else {
+			if (!userLocation.location)
+				return;		
+			if (!userLocation.location.coords)
+				return;		
 			var coords = userLocation.location.coords;
 		}
 		var radius_search = 0.001;
