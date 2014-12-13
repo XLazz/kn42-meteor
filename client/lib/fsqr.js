@@ -13,7 +13,8 @@ Template.venues.helpers({
 		var userLocation = Session.get('userLocation');
 		if (!userLocation) {
 			userLocation = UserPlaces.findOne({userId: userId},{sort: {timestamp: -1}});
-			Session.set('userLocation', userLocation);
+//			if (userLocation)
+//				Session.set('userLocation', userLocation);
 		}
 		var userLocation = Session.get('userLocation');
 		if (!userLocation)  

@@ -127,10 +127,8 @@ Template.homelocation.helpers({
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
 		place = UserPlaces.findOne({place_id: this.place_id},{sort: {timestamp: -1}});
-		if (!place) 
-			return;
-		
-		Session.set('userLocation', place);
+		if (place) 
+			Session.set('userLocation', place);
 		var count = UserPlaces.find({userId:userId, place_id: this.place_id}).count();
 		place.count = count;
 	//	console.log('userPlace 2 ', this, this.place_id, place, count);
@@ -151,6 +149,8 @@ Template.homelocation.helpers({
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
 		place = Places.findOne({place_id: this.place_id});
+		if (!place)
+			return;
 //		console.log('geoPlace ', this.place_id, place);
 		if ((!Session.get('userLocation')) && place) {
 			Session.set('userLocation', place);
@@ -175,6 +175,8 @@ Template.homelocation.helpers({
 			}
 				
 		} else {
+			if (!place)
+				return;
 			if ((!Session.get('userLocation')) && place) {
 				Session.set('userLocation', place);
 			}
@@ -452,19 +454,24 @@ Template.buttons.events({
 Template.claimIt.helpers({
 	"claimed": function (event, template) {
 		var userLocation = Session.get('userLocation');
+		if (!userLocation)
+			return;
 		var result = GeoLog.findOne(userLocation.geoId);
-		var coords = result.location.coords;
-		var lat = coords.latitude.toFixed(4);
-		var lng = coords.longitude.toFixed(4);
-//		lat = 42.1;
-		// var claimed = ClaimedPlaces.findOne(
-			// {
-				// 'coords.latitude': /.*lat.*/, 
-				// 'coords.longitude': /.*lng.*/,
-			// }
-		// );
-		var claimed = ClaimedPlaces.findOne({ 'coords.latitude_harsh': lat });
-		console.log('check claimed ', lat, lng, claimed, ClaimedPlaces.find({},{sort:{dateNow: -1}}).fetch());
+			console.log('claimed userLocation ',userLocation.geoId , userLocation, result );
+		if (result) {		
+			var coords = result.location.coords;
+		} else {
+			var coords = userLocation.location.coords;
+		}
+		var radius_search = 0.001;
+		var latup = parseFloat(coords.latitude) + radius_search;
+		var latdown = parseFloat(coords.latitude) - radius_search;
+		var lngup = parseFloat(coords.longitude) + radius_search;
+		var lngdown = parseFloat(coords.longitude) - radius_search;
+
+//		lat2 = lat2.toString()
+		var claimed = ClaimedPlaces.findOne({'coords.latitude': { $gt: latdown, $lt: latup }, 'coords.longitude': { $gt: lngdown, $lt: lngup }});
+		console.log('check claimed ', latup, latdown, lngup, lngdown, claimed, lat2, claimed2);
 		if (claimed)
 			return claimed;
 	},	
@@ -472,11 +479,35 @@ Template.claimIt.helpers({
 
 Template.claimIt.events({
 	"click .claim": function (event, template) {
+		userId = Meteor.userId();	
+
 //		alert('coming soon');
-		var locId = Session.get('userLocation')._id;
+		var userLocation = Session.get('userLocation');
+		if (!userLocation)
+			return;
+		var locId = userLocation._id;
+		console.log('click claim userlocation ', userLocation);
+		if (!userLocation.confirmed) {
+			alert('Please confirm the place befor claiming it');
+			return;
+		}
 		console.log('click .claim buttons confirming userLocation ',locId );
-		// ClaimedPlaces.insert({place_id: place_id});
-		// UserPlaces.upsert(locId, {$set: {claimed: true}});		
+
+		// Populate services
+		var myTypes = Places.find({},{fields:{types:1}});
+		console.log(' types ', myTypes.fetch());
+		myTypes.forEach(function (item, index, array) {
+			console.log(' foreach ', item.types );
+			item.types.forEach(function (item2, index, array) {
+
+				var myId = Services.findOne({type:item2});
+				console.log(' foreach ', item2, myId );
+				if (!myId) {
+					console.log(' inserting ', item2 );
+					Services.insert({type:item2});
+				}
+			});
+		});
 		Overlay.show('claimPlace');	
 	},	
 	"click .editClaim": function (event, template) {

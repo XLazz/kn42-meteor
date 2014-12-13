@@ -12,12 +12,26 @@ Template.claimPlace.helpers({
 	coords: function () {
 		var userLocation = Session.get('userLocation');
 		var result = GeoLog.findOne(userLocation.geoId);
-		var coords = result.location.coords;
+		
+		console.log('current userLocation ', userLocation.geoId, userLocation, result);
+		if (result) {
+		//Getting coords from Geolog
+			var coords = result.location.coords;
+		} else {
+			var coords = userLocation.location.coords;
+		}
 //		coords2 = results.location.coords.latitude + ',' + result.location.coords.longitude;
-		console.log('current userLocation ', userLocation.geoId, result.location, coords);
-		coords.latitude_harsh = coords.latitude.toFixed(4)-0;
-		coords.longitude_harsh = coords.longitude.toFixed(4)-0;
+		console.log('current userLocation ', userLocation.geoId, coords);
+		coords.latitude_harsh = parseFloat(coords.latitude).toFixed(4)-0;
+		coords.latitude = parseFloat(coords.latitude);
+		coords.longitude_harsh = parseFloat(coords.longitude).toFixed(4)-0;
+		coords.longitude = parseFloat(coords.longitude);
 		return coords;
+	},
+	place_id: function () {
+		var userLocation = Session.get('userLocation');
+		var place_id = userLocation.place_id;
+		return place_id;
 	},
 	userId: function(){
 		return Meteor.userId();

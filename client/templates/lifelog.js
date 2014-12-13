@@ -204,10 +204,11 @@ Template.showlocations.events({
 			getGPlace(userLocation.place_id);
 		}
 		console.log('click on div before call 1 ',userLocationId,  userLocation.place_id, place);			
-		if (!place){
-			return;
+		if (userLocation) {
+			Session.set('userLocation', userLocation);
+		} else if (place) {
+			Session.set('userLocation', place);
 		}
-		Session.set('userLocation', userLocation);
 		
 //		Session.get('userLocationId');
 	},	
@@ -314,7 +315,6 @@ Template.selectPlace.events({
 		console.log('UserLocations  ', userLocation.place_id, userLocation);
 	
 		Overlay.hide();
-		Session.set('userLocation', userLocation);
 	},
 	
 	'click #allloc': function (event, template) {
@@ -332,6 +332,7 @@ Template._show_exp.events({
 	'click .experience': function(event, template) {
 		var userLocationId = $(event.delegateTarget).attr("id");
 		console.log('click .exp ', this, userLocationId);
+		
 		Session.set('userLocationId', userLocationId);
 //		Session.set('currentPlace');
 	// Session.set("showCreateDialog", false);

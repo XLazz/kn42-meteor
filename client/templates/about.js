@@ -58,8 +58,10 @@ Template.profileDetails.helpers({
 			if ((create_profile) && (user_details)) {
 				console.log('user_details ', user_details);
 			
+				Session.set('profileCall', true);
 				Meteor.call('updateProfile', Meteor.userId(), function(err, results){
 					user_details = Meteor.user();
+					Session.set('profileCall', false);
 				});
 			}
 		}
