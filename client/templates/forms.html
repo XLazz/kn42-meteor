@@ -1,0 +1,51 @@
+<template name="claimPlace">
+	<div style="padding :10px; padding-top: 50px">
+	{{#autoForm id="claimPlace" type="insert" collection="ClaimedPlaces"}}
+		{{> afQuickField name="name" placeholder="Name your place"}}
+		{{> afQuickField name="public"}}
+		<div class="form-group">
+			{{> afFieldInput name="userId" type="hidden" value=userId}}
+			{{> afFieldInput name="created" type="hidden" value=created}}
+			{{> afFieldInput name="coords.latitude" type="hidden" value=coords.latitude}}
+			{{> afFieldInput name="coords.longitude" type="hidden" value=coords.longitude}}
+			{{> afFieldInput name="coords.latitude_harsh" type="hidden" value=coords.latitude_harsh}}
+			{{> afFieldInput name="coords.longitude_harsh" type="hidden" value=coords.longitude_harsh}}
+			{{> afFieldInput name="type" type=selectedType options=sTypes}}
+		</div>
+		<div class="form-group">
+			<button type="submit" class="btn btn-primary">Submit</button>
+		</div>
+	{{/autoForm}}
+	</div>
+<!-- {{> quickForm collection="ClaimedPlaces" id="claimPlace" type="insert"}} -->
+</template>
+
+<template name="afInsertDemo">
+{{#autoForm id="afInsertDemo" type="insert" collection="People"}}
+  <div class="form-group {{#if afFieldIsInvalid name='firstName'}}has-error{{/if}}">
+    <label class="control-label">{{afFieldLabelText name='firstName'}}</label>
+    {{> afFieldInput name='firstName'}}
+    {{#if afFieldIsInvalid name='firstName'}}
+    <span class="help-block">{{{afFieldMessage name='firstName'}}}</span>
+    {{/if}}
+  </div>
+  <div class="form-group {{#if afFieldIsInvalid name='lastName'}}has-error{{/if}}">
+    <label class="control-label">{{afFieldLabelText name='lastName'}}</label>
+    {{> afFieldInput name='lastName'}}
+    {{#if afFieldIsInvalid name='lastName'}}
+    <span class="help-block">{{{afFieldMessage name='lastName'}}}</span>
+    {{/if}}
+  </div>
+  <div class="form-group {{#if afFieldIsInvalid name='age'}}has-error{{/if}}">
+    <label class="control-label">{{afFieldLabelText name='age'}}</label>
+    {{> afFieldInput name='age'}}
+    {{#if afFieldIsInvalid name='age'}}
+    <span class="help-block">{{{afFieldMessage name='age'}}}</span>
+    {{/if}}
+  </div>
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary">Add Person</button>
+    <button type="reset" class="btn btn-default">Reset Form</button>
+  </div>
+{{/autoForm}}
+</template>

@@ -111,6 +111,7 @@ Template.homelocation.helpers({
 	},
 	
 	userPlace: function() {
+		userId = Meteor.userId();
 		console.log('userPlace 0 ', this, this.status);
 /* 		if (!this.status) {
 //			console.log('userPlace 0.5 ', this, this.status);
@@ -123,13 +124,14 @@ Template.homelocation.helpers({
 		var place;
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
-		place = UserPlaces.findOne(
-			{place_id: this.place_id},{sort: {timestamp: -1}}
-		);
-		if (place) {
-			Session.set('userLocation', place);
-		}
-//		console.log('userPlace 2 ', this, this.place_id, place);
+		place = UserPlaces.findOne({place_id: this.place_id},{sort: {timestamp: -1}});
+		if (!place) 
+			return;
+		
+		Session.set('userLocation', place);
+		var count = UserPlaces.find({userId:userId, place_id: this.place_id}).count();
+		place.count = count;
+		console.log('userPlace 2 ', this, this.place_id, place, count);
 		return place;
 	},
 
@@ -442,6 +444,31 @@ Template.buttons.events({
 		console.log('click .travel buttons confirming userLocation ',locId );
 		UserPlaces.upsert(locId, {$set: {confirmed: '', travel: true}});		
 	},		
+	
+});
+
+Template.claimIt.helpers({
+	"claimed": function (event, template) {
+		var userLocation = Session.get('userLocation');
+		var result = GeoLog.findOne(userLocation.geoId);
+		var coords = result.location.coords;
+		var lat = coords.latitude.toFixed(4);
+		var lng = coords.longitude.toFixed(4);
+//		lat = 42.1;
+		// var claimed = ClaimedPlaces.findOne(
+			// {
+				// 'coords.latitude': /.*lat.*/, 
+				// 'coords.longitude': /.*lng.*/,
+			// }
+		// );
+		var claimed = ClaimedPlaces.findOne({ 'coords.latitude_harsh': lat });
+		console.log('check claimed ', lat, lng, claimed, ClaimedPlaces.find({},{sort:{dateNow: -1}}).fetch());
+		if (claimed)
+			return claimed;
+	},	
+});
+
+Template.claimIt.events({
 	"click .claim": function (event, template) {
 //		alert('coming soon');
 		var locId = Session.get('userLocation')._id;
@@ -449,7 +476,16 @@ Template.buttons.events({
 		// ClaimedPlaces.insert({place_id: place_id});
 		// UserPlaces.upsert(locId, {$set: {claimed: true}});		
 		Overlay.show('claimPlace');	
-	},		
+	},	
+	"click .editClaim": function (event, template) {
+//		var claimedId = template.find('.editClaim').attr('id');
+		var claimedId = $(event.currentTarget).attr("id")
+		console.log('click .editClaim ',claimedId );
+		Session.set('claimedId', claimedId);
+		// ClaimedPlaces.insert({place_id: place_id});
+		// UserPlaces.upsert(locId, {$set: {claimed: true}});		
+		Overlay.show('claimedPlaces');	
+	},	
 });
 
 UI.registerHelper('ifConfirmed2', function () {
@@ -663,8 +699,4 @@ Template.venues.events({
 
 });
 
-Template.claimPlace.events({
-	'submit form': function(event){
-		event.preventDefault();
-	},
-});
+

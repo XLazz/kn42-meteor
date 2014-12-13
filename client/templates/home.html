@@ -29,7 +29,11 @@
 		{{#if ifUser}}
 			<div class="list-activities">
 				{{> homelocation}}
+				{{> claimIt}}
 			</div>		
+			<div>
+				
+			</div>
 		{{else}}
 		
 			<div style="width: 100%; height: auto; padding: 5px">
@@ -77,7 +81,7 @@
 <template name="homelocation">
 	{{#with currentlocation}}
 		<div style="width: 100%; height: auto; padding: 5px">
-			<div class="selectplace" style="width: 100%; height: auto" id="
+			<div class="selectplace" style="width: 100%; height: auto; padding:5px" id="
 				{{#if status}}
 					{{userPlace._id}}
 				{{/if}}
@@ -103,13 +107,20 @@
 					{{/if}}
 					
 				</div>
-				<div style="display:inline-block; width: 10%; max-width: 40px; vertical-align: top;">
-					<img style="width: auto; height: auto; max-width: 40px" src="
-						{{#if geoPlace.name}}{{geoPlace.icon}} {{else}}{{geoMerchant.icon}} {{/if}}
-					" />
+				<div style="display:inline-block; width: 10%; vertical-align: top;">
+					<div>
+						<img style="width: auto; height: auto; max-width: 40px" src="
+							{{#if travel}}
+								img/app/car.png
+							{{else}}
+								{{#if geoPlace.icon}}  {{geoPlace.icon}} {{else}} {{geoMerchant.icon}} {{/if}}
+							{{/if}}
+						" />
+					</div>
+					{{#unless travel}}<div style="font-size: smaller; float:right"><span class="badge">{{userPlace.count}}</span></div>{{/unless}}
 				</div>
 			</div>
-			<div>
+			<div style="padding-top:10px">
 				{{#if status}}
 					{{> buttons}}
 				{{/if}}
@@ -189,58 +200,20 @@
 				{{/if}}
 			</div>
 			<br />
-			<div>
-				Claim your place:
-				<input type="button" class="button claim btn btn-small" id="{{_id}}" value="Claim" />
-			</div>
 		</div>
 	{{/with}}
 </template>
 
-<template name="claimPlace">
-	<div style="padding :10px; padding-top: 50px">
-<!--   {{> quickForm collection="ClaimedPlaces" id="claimPlace" type="insert" schema=schema}} -->
-	{{> quickForm id="claimPlace" type="insert" collection="ClaimedPlaces" schema="Schemas.ClaimForm" fields="name, type, publ"}}
-	
-<!-- 	{{#autoForm collection="ClaimedPlaces" type="insert" id="claimPlace"}}
-  {{> afQuickField name="a" options="allowed" noselect=true}}
-  {{#if afFieldValueIs name="a" value="foo"}}
-    {{> afQuickField name="b"}}
-  {{/if}}
-	{{/autoForm}} -->
+<template name="claimIt">
+	<div class="btn-info" style="width:100%">
+		{{#if claimed}}
+			<div class="editClaim" id="{{claimed._id}}">Claimed: {{claimed.name}}</div>
+		{{else}}
+			Claim your place: <input type="button" class="inline button claim btn btn-small" id="{{_id}}" value="Claim" />
+		{{/if}}
 	</div>
 </template>
-
-<template name="afInsertDemo">
-{{#autoForm id="afInsertDemo" type="insert" collection="People"}}
-  <div class="form-group {{#if afFieldIsInvalid name='firstName'}}has-error{{/if}}">
-    <label class="control-label">{{afFieldLabelText name='firstName'}}</label>
-    {{> afFieldInput name='firstName'}}
-    {{#if afFieldIsInvalid name='firstName'}}
-    <span class="help-block">{{{afFieldMessage name='firstName'}}}</span>
-    {{/if}}
-  </div>
-  <div class="form-group {{#if afFieldIsInvalid name='lastName'}}has-error{{/if}}">
-    <label class="control-label">{{afFieldLabelText name='lastName'}}</label>
-    {{> afFieldInput name='lastName'}}
-    {{#if afFieldIsInvalid name='lastName'}}
-    <span class="help-block">{{{afFieldMessage name='lastName'}}}</span>
-    {{/if}}
-  </div>
-  <div class="form-group {{#if afFieldIsInvalid name='age'}}has-error{{/if}}">
-    <label class="control-label">{{afFieldLabelText name='age'}}</label>
-    {{> afFieldInput name='age'}}
-    {{#if afFieldIsInvalid name='age'}}
-    <span class="help-block">{{{afFieldMessage name='age'}}}</span>
-    {{/if}}
-  </div>
-  <div class="form-group">
-    <button type="submit" class="btn btn-primary">Add Person</button>
-    <button type="reset" class="btn btn-default">Reset Form</button>
-  </div>
-{{/autoForm}}
-</template>
-
+	
 <template name="selectExperience">
 	<div class="demo">
 		<div class="control-group">

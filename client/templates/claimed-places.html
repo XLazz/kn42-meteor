@@ -1,0 +1,18 @@
+<template name="claimedPlaces">
+	<div class="content-scrollable">
+		<div style="padding:10px; padding-top:40px">
+		<h1 class="title-admin">Your places</h1>
+
+		<form>
+			{{#each claimed}}
+				<div style="font-size:smaller">
+				<label>Claimed on {{created}}</label><br />
+				<textarea style="width:100%" name="text" rows="2" placeholder="Show the latest Local Market news on the the frontpage...">{{name}}</textarea>
+				</div>
+	<!-- 			<button type="submit" class="btn-primary">Save</button> -->
+			{{/each}}
+			
+		</form>
+		</div>
+	</div>
+</template>

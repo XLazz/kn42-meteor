@@ -58,7 +58,7 @@
 								</div>
 							{{/if}}
 						</div>
-						<div style="display:inline-block; width: 10%; max-width: 40px; vertical-align: top;">
+						<div style="display:inline-block; width: 10%; vertical-align: top;">
 							<div>
 								<img style="width: auto; height: auto; max-width: 40px" src="
 									{{#if travel}}
@@ -68,11 +68,11 @@
 									{{/if}}
 								" />
 							</div>
-							{{#unless travel}}<div style="font-size: smaller">been: {{count}}</div>{{/unless}}
+							{{#unless travel}}<div style="font-size: smaller">been: <span class="badge">{{count}}</span></div>{{/unless}}
 						</div>
 					</div>
 					{{#if ifDebug}}<div style="font-size:50%"> finished: {{finished}}</div>{{/if}}
-					<div style="width: 100%; height: auto">
+					<div style="width: 100%; height: auto; padding-top:10px">
 
 					{{#if geoPlace.showbut}}
 						{{> buttons}}

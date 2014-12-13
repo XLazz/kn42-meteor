@@ -32,6 +32,17 @@ Meteor.publish(null, function() {
       'services.twitter.profile_image_url_https': 1
     }
   });
+	return People.find();
+	return Services.find();
+});
+
+People.allow({
+  insert: function () {
+    return true;
+  },
+  remove: function () {
+    return true;
+  }
 });
 
 /* Meteor.publish(null, function() {
