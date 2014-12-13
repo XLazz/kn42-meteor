@@ -11,8 +11,13 @@
       <div class="description-about">
 				This part of the app comes soon			
       </div>
-
-			{{> claimPlace}}
+{{> venues}}
+			{{#if ifUser}}
+				{{#if currentUser.profile.foursquare}}		
+					{{> venues}}
+				{{/if}}
+			{{/if}}
+			
     </div>
 
 <!--     <a href="https://www.meteor.com" class="btn-primary js-open" target="_blank">Built with meteor</a> -->

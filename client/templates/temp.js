@@ -1,4 +1,19 @@
+
+
 Template.test.helpers({
+	ifUser: function (){
+		if (!Session.get('userLocation')) {
+			place = UserPlaces.findOne({userId: userId},{sort: {timestamp: -1}});
+			Session.set('userLocation', place);
+		}
+		if (Meteor.userId()) {return 'true'};
+	},
+	
+	currentUser: function(){
+		if (!Meteor.userId()) {return;}
+		console.log('curr user ',  Meteor.user());
+		return Meteor.user();
+	},
 	mytypes: function(){
 		var myTypes = Places.find({},{fields:{types:1}});
 //		console.log(' types ', myTypes.fetch());

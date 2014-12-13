@@ -64,7 +64,7 @@
 		<div class="list-recipes">
 			{{#if ifUser}}
 				{{#if currentUser.profile.foursquare}}		
-	<!-- 				{{> venues}} -->
+					{{> venues}}
 				{{/if}}
 			{{/if}}
 <!-- 			{{#each featuredRecipes}}
@@ -242,46 +242,6 @@
 		</script>
 	</div>
 </template>
-
-<template name="venues">
-	{{#if venuesNearby}}
-		Foursquare venues <br />
-		{{#each venuesNearby}}
-			<div>
-				{{#if url}}
-					<a href="{{url}}" target=_blank>{{name}}</a>
-				{{else}}
-					{{name}}
-				{{/if}}
-				distance {{location.distance}}
-			</div>
-		{{/each}}
-	{{else}}
-		We cant find any foursquare venues around
-	{{/if}}
-
-<!-- 	<button class="button updatevenues btn btn-primary btn-xs btn-modal" style="bottom:0"> Update Venues</button> -->
-</template>
-
-<template name="venuesSelected">
-	{{#if venuesSelected}}
-		Foursquare venues <br />
-		{{#each venuesSelected}}
-			<div>
-				{{#if url}}
-					<a href="{{url}}" target=_blank>{{name}}</a>
-				{{else}}
-					{{name}}
-				{{/if}}
-				distance {{location.distance}}
-			</div>
-		{{/each}}
-	{{else}}
-		We can't find any foursquare venues around
-	{{/if}}
-<!-- 	<button class="button updatevenues btn btn-primary btn-xs btn-modal" style="bottom:0"> Update Venues</button> -->
-</template>
-
 
 <template name="_show_exp2">
 	{{> buttons}}
