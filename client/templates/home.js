@@ -471,7 +471,7 @@ Template.claimIt.helpers({
 
 //		lat2 = lat2.toString()
 		var claimed = ClaimedPlaces.findOne({'coords.latitude': { $gt: latdown, $lt: latup }, 'coords.longitude': { $gt: lngdown, $lt: lngup }});
-		console.log('check claimed ', latup, latdown, lngup, lngdown, claimed, lat2, claimed2);
+		console.log('check claimed ', latup, latdown, lngup, lngdown, claimed);
 		if (claimed)
 			return claimed;
 	},	
