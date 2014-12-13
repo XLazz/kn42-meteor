@@ -16,7 +16,7 @@ findExperiences = function(){
 	}
 }
 
-Template.home.helpers({	
+Template.homeinside.helpers({	
   // selects FEATURED_COUNT number of recipes at random
 /*   featuredRecipes: function() {
     var recipes = _.values(RecipesData);
