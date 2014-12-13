@@ -1,11 +1,38 @@
+/* ifDebug = Sessions.get('ifDebug'); */
+
 Template.about.helpers({
 	userId: function(){
 
 		var userId = Meteor.userId();
 		return userId;
 	},
+	ifSettings: function(){
+		return Session.get('showset');
+	},
+	ifAccounts: function(){
+		return Session.get('showacc');
+	},
+	ifDebug: function(){
+		return Session.get('debug');
+	},
 });
 
+Template.about.events({
+	'click #showset': function (event, template) {
+		if (Session.get('showset')) {
+			Session.set('showset', false);
+		} else {
+			Session.set('showset', true);
+		}
+	},
+	'click #showacc': function (event, template) {
+		if (Session.get('showacc')) {
+			Session.set('showacc', false);
+		} else {
+			Session.set('showacc', true);
+		}
+	},
+});
 
 Template.profileDetails.helpers({
 	user_details: function(){
@@ -66,7 +93,42 @@ Template.profilePic.helpers({
 	
 });
 
-Template.profileDetails.events({
+Template.connectAccounts.helpers({
+	user_details: function(){
+		var user_email;
+		var userId = Meteor.userId();
+		var api_key;
+		var create_profile;
+//		var user_emails = Meteor.user().emails;
+		if (Meteor.userId()) {
+			var user_details = Meteor.user();
+//			console.log('Meteor.user() ', Meteor.user());
+			if (!user_details) {
+				return;
+			}
+			if ((!user_details.profile.name) || (!user_details.profile.picture)){
+					create_profile = 1;
+					console.log('create_profile 1 ', Meteor.user());
+			}
+			if ((user_details.profile.foursquare) && (!user_details.profile.foursquareId)){
+					create_profile = 1;
+					console.log('create_profile foursquare ', Meteor.user());
+			}
+			if ((create_profile) && (user_details)) {
+				console.log('user_details ', user_details);
+			
+				Meteor.call('updateProfile', Meteor.userId(), function(err, results){
+					user_details = Meteor.user();
+				});
+			}
+		}
+	
+		return user_details;
+	},
+	
+});
+
+Template.connectAccounts.events({
 	'click #connect_google': function (event, template) {
 		if (Meteor.user()) {
 			console.log('connecting with google');
@@ -108,6 +170,21 @@ Template.profileDetails.events({
 				});
 		}		
 	},
+	'click #connect_runk': function (event, template) {
+		alert('coming soon');
+		return;
+		if (Meteor.user()) {
+				console.log('connecting with runk');
+				Meteor.connectWith("runkeeper");
+				Meteor.call('updateProfile', Meteor.userId(), function(err, results){
+					user_details = Meteor.user();
+				});
+		}		
+	},
+});
+
+Template.profileDetails.events({
+
 	'click #update_profile': function (event, template) {
 		console.log('pic was clicked', Meteor.user());
 		Meteor.call('updateProfile', Meteor.userId);
@@ -119,3 +196,27 @@ Template.profileDetails.events({
 		});
 	},
 });
+
+Template.userSettings.helpers({
+	autoplace: function(){
+		var userId = Meteor.userId();
+		var places = AutoPlaces.find({userId:userId});
+		console.log('autoplaces ', places.count());
+		return places;
+	},
+	place: function(){
+		var place = Places.findOne({place_id:this.place_id});
+		return place;
+	},
+	privacy: function(){
+	
+	}
+});
+
+Template.userSettings.events({
+	'click .removeauto': function (event, template) {
+		var myId = $(event.currentTarget).attr("id");
+		AutoPlaces.remove(myId);
+	},
+});
+

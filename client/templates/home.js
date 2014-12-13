@@ -61,7 +61,7 @@ Template.homelocation.helpers({
 		if (!GeoLog.findOne({userId: userId}, {sort: {timestamp: -1}}))
 			return;
 		if (!GeoLog.findOne({userId: userId}, {sort: {timestamp: -1}}).status) {
-			console.log('currentlocation moving');
+//			console.log('currentlocation moving');
 			currentlocation = GeoLog.findOne(
 				{userId: userId}, 
 				{
@@ -101,6 +101,8 @@ Template.homelocation.helpers({
 						doc.timespent = duration;
 						doc.started = moment(then).format("MM/DD/YY HH:mm");
 						doc.finished = moment(now).format("MM/DD/YY HH:mm");
+						var count = UserPlaces.find({userId: userId, place_id: doc.place_id}).count();
+						doc.count = count;
 						return doc;
 					}
 				}
@@ -112,7 +114,7 @@ Template.homelocation.helpers({
 	
 	userPlace: function() {
 		userId = Meteor.userId();
-		console.log('userPlace 0 ', this, this.status);
+//		console.log('userPlace 0 ', this, this.status);
 /* 		if (!this.status) {
 //			console.log('userPlace 0.5 ', this, this.status);
 			return;
@@ -131,7 +133,7 @@ Template.homelocation.helpers({
 		Session.set('userLocation', place);
 		var count = UserPlaces.find({userId:userId, place_id: this.place_id}).count();
 		place.count = count;
-		console.log('userPlace 2 ', this, this.place_id, place, count);
+	//	console.log('userPlace 2 ', this, this.place_id, place, count);
 		return place;
 	},
 
@@ -140,7 +142,7 @@ Template.homelocation.helpers({
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
 		place = PlacesSubst.findOne({old_place_id: this.place_id});
-		console.log('PlacesSubst ', this.place_id, place);
+//		console.log('PlacesSubst ', this.place_id, place);
 		return place;
 	},
 	
@@ -149,7 +151,7 @@ Template.homelocation.helpers({
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
 		place = Places.findOne({place_id: this.place_id});
-		console.log('geoPlace ', this.place_id, place);
+//		console.log('geoPlace ', this.place_id, place);
 		if ((!Session.get('userLocation')) && place) {
 			Session.set('userLocation', place);
 		}

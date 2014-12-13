@@ -296,8 +296,10 @@ Template.selectPlace.events({
 		var place_id = $(event.currentTarget).attr("id");
 		var userLocation = Session.get('userLocation');
 		console.log('set location', userLocation._id, place_id);	
-		
+		dateNow = new Date();
 		if (allloc) {
+			if (!AutoPlaces.findOne({place_id:place_id}))
+				AutoPlaces.insert({userId:Meteor.userId(),place_id:place_id,created:dateNow});
 			Meteor.call('UserLocationsUpdate', Meteor.userId(), userLocation._id, place_id, function(err,results){
 				console.log('UserLocationsUpdate call results ', results);
 			});

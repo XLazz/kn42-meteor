@@ -64,11 +64,11 @@
 									{{#if travel}}
 										img/app/car.png
 									{{else}}
-										{{#if geoPlace.icon}}  {{geoPlace.icon}} {{else}} {{geoMerchant.icon}} {{/if}}
+										{{#if geoPlace.icon}} {{geoPlace.icon}} {{else}} {{geoMerchant.icon}} {{/if}}
 									{{/if}}
 								" />
 							</div>
-							{{#unless travel}}<div style="font-size: smaller">been: <span class="badge">{{count}}</span></div>{{/unless}}
+							{{#unless travel}}<div style="font-size: smaller"><span class="badge">{{count}}</span></div>{{/unless}}
 						</div>
 					</div>
 					{{#if ifDebug}}<div style="font-size:50%"> finished: {{finished}}</div>{{/if}}
@@ -76,9 +76,15 @@
 
 					{{#if geoPlace.showbut}}
 						{{> buttons}}
+							{{#unless travel}}
+								{{> venuesSelected}}
+							{{/unless}}
 						{{else}}
 							{{#if geoMerchant.showbut}}
 								{{> buttons}}
+								{{#unless travel}}
+									{{> venuesSelected}}
+								{{/unless}}
 							{{/if}}
 					{{/if}}
 <!-- 						{{#ifConfirmed2 user_history_location_id}}

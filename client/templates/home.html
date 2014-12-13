@@ -56,17 +56,20 @@
 		<h2 class="list-title">What's Cooking</h2>
 		<div class="list-subtitle">See what the community is cooking</div>
 		<div class="list-activities">
+			<div style="font-size:smaller">
+			{{#if ifUser}}
+				{{#if currentUser.profile.foursquare}}		
+					{{> venues}}
+				{{/if}}
+			{{/if}}
+			</div>
 		</div>
 		<a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking</a>
 
 		<h2 class="list-title">Events and places around you</h2>
 		<div class="list-subtitle">Hand-picked by the wisdom of automated processing</div>
 		<div class="list-recipes">
-			{{#if ifUser}}
-				{{#if currentUser.profile.foursquare}}		
-					{{> venues}}
-				{{/if}}
-			{{/if}}
+
 <!-- 			{{#each featuredRecipes}}
 				{{> recipeItem recipe=this size='small'}}
 			{{/each}} -->

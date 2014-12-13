@@ -1,3 +1,21 @@
+GetFsqrLoc = function(coords, query){
+	var today = moment().format('YYYYMMDD');
+	
+	try {
+		var url = 'https://api.foursquare.com/v2/venues/search?ll=' + coords.latitude +',' + coords.longitude + '&oauth_token=' + fsqrToken + '&limit=' + limit + '&v=20141208';
+		if (query)
+			if (query.what)
+				var url = 'https://api.foursquare.com/v2/venues/search?ll=' + coords.latitude +',' + coords.longitude + '&oauth_token=' + fsqrToken + '&v=20141208&query=' + query.what + '&radius=' + query.radius ;
+		var myJSON = Meteor.http.call('GET',url);
+		var venues = JSON.parse(myJSON.content);
+		return venues;
+	} catch(e){
+		console.error('error calling fsqr ', e, e.response);
+		return false;
+	}
+	console.log('calling fsqr final. never should come here ', response);
+}
+
 GetGoogleLoc = function(userId, coords, radius){
 	var response;
 	console.log('GetGoogleLoc userLocation ', coords);

@@ -13,8 +13,16 @@
 					profile details
 				</div>
 				<br /> <br />
-				<div>
+				<div class="kn-container">
 					{{> profileDetails}}
+				</div>
+				<div class="kn-container">
+					<button class="btn button" id='showacc'>Connected accounts</button>
+					{{#if ifAccounts}}{{> connectAccounts}}{{/if}}
+				</div>
+				<div class="kn-container">
+					<button class="btn button" id='showset'>Settings</button>
+					{{#if ifSettings}}{{> userSettings}}{{/if}}
 				</div>
 			{{else}}
 				{{> entrySignIn}}
@@ -27,23 +35,56 @@
 </template>
 
 
-<template name="profileDetails">
 
+<template name="profileDetails">
 	<div style="padding: 5px">
 		<div style="float:left; width: 30%; max-width: 600px">
 			<div id="profile_update"><img src="{{user_details.profile.picture}}" style="width:100%"/></div>
 			<div>{{user_details.profile.name}}</div>
 			<div>{{user_details.profile.country}} {{user_details.profile.place}}</div>
 		</div>
-		<div style="float:right">
+
+	</div>
+	
+</template>
+
+<template name="connectAccounts">
+	<div class="kn-container">
+		<div style="float:right; width: 200px;">
 			Connect your accounts: <br />
-			{{#if user_details.profile.google}} Google connected {{else}} <button class="btn button" id='connect_google'>Google</button> {{/if}}<br />
-			{{#if user_details.profile.facebook}} FB connected {{else}} <button class="btn button" id='connect_fb'>Facebook</button> {{/if}}<br />
-			{{#if user_details.profile.twitter}} Twtr connected {{else}} <button class="btn button" id='connect_twtr'>Twitter</button> {{/if}}<br />
-			{{#if user_details.profile.foursquare}} Foursquare connected {{else}} <button class="btn button" id='connect_fsqr'>Foursquare</button> {{/if}}<br />
-			<button class="btn button" id='update_profile'>check</button>
+			{{#if user_details.profile.google}} 		<i class="connected fa fa-google"></i> <i class="connected fa fa-check-square"></i>		{{else}} <span id='connect_google'><i class="fa fa-google"></i><i class="fa fa-circle-o"></i> 			</span> {{/if}}<br />	
+			{{#if user_details.profile.facebook}}		<i class="connected fa fa-facebook"></i> <i class="connected fa fa-check-square"></i>	{{else}} <span id='connect_fb'><i class="fa fa-facebook"></i><i class="fa fa-circle-o"></i>		</span> {{/if}}<br />
+			{{#if user_details.profile.twitter}} 		<i class="connected fa fa-twitter"></i> <i class="connected fa fa-check-square"></i>	{{else}} <span id='connect_twtr'><i class="fa fa-twitter"></i><i class="fa fa-circle-o"></i>			</span> {{/if}}<br />
+			{{#if user_details.profile.foursquare}}	<i class="connected fa fa-foursquare"></i> <i class="connected fa fa-check-square"></i>{{else}} <span id='connect_fsqr'><i class="fa fa-foursquare"></i><i class="fa fa-circle-o"></i>	</span> {{/if}}<br />
+			{{#if user_details.profile.runkeeper}} 	<i class="connected fa fa-bicycle"></i> <i class="connected fa fa-check-square"></i>	{{else}} <span id='connect_runk'><i class="fa fa-bicycle"></i><i class="fa fa-circle-o"></i>			</span> {{/if}}<br />
+			{{#if ifDebug}}<button class="btn button" id='update_profile'>check</button>{{/if}}
 		</div>
 	</div>
+</template>
+
+
+<template name="userSettings">
+
+   <div class="kn-container">
+		<div>
+			Places with auto-check
+			{{#each autoplace}}
+				<div>
+					{{place.name}} <button class="btn button inline removeauto" id='{{_id}}'>remove</button> 
+				</div>
+			{{/each}}
+			<hr>
+		</div>
+		<div>
+			Privacy settings: <br />
+			and what really needs to be here?<br />
+			Name - yes/no<br />
+			My places - yes/no<br />
+			My fitness (what exactly)<br />
+			
+		</div>
+
+	 </div>
 	
 </template>
 

@@ -60,6 +60,17 @@ People.allow({
 	];
 }); */
 
+Meteor.publishComposite('autoPlacesByUser', function(userId, limit) {
+	return {
+		find: function() { return AutoPlaces.find({userId: userId}, {sort: {created: -1}, limit: limit}) },
+		children: [
+			{
+				find: function(geolog){return Places.find({place_id: geolog.place_id },{ limit: 1 })}
+			}	
+		]
+	}
+});
+
 Meteor.publishComposite('placesByUser', function(userId, limit) {
 	return {
 		find: function() { return UserPlaces.find({userId: userId}, {sort: {timestamp: -1}, limit: limit}) },

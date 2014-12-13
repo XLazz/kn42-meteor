@@ -35,85 +35,33 @@ Meteor.methods({
 		return friends;
 	},
 	
-	'venuesFsqrNearby': function(userId, userLocation){
+	'venuesFsqr': function(userId, coords, query){
 		
 		var fsqrToken = fsqrApi(userId);
-		console.log('venues Fsqr userId ', userId, fsqrToken, userLocation.coords );
+		console.log('venues Fsqr userId ', userId, fsqrToken, coords );
+		if (!coords)
+			return
+		if (!coords.latitude)
+			return
 		var limit = 10;
-		if (!fsqrToken) {
-			console.error('no Fsqr token');
+		if ((!fsqrToken) && (!query)){
+			console.error('no Fsqr token or query ');
 			return;
 		}
-		var today = moment().format('YYYYMMDD');
-		var url = 'https://api.foursquare.com/v2/venues/search?ll=' + userLocation.coords.latitude +',' + userLocation.coords.longitude + '&oauth_token=' + fsqrToken + '&limit=' + limit + '&v=20141208';
-		var myJSON = Meteor.http.call('GET',url);
-		var venues = JSON.parse(myJSON.content);
-		var venues = venues.response.venues;
+		var venues = GetFsqrLoc (coords, query);
+		if (!venues)
+			return;
+		venues = venues.response.venues;
 		
 		if (venues.length !== 0) {
-			console.log('venues Fsqr http call 2 update ', userLocation._id, ' # of results', venues.length, ' url ', url  );
+			console.log('venues Fsqr http call 2 update ', coords, ' # of results', venues.length, ' url ', url  );
 			venues.forEach(function (item, index, array) {
-				item.updated = meoment().valueOf();
+				item.updated = moment().valueOf();
 				VenuesCache.upsert({id: item.id},item);
 			});
 		} else {
-			console.log('venues Fsqr http call 2 remove ', userLocation.user_history_location_id, ' # of results', venues.length, ' url ', url  );
-/* 			VenuesCache.remove(
-				{	
-					userId: userId,
-					latitude: userLocation.latitude,
-					longitude: userLocation.longitude,
-				}
-			) 		 */
-		
-		}
-		return venues;		
-	},
-	
-	'venuesFsqrName': function(userId, userLocation, query){
-		console.log('venues Fsqr userId ', userLocation.name, query );
-		var fsqrToken = fsqrApi(userId);
-		var limit = 10;
-		if (!fsqrToken) {
-			console.error('no Fsqr token');
-			return;
-		}
-		var today = moment().format('YYYYMMDD');
-		if (query.what) {
-			var url = 'https://api.foursquare.com/v2/venues/search?ll=' + userLocation.latitude +',' + userLocation.longitude + '&oauth_token=' + fsqrToken + '&v=20141208&query=' + query.what + '&radius=' + query.radius ;
-		} else {
-			var url = 'https://api.foursquare.com/v2/venues/search?ll=' + userLocation.latitude +',' + userLocation.longitude + '&oauth_token=' + fsqrToken + '&limit=' + limit + '&v=20141208';
-		}
-		var myJSON = Meteor.http.call('GET',url);
-		var venues = JSON.parse(myJSON.content);
-		var venues = venues.response.venues;
-		
-		if (venues.length !== 0) {
-			console.log('venues Fsqr http call 2 update ', userLocation.user_history_location_id, ' # of results', venues.length, ' url ', url  );
-			VenuesCache.upsert(
-				{	
-					userId: userId,
-					latitude: userLocation.latitude,
-					longitude: userLocation.longitude,
-				},
-				{
-					userId: userId,
-					latitude: userLocation.latitude,
-					longitude: userLocation.longitude,
-					updated: moment().valueOf(),
-					foursquare: venues
-				}
-			) 
-		} else {
-			console.log('venues Fsqr http call 2 remove ', userLocation.user_history_location_id, ' # of results', venues.length, ' url ', url  );
-			VenuesCache.remove(
-				{	
-					userId: userId,
-					latitude: userLocation.latitude,
-					longitude: userLocation.longitude,
-				}
-			) 		
-		
+			console.log('venues empty ', coords, ' # of results', venues.length, ' url ', url  );
+/* 			VenuesCache.remove({userId: userId,}); 		 */
 		}
 		return venues;		
 	},
