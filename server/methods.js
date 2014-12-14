@@ -1,117 +1,3 @@
-UpdateProfile = function(userId){
-	var user_details = Meteor.users.findOne({_id: userId}, {_id:0});
-	var user_email;
-	if (!user_details) {
-		return;
-	}
-	if (user_details.services){ 
-//		console.log(' adding ss details ', user_details);
-		if (user_details.services.google) {
-//			console.log(' adding ss details google ');
-			Meteor.users.update({_id: userId}, {$set:{'profile.google':1, 'profile.googleId': user_details.services.google.id}});
-			user_email = user_details.services.google.email;
-			if (!user_details.emails) {
-				console.log('adding google service details t- profile for user with no email ', userId); 
-				Meteor.users.update({_id: userId},{$set:{'emails.0.address': user_email}}); 
-			}  
-			if (!user_details.profile.name) {
-				console.log('adding google service details t- profile for user with no name ', userId); 
-				Meteor.users.update({_id: userId},{$set:{'profile.name': user_details.services.google.name}}); 
-			}  
-			if (!user_details.profile.gender) {
-				console.log('adding google service details t- profile for user with no name ', userId); 
-				Meteor.users.update({_id: userId},{$set:{'profile.gender': user_details.services.google.gender}}); 
-			}  
-			if ((!user_details.profile.picture) || (user_details.profile.picture == 'img/app/robot.jpg')) {
-				console.log('adding google service details t- profile for user with no pic ', userId); 
-				Meteor.users.update({_id: userId},{$set:{'profile.picture': user_details.services.google.picture}}); 
-				user_details.profile.picture = user_details.services.google.picture; 
-			} 
-		}
-		if (user_details.services.foursquare) {
-			console.log(' adding ss details fsqr ');
-			Meteor.users.update({_id: userId},{$set:{'profile.foursquare':1}});
-			user_email = user_details.services.foursquare.email;
-			if (!user_details.emails) {
-				console.log('adding fsqr service email t- profile for user ', userId, user_details); 
-				Meteor.users.update({_id: userId},{$set:{'emails.0.address': user_email, 'profile.firstName': user_details.services.foursquare.given_name, 'profile.lastName': user_details.services.google.family_name}}); 
-			} 
-			if (!user_details.profile.foursquareId) {
-				console.log('adding foursquare service id  t- profile for user with no fsqr id ', userId); 
-				Meteor.users.update({_id: userId},{$set:{'profile.foursquareId': user_details.services.foursquare.id}}); 
-			}  
-		}
-		if (!user_details.profile.picture)  {
-			console.log('adding service details t- profile for user with no pic ', userId); 
-			Meteor.users.update({_id: userId},{$set:{'profile.picture': 'img/app/robot.jpg'}}); 
-		} 
-		if (!user_details.profile.name) {
-//			console.log('user_details.profile ', user_email, user_details );
-			var name = user_email.split('@')[0];
-			Meteor.users.update({_id: userId},{$set:{'profile.name': name}});
-		}		
-		return user_email;
-	}
-	// Looks like it is not a social network
-	if (user_details.emails) {
-		user_email = user_details.emails[0].address;
-		return user_email;
-	} else {
-		console.error('cant find user email for ', userId, user_details);
-	}
-}
-
-GetApi = function(userId){
-	if (!userId) {
-		console.error('GetApi no userId, no key');
-		return;
-	}
-
-	var create_profile;
-	var user_email;
-	var user_details = Meteor.users.findOne({_id: userId}, {_id:0});
-	if (!user_details)
-		return;
-//	console.log('GetApi checking api_key 1 for user ', userId, ' user details ', user_details); 
-
-	// It should be social network account
-	if ((!user_details.profile) || (!user_details.emails)) {
-		if ((!user_details.profile.name) || (!user_details.profile.firstName) || (!user_details.profile.picture) || (!user_details.emails)) {
-			var user_email = UpdateProfile(userId);
-			user_details = Meteor.users.findOne({_id: userId}, {_id:0});
-		} 
-	}
-	
-// getting api_key	
-	if (user_details.profile.api_key) {
-		var api_key = user_details.profile.api_key;
-//		console.log('GetApi checking api_key 2 ', api_key, ' for user ', userId); 
-		return api_key;
-	}
-	
-	user_details = Meteor.users.findOne({_id: userId}, {_id:0});
-	user_email = user_details.emails[0].address;
-	var sukey = '5oOaWrW41o6HJ0yZ';
-	check(arguments, [Match.Any]);
-	var url = 'http://kn42.xlazz.com/server/request.php?su_key=' + sukey + '&email=' + user_email;
-	var myJSON = Meteor.http.call('GET', url);
-	console.log('myJSON ', url );
-	var user_details = JSON.parse(myJSON.content);
-	console.log('got api_key ', user_details, url);
-	if (user_details.api_key == 'false'){
-		console.log('api_key ', api_key, ' lets register user ', user_email );
-		url = 'http://kn42.xlazz.com/server/request.php?user_email=' + user_email + '&profile=register';
-		var myJSON = Meteor.http.call('GET', url);
-		var user_details = JSON.parse(myJSON.content);
-	}
-	if (user_details.api_key) {
-		console.log('got api_key ', user_details.api_key );
-		Meteor.users.update({_id: userId}, {$set: {'profile.api_key': user_details.api_key}});
-	}
-	console.log('GetApi checking api_key 3 ', user_details, ' for user ', userId); 
-	return user_details.api_key;
-}
-
 Meteor.methods({
 
 	updateProfile: function(userId){
@@ -138,32 +24,6 @@ Meteor.methods({
 		console.log('calling php server for json 3. num of els ', userLocations.length);
 		userLocations.forEach(function (item, index, array) {
 			Meteor.call('getGPlace', item.place_id);
-//			console.log('inserting item for user 1 ', userId, api_key, ' last_loc ', last_loc, item.user_history_location_id, item.name, item);
-/* 			if (!UserLocations.findOne({userId: userId, location_id: item.location_id})) {
-				var timestamp; 
-				var timestampEnd;
-				if (item.finished) 
-					timestampEnd = moment(item.finished).valueOf();
-				timestamp = moment(item.started).valueOf();
-				console.log('inserting item for user ', userId, item.user_history_location_id, item.name);
-				UserLocations.insert(
-					{
-						userId: userId,
-						user_history_location_id: item.user_history_location_id,
-						location_id: item.location_id,
-						location: {
-							coords: {
-								latitude: item.latitude,
-								longitude: item.longitude
-							}
-						},
-						place_id: item.place_id,
-						started: item.started,
-						timestamp: timestamp,
-						timestampEnd: timestampEnd
-					}
-				);
-			} */
 			if (!UserPlaces.findOne({userId: userId, location_id: item.location_id})) {
 				var timestamp;
 				var timestampEnd;
@@ -283,13 +143,13 @@ Meteor.methods({
 		} */
 	},
 	 
-
 	'removeAllPlaces': function(userId) {
 		if (!userId) {
 			return;
 		}
 		return Places.remove({});	
 	},
+	
 	'removeAllLocations': function(userId) {
 		check(arguments, [Match.Any]);
 		if (!userId) {
@@ -336,7 +196,7 @@ Meteor.methods({
 		return coords;
 	},
 
-	'submitCoords': function(userId, timestamp, coords){
+	'submitCoords': function(userId, geoId, location){
 	// v008
 		if (!userId) {
 			return;
@@ -345,28 +205,38 @@ Meteor.methods({
 		var got_location;
 		var url;
 		var api_key = GetApi(userId);
-		var url = 'http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&location=list&lat=' + coords.latitude + '&long=' + coords.longitude + '&alt=' + coords.altitude + '&speed=' + coords.speed + '&accuracy=' + coords.accuracy + '&timestamp=' + timestamp;
+		console.log('submitCoords ', location);
+		var url = 'http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&location=list&lat=' + location.coords.latitude + '&long=' + location.coords.longitude + '&alt=' + location.coords.altitude + '&speed=' + location.coords.speed + '&accuracy=' + location.coords.accuracy + '&timestamp=' + location.timestamp + '&heading=' + location.coords.heading + '&locationId=' + geoId;
 		console.log('submitCoords got_location 1 ', api_key, url);
 		var myJSON = Meteor.http.call('GET',url);
 		got_location = JSON.parse(myJSON.content);
 		console.log('submitCoords got_location 2 ', api_key, got_location.location_id, url);
+		GeoLog.upsert(
+			geoId,
+			{$set: {location_id: got_location.location_id}}
+		);
 		return got_location;
 	},
 
-	'submitPlace': function(userId, timestamp, coords){
+	'submitPlace': function(userId, location, experience){
 	// v008
-		if (!userId) {
+		var had = experience.had;
+		var stars = experience.stars;
+		var comment = experience.comment;
+		var userplaceId = location.userplaceId;
+		var place_id = location.place_id;
+		if ((!userId) || (!location)) {
 			return;
 		}
 		check(arguments, [Match.Any]);
 		var response;
 		var url;
 		var api_key = GetApi(userId);
-		var url = 'http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&had=' + experience + '&stars=' + stars + '&comment=' + comment + '&location_id='+ location_id + '&google_place='+ place_id;
+		var url = 'http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&had=' + had + '&stars=' + stars + '&comment=' + comment + '&location_id='+ location_id + '&google_place='+ place_id;
 		console.log('submitPlace  1 ', api_key, url);
 		var myJSON = Meteor.http.call('GET',url);
 		response = JSON.parse(myJSON.content);
-		console.log('submitPlace answer 2 ', api_key, response, url);
+		console.log('submitPlace answer 2 ', api_key, url, response );
 		return response;
 	},
 	
