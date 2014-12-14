@@ -18,9 +18,13 @@ ifStatic = function(userId, currentPlace, currentPlaceAlt, timestamp){
 	if (!userId)
 		return;
 	var stat_time = 200000;
-	var upsert_it;
+	var location;
+	var insert_it;
 	var userplaceId;
-	var experience;
+	var experience = {};
+	experience.had = '';
+	experience.stars = '';
+	experience.comment = '';
 	var diffstamp = moment().valueOf() - stat_time;
 	var lastLoc = GeoLog.findOne({timestamp: {$lt: diffstamp}, userId: userId},{sort:{timestamp: -1}});
 	if (!lastLoc)
@@ -38,9 +42,12 @@ ifStatic = function(userId, currentPlace, currentPlaceAlt, timestamp){
 	if (!myId) {
 		insert_it = true;
 	} else {
-		if (myId.place_id !== currentPlaceAlt.place_id){
+		var claimed = findClaimed(userId, lastLoc.location.coords);
+		if (claimed)
+			currentPlaceAlt.place_id = claimed.place_id;		
+		if (myId.place_id !== currentPlaceAlt.place_id)
 			insert_it = true;
-		}
+	
 	}
 	
 	if (insert_it) {
@@ -53,6 +60,9 @@ ifStatic = function(userId, currentPlace, currentPlaceAlt, timestamp){
 			place = Places.findOne({place_id: currentPlaceAlt.place_id});
 		}
 		//dding new stationary place to UserPlaces - LifeLog
+
+
+		location = lastLoc.location;
 		UserPlaces.insert(
 			{
 				placesId: place._id,
@@ -68,6 +78,7 @@ ifStatic = function(userId, currentPlace, currentPlaceAlt, timestamp){
 		var userplace = UserPlaces.findOne({userId:userId, timestamp:timestamp});
 		if (userplace)
 			location.userplaceId = userplace._id;
+		location.location_id = lastLoc.location_id;
 		location.place_id = currentPlaceAlt.place_id;
 		Meteor.call('submitPlace', userId, location, experience);
 		return true;
@@ -162,14 +173,7 @@ upsertPlaceId = function (location){
 				// updating geolog with new stationary status
 				console.log('Same place ', currentPlaceAlt.place_id);
 				current_status = 'stationary';
-				GeoLog.upsert(
-					geoId,
-					{$set: 
-						{
-							status: current_status,
-						}
-					}
-				);				
+				GeoLog.upsert(geoId, {$set: {status: current_status,}});				
 			
 				// and let's check if user has spent enough time to make it userplace
 				var ifThat = ifStatic(userId, currentPlace, currentPlaceAlt, location.timestamp);
@@ -180,7 +184,16 @@ upsertPlaceId = function (location){
 				current_status = '';
 				var userplace = UserPlaces.findOne({userId:userId},{fields:{_id:1}, sort:{timestamp: -1}});				
 				if (!userplace.timestampEnd) {
-					UserPlaces.upsert({_id: userplace._id}, {timestampEnd: oldPlace.timestamp});
+					UserPlaces.upsert({_id: userplace._id}, {timestampEnd: oldLoc.timestamp});
+					UserPlaces.insert(
+					{
+						geoId: geoId,
+						userId: userId,
+						place_id: place_id_0,
+						started: new Date(),
+						location: location,
+						travel: true,
+					});
 					console.log('User has moved from ', lastLoc.stationary_place_id, ' to ', currentPlaceAlt.place_id);
 				}
 				// updating geolog with new place
@@ -237,3 +250,17 @@ UpdateGeoCordova = function(){
 		return location;
 	});
 }
+
+findClaimed = function(userId, coords){
+	var radius_search = 0.001;
+	var latup = parseFloat(coords.latitude) + radius_search;
+	var latdown = parseFloat(coords.latitude) - radius_search;
+	var lngup = parseFloat(coords.longitude) + radius_search;
+	var lngdown = parseFloat(coords.longitude) - radius_search;
+
+//		lat2 = lat2.toString()
+	var claimed = ClaimedPlaces.findOne({'coords.latitude': { $gt: latdown, $lt: latup }, 'coords.longitude': { $gt: lngdown, $lt: lngup }});
+	console.log('check claimed ', latup, latdown, lngup, lngdown, claimed);
+	return claimed;
+}
+

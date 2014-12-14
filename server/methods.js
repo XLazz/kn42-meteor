@@ -220,6 +220,14 @@ Meteor.methods({
 
 	'submitPlace': function(userId, location, experience){
 	// v008
+		if (!location) {
+			console.error('submitPlace and no location');
+			return;
+		}
+		if (!location.location_id) {
+			console.error('submitPlace and no location_id ', location);
+			return;
+		}		
 		var had = experience.had;
 		var stars = experience.stars;
 		var comment = experience.comment;
@@ -232,10 +240,11 @@ Meteor.methods({
 		var response;
 		var url;
 		var api_key = GetApi(userId);
-		var url = 'http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&had=' + had + '&stars=' + stars + '&comment=' + comment + '&location_id='+ location_id + '&google_place='+ place_id;
+		var url = 'http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&had=' + had + '&stars=' + stars + '&comment=' + comment + '&location_id='+ location.location_id + '&google_place='+ place_id;
 		console.log('submitPlace  1 ', api_key, url);
 		var myJSON = Meteor.http.call('GET',url);
-		response = JSON.parse(myJSON.content);
+		console.log('submitPlace ', myJSON.content);
+//		response = JSON.parse(myJSON.content);
 		console.log('submitPlace answer 2 ', api_key, url, response );
 		return response;
 	},

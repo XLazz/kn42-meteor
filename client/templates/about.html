@@ -30,6 +30,7 @@
     </div>
 		{{#if userId}}
 			<a href="{{pathFor 'entrySignOut'}}" class="btn-primary js-open">{{{beforeSignOut}}}{{t9n "signOut"}}</a>
+			<a href="{{ pathFor 'entrySignOut' }}" data-action="logout"><i class="fa fa-lock"></i> Sign Out</a>
 		{{/if}}
   </div>
 </template>

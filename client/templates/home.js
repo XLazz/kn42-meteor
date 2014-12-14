@@ -468,15 +468,7 @@ Template.claimIt.helpers({
 				return;		
 			var coords = userLocation.location.coords;
 		}
-		var radius_search = 0.001;
-		var latup = parseFloat(coords.latitude) + radius_search;
-		var latdown = parseFloat(coords.latitude) - radius_search;
-		var lngup = parseFloat(coords.longitude) + radius_search;
-		var lngdown = parseFloat(coords.longitude) - radius_search;
-
-//		lat2 = lat2.toString()
-		var claimed = ClaimedPlaces.findOne({'coords.latitude': { $gt: latdown, $lt: latup }, 'coords.longitude': { $gt: lngdown, $lt: lngup }});
-		console.log('check claimed ', latup, latdown, lngup, lngdown, claimed);
+		var claimed = findClaimed(userId, coords);
 		if (claimed)
 			return claimed;
 	},	

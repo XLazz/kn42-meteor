@@ -120,7 +120,7 @@ Template.footergeo.events({
 		if (!Session.get('geoback')){
 			btn.innerHTML = 'Start';
 			Session.set('geoback', true);
-			Meteor.user.update({'profile.geoback': true});
+//			Meteor.user.update({'profile.geoback': true});
 			Session.set('interval', 500000);
 			PollingGeo();
 			return;	

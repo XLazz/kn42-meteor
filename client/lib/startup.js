@@ -3,7 +3,7 @@ Meteor.startup(function () {
 		return;
 	Session.set('geoback', Meteor.user().profile.geoback );
 	console.log(' setting initial sessiong geoback ', Meteor.user().profile.geoback);
-	if (!UserPlaces.findOne({userId:userId}))
-		Meteor.call('getLocations',userId, 'list');
+	if (!UserPlaces.findOne({userId:Meteor.user()}))
+		Meteor.call('getLocations',Meteor.user(), 'list');
 
 });
