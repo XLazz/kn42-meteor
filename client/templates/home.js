@@ -53,7 +53,9 @@ Template.homeinside.helpers({
 });
 
 Template.homelocation.helpers({
-	
+	ifDebug: function(){
+		return Session.get('debug');
+	},	
 	currentlocation: function(){
 		if (!Meteor.userId()) {return;};
 		var currentlocation;
@@ -69,14 +71,17 @@ Template.homelocation.helpers({
 					transform: function(doc){	
 						var then = doc.timestamp;
 						var now = doc.timestampEnd;
+						if (now) 
+							doc.finished = moment(now).format("MM/DD/YY HH:mm");
 						if (!now) {
 							now = moment().valueOf();
-						};
+							doc.finished = 'in progress';
+						}
 						var duration = then - now;
 						duration = moment.duration(duration).humanize();
 						doc.timespent = duration;
 						doc.started = moment(then).format("MM/DD/YY HH:mm");
-						doc.finished = moment(now).format("MM/DD/YY HH:mm");
+
 						if (doc.status)
 							doc.place_id = doc.stationary_place_id;
 						return doc;
@@ -93,14 +98,16 @@ Template.homelocation.helpers({
 					transform: function(doc){	
 						var then = doc.timestamp;
 						var now = doc.timestampEnd;
+						if (now) 
+							doc.finished = moment(now).format("MM/DD/YY HH:mm");
 						if (!now) {
 							now = moment().valueOf();
-						};
+							doc.finished = 'in progress';
+						}
 						var duration = then - now;
 						duration = moment.duration(duration).humanize();
 						doc.timespent = duration;
 						doc.started = moment(then).format("MM/DD/YY HH:mm");
-						doc.finished = moment(now).format("MM/DD/YY HH:mm");
 						var count = UserPlaces.find({userId: userId, place_id: doc.place_id}).count();
 						doc.count = count;
 						return doc;
@@ -421,12 +428,18 @@ Template.buttons.events({
 			alert('Cant confirm Unknown. Please click on Change button first');
 			return;
 		}
-		UserPlaces.upsert(locId, {$set: {confirmed: place.place_id, travel: ''}});		
+		UserPlaces.upsert(locId, {$set: {confirmed: confirmed, travel: ''}});	
+		location.status = 'confirmed';
+		location.userplaceId = locId;
+		Meteor.call('updatePlace', userId, location, experience);
 	},	 
 	"click .undo": function (event, template) {
 		var locId = Session.get('userLocation')._id;
 		console.log('click .confirm buttons confirming userLocation ',locId );
 		UserPlaces.upsert(locId, {$set: {confirmed: '', travel: ''}});		
+		location.status = '';
+		location.userplaceId = locId;
+		Meteor.call('updatePlace', userId, location, experience);
 	},	
 	"click .locations": function (event, template) {
 		var radius = 50;

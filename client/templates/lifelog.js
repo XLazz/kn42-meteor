@@ -88,7 +88,6 @@ Template.lifelog.events({
 
 Template.showlocations.helpers({
 	ifDebug: function(){
-//		console.log('ifDebug ', Session.get('debug'));
 		return Session.get('debug');
 	},
 	userId: function(){
@@ -127,14 +126,16 @@ Template.showlocations.helpers({
 				transform: function(doc){		
 					var then = doc.timestamp;
 					var now = doc.timestampEnd;
+					if (now) 
+						doc.finished = moment(now).format("MM/DD/YY HH:mm");
 					if (!now) {
 						now = moment().valueOf();
-					};
+						doc.finished = 'in progress';
+					}
 					var duration = then - now;
 					duration = moment.duration(duration).humanize();
 					doc.timespent = duration;
 					doc.started = moment(then).format("MM/DD/YY HH:mm");
-					doc.finished = moment(now).format("MM/DD/YY HH:mm");
 					var count = UserPlaces.find({userId: userId, place_id: doc.place_id}).count();
 					doc.count = count;
 					return doc;
@@ -147,7 +148,8 @@ Template.showlocations.helpers({
 		if (!places.count()){
 			console.log('calling php server for json for ', userId );
 			Meteor.call('getLocations', userId, 'list', function(err,results){
-				console.log('calling php server for json 2 ', results.length);
+				if (results)
+					console.log('calling php server for json 2 ', results.length);
 			});
 		} 
 		return places;
@@ -291,7 +293,6 @@ Template.selectPlace.events({
 	"click .setlocations": function (event, template) {
 //		Session.set("showCreateDialog", true);
 		var allloc = template.find('#allloc').checked;
-	
 		console.log('locationModal events setlocations ', Session.get("showCreateDialog"), $(event.currentTarget).attr("id"), this );		
 		var updated_loc = this;
 		

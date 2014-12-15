@@ -13,12 +13,12 @@ submitCoords = function(userId, geoId, location ){
 	});
 }
 
-ifStatic = function(userId, currentPlace, currentPlaceAlt, timestamp){
+ifStatic = function(userId, currentPlace, currentPlaceAlt, location){
 // Add userplace if user becomes static for some time;
 	if (!userId)
 		return;
 	var stat_time = 200000;
-	var location;
+	var timestamp = location.timestamp;
 	var insert_it;
 	var userplaceId;
 	var experience = {};
@@ -30,7 +30,7 @@ ifStatic = function(userId, currentPlace, currentPlaceAlt, timestamp){
 	if (!lastLoc)
 		return;
 	console.log('lastLoc if user has moved from ', lastLoc.stationary_place_id);
-	var myId = UserPlaces.findOne({userId: userId}, {sort: {started: -1}});
+	var lastPlace = UserPlaces.findOne({userId: userId}, {sort: {started: -1}});
 	if (!lastLoc.stationary_place_id == currentPlaceAlt.place_id)
 		return;
 
@@ -39,54 +39,56 @@ ifStatic = function(userId, currentPlace, currentPlaceAlt, timestamp){
 	currentPlace.timestamp = lastLoc.timestamp;
 	currentPlace.geoId = lastLoc._id
 	
-	if (!myId) {
-		insert_it = true;
+	if (!lastPlace) {
+		insertPlace(userId, lastLoc, currentPlaceAlt);
 	} else {
-		var claimed = findClaimed(userId, lastLoc.location.coords);
-		if (claimed)
-			currentPlaceAlt.place_id = claimed.place_id;		
-		if (myId.place_id !== currentPlaceAlt.place_id)
-			insert_it = true;
-	
+		if (lastPlace.timestampEnd) {
+			var claimed = findClaimed(userId, lastLoc.location.coords);
+			if (claimed)
+				currentPlaceAlt.place_id = claimed.place_id;		
+			if (lastPlace.place_id !== currentPlaceAlt.place_id)
+				insertPlace(userId, lastLoc, currentPlaceAlt);
+		} 
 	}
-	
-	if (insert_it) {
-		console.log('User was stationary enough at ', currentPlaceAlt.place_id, currentPlaceAlt.name);
-		var place = Places.findOne({place_id: currentPlaceAlt.place_id});
-		if (!place) {					
-			Places.insert(
-				currentPlaceAlt
-			);			
-			place = Places.findOne({place_id: currentPlaceAlt.place_id});
-		}
-		//dding new stationary place to UserPlaces - LifeLog
-
-
-		location = lastLoc.location;
-		UserPlaces.insert(
-			{
-				placesId: place._id,
-				userId: userId,
-				place_id: currentPlaceAlt.place_id,
-				started: new Date(),
-				timestamp: lastLoc.timestamp,
-				geoId: lastLoc._id,
-				location: lastLoc.location,
-				location_id: lastLoc.location_id,
-			}
-		);
-		var userplace = UserPlaces.findOne({userId:userId, timestamp:timestamp});
-		if (userplace)
-			location.userplaceId = userplace._id;
-		location.location_id = lastLoc.location_id;
-		location.place_id = currentPlaceAlt.place_id;
-		Meteor.call('submitPlace', userId, location, experience);
-		return true;
-	}
-	
-	
+		
 //		alert ('moved');
 	
+}
+
+insertPlace = function(userId, lastLoc, currentPlaceAlt){
+	console.log('User was stationary enough at ', currentPlaceAlt.place_id, currentPlaceAlt.name);
+	var place = Places.findOne({place_id: currentPlaceAlt.place_id});
+	if (!place) {					
+		Places.insert(
+			currentPlaceAlt
+		);			
+		place = Places.findOne({place_id: currentPlaceAlt.place_id});
+	}
+	//dding new stationary place to UserPlaces - LifeLog
+	var location = lastLoc.location;
+	UserPlaces.insert(
+		{
+			placesId: place._id,
+			userId: userId,
+			place_id: currentPlaceAlt.place_id,
+			started: new Date(),
+			timestamp: lastLoc.timestamp,
+			geoId: lastLoc._id,
+			location: lastLoc.location,
+			location_id: lastLoc.location_id,
+		}
+	);
+	var userplace = UserPlaces.findOne({userId:userId, geoId: lastLoc._id});
+	if (userplace)
+		location.userplaceId = userplace._id;
+	location.location_id = lastLoc.location_id;
+	if (userplace.confirmed)
+		location.status = 'confirmed';
+	if (userplace.travel)
+		location.status = 'travel';
+	location.place_id = currentPlaceAlt.place_id;
+	Meteor.call('submitPlace', userId, location, experience);
+	return true;
 }
 
 PollingGeo = function(){
@@ -116,7 +118,7 @@ PollingGeo = function(){
 	}
 }
 
-upsertPlaceId = function (location){
+addPlace = function (location){
 	userId =  Meteor.userId();
 	var radius = 30; //stationary and google search radius
 	var results;
@@ -173,10 +175,9 @@ upsertPlaceId = function (location){
 				// updating geolog with new stationary status
 				console.log('Same place ', currentPlaceAlt.place_id);
 				current_status = 'stationary';
-				GeoLog.upsert(geoId, {$set: {status: current_status,}});				
-			
+				GeoLog.upsert(geoId, {$set: {status: current_status,}});						
 				// and let's check if user has spent enough time to make it userplace
-				var ifThat = ifStatic(userId, currentPlace, currentPlaceAlt, location.timestamp);
+				var ifThat = ifStatic(userId, currentPlace, currentPlaceAlt, location);
 				
 			} else {
 				// if previous stationary place_id is not the same and userplace is not finalised, then finalise it, user is officially on the move
@@ -184,7 +185,13 @@ upsertPlaceId = function (location){
 				current_status = '';
 				var userplace = UserPlaces.findOne({userId:userId},{fields:{_id:1}, sort:{timestamp: -1}});				
 				if (!userplace.timestampEnd) {
-					UserPlaces.upsert({_id: userplace._id}, {timestampEnd: oldLoc.timestamp});
+					if (userplace._id){
+						UserPlaces.upsert({_id: userplace._id}, {timestampEnd: oldLoc.timestamp});
+						// and submit to server with the timestampEnd
+						location.timestampEnd = oldLoc.timestamp;
+						location.userplaceId = userplace._id;
+						Meteor.call('submitPlace', userId, location, experience);
+					}
 					UserPlaces.insert(
 					{
 						geoId: geoId,
@@ -194,7 +201,7 @@ upsertPlaceId = function (location){
 						location: location,
 						travel: true,
 					});
-					console.log('User has moved from ', lastLoc.stationary_place_id, ' to ', currentPlaceAlt.place_id);
+//					console.log('User has moved from ', lastLoc.stationary_place_id, ' to ', currentPlaceAlt.place_id);
 				}
 				// updating geolog with new place
 			}
@@ -220,7 +227,7 @@ UpdateGeo = function (){
 			created: new Date(),
 			timestamp: location.timestamp
 		});
-		upsertPlaceId(location);
+		addPlace(location);
 	}
 	return location;
 };
@@ -246,7 +253,7 @@ UpdateGeoCordova = function(){
 			});
 		}
 	//		Session.set('interval', 60000);
-		upsertPlaceId(location);
+		addPlace(location);
 		return location;
 	});
 }

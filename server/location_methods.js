@@ -7,6 +7,10 @@ Meteor.methods({
 			console.error('Called getGLoc, but ', userId, userLocation);
 			return;
 		}
+		if (!userLocation.coords) {
+			console.error('Called getGLoc, but userLocation.coords ', userLocation.coords, userLocation);
+			return;		
+		}
 		var coords = userLocation.coords;
 
 		if (MerchantsCache.findOne({'coords.latitude': coords.latitude,  'coords.longitude': coords.longitude}))

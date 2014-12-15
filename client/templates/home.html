@@ -104,9 +104,15 @@
 						</div>
 						<div style="font-size: smaller">
 							{{#if geoPlace.name}}{{geoPlace.vicinity}} {{else}}{{geoMerchant.vicinity}} {{/if}}<br />
-							{{status}} {{currentlocation.status}} {{#if currentlocation.status}} since {{started}} {{#if timespent}}  for {{timespent}} {{/if}} {{/if}}
+							{{status}} {{#if status}} since {{started}} {{#if timespent}} for {{timespent}} {{/if}} {{/if}}
 <!-- 						<div>{{> venuesSelected}}</div> -->							
 						</div>
+						{{#if ifDebug}} 
+							<div style="font-size:50%">
+								{{userPlace.place_id}}
+							</div>
+						{{/if}}
+						{{#if ifDebug}}<div style="font-size:50%"> finished: {{finished}}</div>{{/if}}
 					{{/if}}
 					
 				</div>
