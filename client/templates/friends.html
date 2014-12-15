@@ -24,7 +24,7 @@
 <template name="friends_details">
 	{{#if currentUser}}
 		{{currentUser.profile.name}}
-			{{#if currentUser.profile.foursquareId}}
+			{{#if currentUser.profile.foursquare}}
 				{{> foursquare}}
 			{{else}}
 				<br />please connect your foursquare account so we can show your friends
