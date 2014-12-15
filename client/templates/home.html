@@ -89,7 +89,7 @@
 					{{userPlace._id}}
 				{{/if}}
 			">
-				<div style="display:inline-block; width: 85%; vertical-align: top;">
+				<div style="display:inline-block; width: 70%; vertical-align: top;">
 					{{#if userPlace.travel}}
 						<div>
 							Travelling<br />
@@ -116,15 +116,20 @@
 					{{/if}}
 					
 				</div>
-				<div style="display:inline-block; width: 10%; vertical-align: top;">
+				<div style="display:inline-block; width: auto; vertical-align: top;">
 					<div>
-						<img style="width: auto; height: auto; max-width: 40px" src="
-							{{#if travel}}
-								img/app/car.png
-							{{else}}
-								{{#if geoPlace.icon}}  {{geoPlace.icon}} {{else}} {{geoMerchant.icon}} {{/if}}
-							{{/if}}
-						" />
+						{{#if claimed}}
+							<span class="glyphicon glyphicon-home" style="font-size: xx-large" aria-hidden="true"></span>
+						{{/if}}
+						<span>
+							<img style="width: auto; height: auto; max-width: 40px" src="
+								{{#if travel}}
+									img/app/car.png
+								{{else}}
+									{{#if geoPlace.icon}}  {{geoPlace.icon}} {{else}} {{geoMerchant.icon}} {{/if}}
+								{{/if}}
+							" />
+						</span>
 					</div>
 					{{#unless travel}}<div style="font-size: smaller; float:right"><span class="badge">{{userPlace.count}}</span></div>{{/unless}}
 				</div>

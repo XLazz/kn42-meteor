@@ -13,8 +13,7 @@ Meteor.methods({
 		}
 		check(arguments, [Match.Any]);
 		console.log('getLocations method for user ', userId);
-		var location;
-		var last_loc;
+		var location,	confirmed, travel, last_loc, timestamp, timestampEnd;
 		var api_key = GetApi(userId);
 //		console.log('getLocations method for user ', userId, api_key);
 		var url = 'http://kn42.xlazz.com/server/desktop.php?api_key=' + api_key + '&location=' + list;
@@ -35,8 +34,6 @@ Meteor.methods({
 					]
 				});
 			if (!ifPlace) {
-				var timestamp;
-				var timestampEnd;
 				if (item.finished) 
 					timestampEnd = moment(item.finished).valueOf();
 				timestamp = moment(item.started).valueOf();

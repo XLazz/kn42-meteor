@@ -56,6 +56,9 @@ Template.homelocation.helpers({
 	ifDebug: function(){
 		return Session.get('debug');
 	},	
+	claimed: function(){
+		return Session.get('claimed');
+	},
 	currentlocation: function(){
 		if (!Meteor.userId()) {return;};
 		var currentlocation;
@@ -482,8 +485,10 @@ Template.claimIt.helpers({
 			var coords = userLocation.location.coords;
 		}
 		var claimed = findClaimed(userId, coords);
-		if (claimed)
-			return claimed;
+		if (!claimed) 
+			return
+		Session.set('claimed', claimed);
+		return claimed;
 	},	
 });
 

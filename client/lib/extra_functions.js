@@ -56,8 +56,9 @@ ifStatic = function(userId, currentPlace, currentPlaceAlt, location){
 }
 
 insertPlace = function(userId, lastLoc, currentPlaceAlt){
+	var experience, location, place, userplace;
 	console.log('User was stationary enough at ', currentPlaceAlt.place_id, currentPlaceAlt.name);
-	var place = Places.findOne({place_id: currentPlaceAlt.place_id});
+	place = Places.findOne({place_id: currentPlaceAlt.place_id});
 	if (!place) {					
 		Places.insert(
 			currentPlaceAlt
@@ -65,7 +66,7 @@ insertPlace = function(userId, lastLoc, currentPlaceAlt){
 		place = Places.findOne({place_id: currentPlaceAlt.place_id});
 	}
 	//dding new stationary place to UserPlaces - LifeLog
-	var location = lastLoc.location;
+	location = lastLoc.location;
 	UserPlaces.insert(
 		{
 			placesId: place._id,
@@ -78,7 +79,7 @@ insertPlace = function(userId, lastLoc, currentPlaceAlt){
 			location_id: lastLoc.location_id,
 		}
 	);
-	var userplace = UserPlaces.findOne({userId:userId, geoId: lastLoc._id});
+	userplace = UserPlaces.findOne({userId:userId, geoId: lastLoc._id});
 	if (userplace)
 		location.userplaceId = userplace._id;
 	location.location_id = lastLoc.location_id;
