@@ -149,7 +149,9 @@ Template.connectAccounts.events({
 		}		
 	},
 	'click #check_profile': function (event, template) {
-		Meteor.call('showProfile', Meteor.userId());
+		Meteor.call('showProfile', Meteor.userId(), function(err, results){
+			console.log('showProfile ', results);
+		});
 		console.log(Meteor.status());	
 	},
 });
