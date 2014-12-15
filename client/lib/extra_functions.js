@@ -138,7 +138,9 @@ addPlace = function (location){
 	// check come here!
 		
 	//we have coords, lets check google
-	Meteor.call('getGLoc', userId, location, radius, function(err,results){
+	var initiator = 'addPlace function';
+	Meteor.call('getGLoc', userId, location, radius, initiator, function(err,results){
+		var experience;
 		console.log('getGLoc call  ', results);
 				
 		if (!results)

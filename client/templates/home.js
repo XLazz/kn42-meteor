@@ -178,7 +178,8 @@ Template.homelocation.helpers({
 			var radius = 50;
 			if ((!place) && (!Session.get('googleCall'))){
 				console.log('Google call getGLoc in geoMerchant homelocation ', this.place_id, this.place);
-				Meteor.call('getGLoc', userId, this.place, radius, function(err, results) {
+				var initiator = 'homelocation geoMerchant';
+				Meteor.call('getGLoc', userId, this.place.location, radius, initiator, function(err, results) {
 					if (results)
 						Session.set('googleCall', false);	
 				});

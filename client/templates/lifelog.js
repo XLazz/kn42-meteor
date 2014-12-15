@@ -29,7 +29,8 @@ getGPlace = function(place_id){
 			console.log('getGPlace ', results);
 			if (results) {
 				if (results.result.place_id.length > 25) {
-					Meteor.call('getGLoc', Meteor.userId(), Session.get('userLocation'), 30);
+					var initiator = 'getGPlace function';
+					Meteor.call('getGLoc', Meteor.userId(), Session.get('userLocation').location, 30, initiator);
 				}
 				Session.set('googleCall', false);	
 				return results;
@@ -261,7 +262,7 @@ Template.selectPlace.helpers({
 		
 //		console.log('gotPlaces no MerchantsCache ', UserLocations.findOne({user_history_location_id: Session.get('userLocation').user_history_location_id}, {sort: {started: -1}}), Session.get('radius')); 
 		
-		var gotPlaces = Meteor.call('getGLoc', userId, userLocation, radius, function(err, results){
+		var gotPlaces = Meteor.call('getGLoc', userId, userLocation.location, radius, function(err, results){
 			console.log('selectPlace helpers getGLoc results ', results.results);	
 			return results;
 		});
@@ -291,7 +292,8 @@ Template.selectPlace.events({
 		Session.set('radius', radius);
 		console.log('selectPlace click .elsewhere ', userLocation.location, userLocation, radius);
 //		Meteor.call('removeAllPlaces', Meteor.userId());
-		var gotPlaces = Meteor.call('getGLoc', userId, userLocation, radius, function(err, results){
+		var initiator = 'click elsewhere';
+		var gotPlaces = Meteor.call('getGLoc', userId, userLocation.location, radius, initiator, function(err, results){
 			console.log('selectPlace helpers getGLoc results ', results);	
 			if (!results)
 				return;

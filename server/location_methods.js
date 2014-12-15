@@ -1,27 +1,24 @@
 Meteor.methods({
 
-	getGLoc: function(userId, userLocation, radius){
+	getGLoc: function(userId, location, radius, initiator){
 		var myError;
 		// userlocation.coords.latitude
-		if ((!userId) || (!userLocation)){
-			console.error('Called getGLoc, but ', userId, userLocation);
+		if ((!userId) || (!location)){
+			console.error('Called getGLoc, but ', userId, location, initiator);
 			return;
 		}
-		if (!userLocation.location) {
-			console.error('Called getGLoc, but userLocation.location ', userLocation.location, userLocation);
+		if (!location.coords) {
+			console.error('Called getGLoc, but location.coords ', location.coords, location, initiator);
 			return;		
 		}
-		if (!userLocation.location.coords) {
-			console.error('Called getGLoc, but userLocation.location.coords ', userLocation.location.coords, userLocation);
-			return;		
-		}
-		var coords = userLocation.location.coords;
+
+		var coords = location.coords;
 
 /* 		if (MerchantsCache.findOne({'coords.latitude': coords.latitude,  'coords.longitude': coords.longitude}))
 			return; */
 		var response = GetGoogleLoc(userId, coords, radius);
 
-		console.log('GetGoogleLoc called google ', userId, userLocation.place_id, response.results.length);
+		console.log('GetGoogleLoc called google ', userId, location.coords, response.results.length);
 		if (!response) 
 			return;
 			
@@ -34,7 +31,7 @@ Meteor.methods({
 				
 				response.results[i].coords = coords;
 				response.results[i].updated = new Date(),
-				response.results[i].geoId = userLocation.geoId;
+//				response.results[i].geoId = userLocation.geoId;
 				console.log('inserting merchants 1 ', response.results[i].name, response.results[i].name);
 				MerchantsCache.upsert(
 					{ 'place_id': response.results[i].place_id	},

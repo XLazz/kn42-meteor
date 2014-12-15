@@ -159,7 +159,7 @@ GetFsqrLoc = function(coords, query){
 
 GetGoogleLoc = function(userId, coords, radius){
 	var response;
-	console.log('GetGoogleLoc userLocation ', coords);
+	console.log('GetGoogleLoc coords ', coords);
 /* 	if ((!userLocation.location) && (userLocation.timestamp)) {
 		var userLocation = GeoLog.findOne({userId: userId, timestamp: userLocation.timestamp});
 		userLocation = userLocation.location;

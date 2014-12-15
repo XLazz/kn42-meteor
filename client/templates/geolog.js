@@ -44,8 +44,9 @@ Template.coords.helpers({
 		var place = MerchantsCache.findOne({'place_id': this.place_id});
 		if (!place) {
 			var radius = 50;
-			Meteor.call('getGLoc', userId, this, radius, function(err, results) {
-				console.log('getGLoc call in geoMerchant ', userId, this, results);
+//			console.log('getGLoc calling ', userId, this);
+			Meteor.call('getGLoc', userId, this.location, radius, function(err, results) {
+				console.log('getGLoc call in geoMerchant ', userId, this.location, results);
 				return results;
 			});
 		}

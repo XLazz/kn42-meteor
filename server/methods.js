@@ -23,7 +23,7 @@ Meteor.methods({
 		console.log('calling php server for json 3. num of els ', userLocations.length);
 		userLocations.forEach(function (item, index, array) {
 			Meteor.call('getGPlace', item.place_id, function(err, results){
-				if (results) { 
+/* 				if (results) { 
 					console.log('getGPlace results.result.place_id.length ', results.result.place_id.length);
 					if (results.result.place_id.length > 25) {
 						var userLocation = {};
@@ -32,7 +32,7 @@ Meteor.methods({
 						var radius = 30;
 						Meteor.call('getGLoc', userId, userLocation, radius);
 					}
-				}
+				} */
 			});
 
 			var ifPlace = UserPlaces.findOne
@@ -269,7 +269,7 @@ Meteor.methods({
 			console.error('submitPlace and no location');
 			return;
 		}
-		if (!location.location_id) {
+		if ((!location.location_id) && (!location.userplaceId)) {
 			console.error('submitPlace and no location_id ', location);
 			return;
 		}		
@@ -289,21 +289,22 @@ Meteor.methods({
 		console.log('submitPlace answer 2 ', api_key, url, response );
 		return response;
 	},
+
 	'updatePlace': function(userId, location, experience){
 	// v008
 		if ((!userId) || (!location))  {
-			console.error('submitPlace and no location');
+			console.error('updatePlace and no location');
 			return;
 		}
-		if (!location.location_id) {
-			console.error('submitPlace and no location_id ', location);
+		if ((!location.location_id) && (!location.userplaceId)){
+			console.error('updatePlace and no location_id ', location);
 			return;
 		}		
 		check(arguments, [Match.Any]);
-
+		var place = UserPlaces.findOne(location.userplaceId);
 		var api_key = GetApi(userId);
 //		var url = 'http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&had=' + had + '&stars=' + stars + '&comment=' + comment + '&location_id='+ location.location_id + '&google_place='+ place_id;
-		var url = 'http://kn42.xlazz.com/server/request.php?api_key=' +api_key +'&location=update&location_id='+ location.location_id + '&google_place=' +location.place_id + '&userplaceId=' + location.userplaceId + '&status=' +location.status;
+		var url = 'http://kn42.xlazz.com/server/request.php?api_key=' +api_key +'&location=update&location_id='+ location.location_id + '&google_place=' +location.place_id + '&userplaceId=' + location.userplaceId + '&status=' +location.status +'&timestamp=' +place.timestamp+ '&timestampEnd=' +place.timestampEnd;
 		console.log('submitPlace  1 ', api_key, url);
 		var myJSON = Meteor.http.call('GET',url);
 		console.log('submitPlace ', myJSON.content);
