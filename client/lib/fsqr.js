@@ -149,10 +149,10 @@ Template.venues.events({
 			return results;
 		}); */
 		
-/* 		venues = Meteor.call('venuesFsqr', userId, coords, function(err, results) {
+		venues = Meteor.call('venuesFsqr', userId, coords, function(err, results) {
 			console.log('Meteor.call event venuesFsqr', userLocation.place_id, results);
 			return results;
-		}); */
+		});
 		console.log('Meteor.call event after venuesFsqr', userLocation.place_id, venues);
 		if (!venues)
 			return	
