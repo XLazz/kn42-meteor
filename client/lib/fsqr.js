@@ -79,6 +79,8 @@ Template.venuesSelected.helpers({
 			return;
 		console.log('venuesSelected 1 ', userLocation);
 		var place = Places.findOne({place_id: userLocation.place_id});
+		if (!place)
+			return;
 		var coords = userLocation.location.coords;
 		if (place.name) {
 			var name = place.name;

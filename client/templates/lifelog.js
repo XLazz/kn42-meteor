@@ -10,26 +10,35 @@
 
 getGPlace = function(place_id){
 	var callGoogle;
+	var place;
 //	var place = Places.findOne({place_id: place_id});
 //	if (!place) {
 		
-		if (Session.get('googleCall')) {
-			var now = moment().valueOf() - Session.get('googleCall');
-			console.log('getGPlace session 1 ', Session.get('googleCall'), now);
-			if (moment().valueOf() - Session.get('googleCall') > 2) {
-				console.log('getGPlace session 2 ', Session.get('googleCall'), now);
+	if (Session.get('googleCall')) {
+		var now = moment().valueOf() - Session.get('googleCall');
+		console.log('getGPlace session 1 ', Session.get('googleCall'), now);
+		if (moment().valueOf() - Session.get('googleCall') > 2) {
+			console.log('getGPlace session 2 ', Session.get('googleCall'), now);
+			Session.set('googleCall', false);	
+		}
+	}
+	console.log('getGPlace session 3 ', Session.get('googleCall'), place_id);
+	if (!Session.get('googleCall')){
+		console.log('Google call getGPlace in getGPlace function ', place_id);
+		Meteor.call('getGPlace', place_id, function(err, results) {
+			console.log('getGPlace ', results);
+			if (results) {
+				if (results.result.place_id.length > 25) {
+					Meteor.call('getGLoc', Meteor.userId(), Session.get('userLocation'), 30);
+				}
 				Session.set('googleCall', false);	
+				return results;
 			}
-		}
-		console.log('getGPlace session 3 ', Session.get('googleCall'), place_id);
-		if (!Session.get('googleCall')){
-			console.log('Google call getGPlace in getGPlace function ', place_id);
-			Meteor.call('getGPlace', place_id, function(err, results) {
-				if (results)
-					Session.set('googleCall', false);	
-			});
-			Session.set('googleCall', moment().valueOf());
-		}
+		});
+		Session.set('googleCall', moment().valueOf());
+	}
+	if (!place)
+		return;
 	return place;
 };
 
@@ -172,6 +181,8 @@ Template.showlocations.helpers({
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
 		var place = MerchantsCache.findOne({'place_id': this.place_id});
+		if (!place)
+			return;
 		if (Session.get('userLocation'))
 			if (Session.get('userLocation')._id == this._id)
 				place.showbut = true;
@@ -193,7 +204,6 @@ Template.showlocations.helpers({
 });
 
 Template.showlocations.events({
-
 	"click .selectplace": function (event, template) {
 		var userId = Meteor.userId();
 		var radius = 50;
@@ -251,7 +261,7 @@ Template.selectPlace.helpers({
 		
 //		console.log('gotPlaces no MerchantsCache ', UserLocations.findOne({user_history_location_id: Session.get('userLocation').user_history_location_id}, {sort: {started: -1}}), Session.get('radius')); 
 		
-		var gotPlaces = Meteor.call('getGLoc', userId, userLocation.location, radius, function(err, results){
+		var gotPlaces = Meteor.call('getGLoc', userId, userLocation, radius, function(err, results){
 			console.log('selectPlace helpers getGLoc results ', results.results);	
 			return results;
 		});
@@ -279,9 +289,12 @@ Template.selectPlace.events({
 		var elsewhere = 1;
 		var userLocation = Session.get('userLocation');
 		Session.set('radius', radius);
+		console.log('selectPlace click .elsewhere ', userLocation.location, userLocation, radius);
 //		Meteor.call('removeAllPlaces', Meteor.userId());
-		var gotPlaces = Meteor.call('getGLoc', userId, userLocation.location, radius, function(err, results){
-			console.log('selectPlace helpers getGLoc results ', results.results);	
+		var gotPlaces = Meteor.call('getGLoc', userId, userLocation, radius, function(err, results){
+			console.log('selectPlace helpers getGLoc results ', results);	
+			if (!results)
+				return;
 			return results.results;
 		});
 
@@ -291,6 +304,7 @@ Template.selectPlace.events({
 	},
 
 	"click .setlocations": function (event, template) {
+		var userId = Meteor.userId();
 //		Session.set("showCreateDialog", true);
 		var allloc = template.find('#allloc').checked;
 		console.log('locationModal events setlocations ', Session.get("showCreateDialog"), $(event.currentTarget).attr("id"), this );		
@@ -303,20 +317,22 @@ Template.selectPlace.events({
 		dateNow = new Date();
 		if (allloc) {
 			if (!AutoPlaces.findOne({place_id:place_id}))
-				AutoPlaces.insert({userId:Meteor.userId(),place_id:place_id,created:dateNow});
-			Meteor.call('UserLocationsUpdate', Meteor.userId(), userLocation._id, place_id, function(err,results){
+				AutoPlaces.insert({userId:userId,place_id:place_id,created:dateNow});
+			Meteor.call('UserLocationsUpdate', userId, userLocation._id, place_id, function(err,results){
 				console.log('UserLocationsUpdate call results ', results);
 			});
 		}
-		UserPlaces.update({_id: userLocation._id}, {$set: {place_id: place_id, confirmed: true, travel: ''}});	
+		UserPlaces.update(userLocation._id, {$set: {place_id: place_id, confirmed: true, travel: ''}});	
 
 		if (!Places.findOne({place_id: place_id})) {
 			var myPlace = MerchantsCache.findOne({place_id: place_id},{fields:{_id:0, 'address.components': 0, reviews: 0, photos: 0}});
 			Places.insert(myPlace);
 		}
-		var userLocation = UserPlaces.findOne({_id: userLocation._id});	
+		var userLocation = UserPlaces.findOne(userLocation._id);	
 		console.log('UserLocations  ', userLocation.place_id, userLocation);
-	
+		var experience;
+		userLocation.status = 'confirmed';
+		Meteor.call('updatePlace', userId, userLocation, experience);	
 		Overlay.hide();
 	},
 	

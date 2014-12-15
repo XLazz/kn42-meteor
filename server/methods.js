@@ -22,7 +22,19 @@ Meteor.methods({
 		var userLocations = JSON.parse(myJSON.content).user_locations;
 		console.log('calling php server for json 3. num of els ', userLocations.length);
 		userLocations.forEach(function (item, index, array) {
-			Meteor.call('getGPlace', item.place_id);
+			Meteor.call('getGPlace', item.place_id, function(err, results){
+				if (results) { 
+					console.log('getGPlace results.result.place_id.length ', results.result.place_id.length);
+					if (results.result.place_id.length > 25) {
+						var userLocation = {};
+						userLocation.location = {};
+						userLocation.location.coords = item;
+						var radius = 30;
+						Meteor.call('getGLoc', userId, userLocation, radius);
+					}
+				}
+			});
+
 			var ifPlace = UserPlaces.findOne
 				({				
 					$and: [
@@ -43,22 +55,41 @@ Meteor.methods({
 				if (item.status == 'congfirmed')
 					confirmed = true;
 				if (item.status == 'travel')
-					travel = true;					
-				UserPlaces.insert(
-					{
-						userId: userId,
-						user_history_location_id: item.user_history_location_id,
-						location_id: item.location_id,
-						location: location,
-						place_id: item.place_id,
-						started: item.started,
-						timestamp: timestamp,
-						timestampEnd: timestampEnd,
-						userplaceId: item.userplaceId,
-						confirmed: confirmed,
-						travel: travel
-					}
-				);
+					travel = true;	
+				if (item.userplaceId) {
+					UserPlaces.upsert(
+						item.userplaceId,
+						{
+							_id: item.userplaceId,
+							userId: userId,
+							user_history_location_id: item.user_history_location_id,
+							location_id: item.location_id,
+							location: location,
+							place_id: item.place_id,
+							started: item.started,
+							timestamp: timestamp,
+							timestampEnd: timestampEnd,
+							confirmed: confirmed,
+							travel: travel
+						}
+					);
+				} else {
+					UserPlaces.upsert(
+						{user_history_location_id: item.user_history_location_id},
+						{
+							userId: userId,
+							user_history_location_id: item.user_history_location_id,
+							location_id: item.location_id,
+							location: location,
+							place_id: item.place_id,
+							started: item.started,
+							timestamp: timestamp,
+							timestampEnd: timestampEnd,
+							confirmed: confirmed,
+							travel: travel
+						}
+					);				
+				}
 			}
 		});
 

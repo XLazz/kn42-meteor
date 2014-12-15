@@ -279,46 +279,6 @@ Template.homeinside.events({
 		console.log('changing place ', place_id);
 		return Session.set('changeplace', true);
 	},
-	
-/* 	'click .confirm': function (event, template) {
-
-//		Meteor.call('getLocations','list');
-		var user_history_location_id = $(event.currentTarget).attr("id");
-		
-		var userLocation = UserLocations.findOne({user_history_location_id: user_history_location_id}, {fields: {_id: 1, place_id: 1, name: 1}});		
-		console.log('userLocation ', user_history_location_id, userLocation);
-		var myPlace = MerchantsCache.findOne({place_id: userLocation.place_id}, {fields: {_id: 0}});		
-		if (!userLocation.name) {
-			console.log('click .confirm Call for MerchantsCache ');
-		}
-		var myId = Places.findOne({place_id: userLocation.place_id}, {fields: {_id: 1}});		
-		console.log('confirming place_id ', userLocation.place_id, myPlace, myId );
-		myPlace.confirmed = 1;
-		myPlace.updated = new Date();
-		if (myId) {
-			UserLocations.upsert(
-				{_id: userLocation._id}, 
-				{ $set: 
-					{confirmed: 1}
-				}
-			);		
-			Places.upsert(
-				{_id: myId._id}, 
-				{
-					$set: myPlace
-				}
-			);		
-		} else {
-			Places.insert(
-				{
-					$set: myPlace
-				}
-			);					
-		}
-			
-		return Session.set('changeplace', false);
-	}, */
-
 	"click .expselect": function (event, template) {
 		Session.set('showexp', true);
 	},	
@@ -407,13 +367,9 @@ Template.buttons.helpers({
 
 Template.buttons.events({
 	"click .confirm": function (event, template) {
-//		var locId = $(event.currentTarget).attr("id");
-//		var locId = template.find('selectplace');
-			var locId = Session.get('userLocation')._id;
-//		var curr_event = template.find('input').value.replace(/\s+/g, '');
+		var userId = Meteor.userId();
+		var locId = Session.get('userLocation')._id;
 		console.log('buttons click .confirm curr event ', locId, Session.get('userLocation'));
-//		console.log('click .confirm buttons confirming userLocation ');
-//		var userLocation = Session.get('userLocation');
 		var place = UserPlaces.findOne(locId);
 		var myPlace = Places.findOne({place_id:place.place_id}, {fields: {name: 1}});
 		if (myPlace) {
@@ -422,24 +378,27 @@ Template.buttons.events({
 		} else {
 			var merchant = MerchantsCache.findOne({place_id:place.place_id}, {fields:{_id:0}});
 			Places.insert(merchant);
-		}
-		
-			
+		}		
 		console.log('click .confirm buttons confirming userLocation ', place.name );
 //		console.log('click .confirm buttons confirming userLocation ', place.place_id, place.name );
 		if (!place.name) {
 			alert('Cant confirm Unknown. Please click on Change button first');
 			return;
 		}
-		UserPlaces.upsert(locId, {$set: {confirmed: confirmed, travel: ''}});	
-		location.status = 'confirmed';
-		location.userplaceId = locId;
-		Meteor.call('updatePlace', userId, location, experience);
+		UserPlaces.upsert(locId, {$set: {confirmed: true, travel: ''}});	
+		var experience;
+		place.status = 'confirmed';
+		place.userplaceId = locId;
+		Meteor.call('updatePlace', userId, place, experience);
 	},	 
 	"click .undo": function (event, template) {
-		var locId = Session.get('userLocation')._id;
+		var userId = Meteor.userId();
+		var location = Session.get('userLocation');
+		var locId = location._id
 		console.log('click .confirm buttons confirming userLocation ',locId );
-		UserPlaces.upsert(locId, {$set: {confirmed: '', travel: ''}});		
+		UserPlaces.upsert(locId, {$set: {confirmed: '', travel: ''}});
+		
+		var experience;
 		location.status = '';
 		location.userplaceId = locId;
 		Meteor.call('updatePlace', userId, location, experience);
@@ -461,9 +420,15 @@ Template.buttons.events({
 	},
 	"click .travel": function (event, template) {
 //		alert('coming soon');
-		var locId = Session.get('userLocation')._id;
+		var userId = Meteor.userId();
+		var location = Session.get('userLocation');
+		var locId = location._id
 		console.log('click .travel buttons confirming userLocation ',locId );
 		UserPlaces.upsert(locId, {$set: {confirmed: '', travel: true}});		
+		var experience;
+		location.status = 'travel';
+		location.userplaceId = locId;
+		Meteor.call('updatePlace', userId, location, experience);
 	},		
 	
 });

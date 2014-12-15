@@ -7,14 +7,18 @@ Meteor.methods({
 			console.error('Called getGLoc, but ', userId, userLocation);
 			return;
 		}
-		if (!userLocation.coords) {
-			console.error('Called getGLoc, but userLocation.coords ', userLocation.coords, userLocation);
+		if (!userLocation.location) {
+			console.error('Called getGLoc, but userLocation.location ', userLocation.location, userLocation);
 			return;		
 		}
-		var coords = userLocation.coords;
+		if (!userLocation.location.coords) {
+			console.error('Called getGLoc, but userLocation.location.coords ', userLocation.location.coords, userLocation);
+			return;		
+		}
+		var coords = userLocation.location.coords;
 
-		if (MerchantsCache.findOne({'coords.latitude': coords.latitude,  'coords.longitude': coords.longitude}))
-			return;
+/* 		if (MerchantsCache.findOne({'coords.latitude': coords.latitude,  'coords.longitude': coords.longitude}))
+			return; */
 		var response = GetGoogleLoc(userId, coords, radius);
 
 		console.log('GetGoogleLoc called google ', userId, userLocation.place_id, response.results.length);
@@ -42,6 +46,9 @@ Meteor.methods({
 	},
 	
 	getGPlace: function(place_id){
+		var userId;
+		if (!place_id)
+			return;
 		var myError;
 
 		if (MerchantsCache.findOne({place_id: place_id}))
@@ -59,11 +66,13 @@ Meteor.methods({
 			console.error('GetGooglePlace empty call');
 			return;
 		}		
+//		console.log('GetGooglePlace call', response.result);
 		Places.upsert(
 			{ 'place_id': response.result.place_id	},
 			{
-				name: response.result.name,
 				place_id: response.result.place_id,
+				name: response.result.name,
+				place_id_addr: response.result.place_id,
 				geometry: response.result.geometry,
 				icon: response.result.icon,
 				scope: response.result.scope,
@@ -76,8 +85,9 @@ Meteor.methods({
 		MerchantsCache.upsert(
 			{ 'place_id': response.result.place_id	},
 			{
-				name: response.result.name,
 				place_id: response.result.place_id,
+				name: response.result.name,
+				place_id_addr: response.result.place_id,
 				geometry: response.result.geometry,
 				icon: response.result.icon,
 				scope: response.result.scope,
