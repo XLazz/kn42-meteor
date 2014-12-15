@@ -76,6 +76,9 @@ Template.profilePic.helpers({
 });
 
 Template.connectAccounts.helpers({
+	ifDebug: function(){
+		return Session.get('debug');
+	},
 	user_details: function(){
 		var user_email;
 		var userId = Meteor.userId();
@@ -144,6 +147,9 @@ Template.connectAccounts.events({
 					user_details = Meteor.user();
 				});
 		}		
+	},
+	'click #check_profile': function (event, template) {
+		console.log(Meteor.status());	
 	},
 });
 

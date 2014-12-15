@@ -1,4 +1,5 @@
 Meteor.startup(function () {
+	screen.lockOrientation('portrait');
 	if (!Meteor.user())
 		return;
 	Session.set('geoback', Meteor.user().profile.geoback );
@@ -6,6 +7,6 @@ Meteor.startup(function () {
 /* 	if (!UserPlaces.findOne({userId:Meteor.user()}))
 		Meteor.call('getLocations',Meteor.user(), 'list'); */
 	// if (Meteor.isCordova) {
-		screen.lockOrientation('portrait');
+
 	//}
 });

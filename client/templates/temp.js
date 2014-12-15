@@ -41,3 +41,20 @@ Template.test.helpers({
 	},
 });
 
+Template.test.events({
+	"click .test": function (event, template) {
+		if (!Meteor.userId()) {
+			return;
+		}
+		var userId = Meteor.userId();
+		console.log('test events ');
+		cordova.call('getEmail', function (err, result) {
+			console.log('getemail ',result);
+			console.error('getemail ', err);
+		}); 
+			
+		return friends;
+	},
+
+});
+

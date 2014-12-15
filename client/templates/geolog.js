@@ -13,7 +13,7 @@ Template.geolog.helpers({
 Template.coords.helpers({
 
 	geologs: function(){
-		return GeoLog.find({}, {sort: {timestamp: -1}, 
+		return GeoLog.find({userId: Meteor.userId()}, {sort: {timestamp: -1}, 
 			transform: function(doc){	
 				if (doc.confirmed)
 					doc.place_id = doc.confirmed;
@@ -33,6 +33,7 @@ Template.coords.helpers({
 //		console.log('geoPlace ', this.place_id);
 		return place;
 	},
+	
 	geoMerchant: function() {
 		var userId = Meteor.userId();
 		if (!this.place_id) {
