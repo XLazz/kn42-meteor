@@ -58,6 +58,7 @@ fsqrApi = function(userId){
 		fsqrToken = user_details.services.foursquare.accessToken;
 		console.log ('token ', fsqrToken);
 		if ((!user_details.profile.foursquareId)||(!user_details.profile.foursquare)) 
+			console.log('updating user profile with fsqr ',  user_details.services.foursquare.id);
 			Meteor.users.upsert({_id: userId}, {$set:{'profile.foursquare':1, 'profile.foursquareId': user_details.services.foursquare.id}});
 		return fsqrToken;
 	}
