@@ -424,6 +424,7 @@ Template.buttons.events({
 
 Template.claimIt.helpers({
 	"claimed": function (event, template) {
+		userId = Meteor.userId();
 		var userLocation = Session.get('userLocation');
 		if (!userLocation)
 			return;
@@ -448,6 +449,7 @@ Template.claimIt.helpers({
 
 Template.claimIt.events({
 	"click .claim": function (event, template) {
+		event.preventDefault();
 		userId = Meteor.userId();	
 
 //		alert('coming soon');
@@ -458,6 +460,7 @@ Template.claimIt.events({
 		}
 		var locId = userLocation._id;
 		console.log('click claim userlocation ', userLocation);
+		userLocation = UserPlaces.findOne(userLocation._id);
 		if (!userLocation.confirmed) {
 			alert('Please confirm the place befor claiming it');
 			return;
@@ -482,6 +485,7 @@ Template.claimIt.events({
 		Overlay.show('claimPlace');	
 	},	
 	"click .editClaim": function (event, template) {
+		event.preventDefault();
 //		var claimedId = template.find('.editClaim').attr('id');
 		var claimedId = $(event.currentTarget).attr("id")
 		console.log('click .editClaim ',claimedId );

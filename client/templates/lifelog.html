@@ -7,18 +7,16 @@
 						{{/if}}	
 					</div> -->
     <div class="content-scrollable">
-      <div class="list-recipes">
-<!-- 				{{#if userId}} -->
+			<div class="container-fluid">	
+				<hr>
+				{{> showlocations}}
+				{{> overlay}}			
+			</div>
+<!--       <div class="list-recipes">
 					<hr>
 					<div>
-						{{> showlocations}}
-						{{> overlay}}
 					</div>
-<!-- 				{{else}} -->
-<!-- 					Please log in to see your LifeLog<br>
-					{{> loginButtons}} -->
-<!-- 				{{/if}} -->
-      </div>
+      </div> -->
     </div>
 		{{#if ifDebug}}
 		<footer class="footer" style="bottom: 0; position: absolute;">
@@ -31,7 +29,7 @@
   </div>
 </template>
 
-<template name="showlocations">
+<template name="showlocations2">
 	<h4>Your places</h4>	
 	<div>
 	</div>
@@ -49,6 +47,7 @@
 								{{/if}}
 							</div>
 							<div style="font-size:smaller">
+								id {{_id}}
 								{{geoPlace.vicinity}} <br />
 								Time spent {{timespent}} on {{started}} 
 							</div>
@@ -94,8 +93,81 @@
 	</div>
 </template>
 
-<template name="selectPlace">
+<template name="showlocations">
+	{{#each locations}}
+		<hr>
+		<div class="row">
+			<div class="selectplace col-xs-8 col-sm-8 col-md-8" id="{{_id}}">
+<!-- 				<div>{{geoPlace.vicinity}}
+				</div> -->
+				{{#if travel}}
+					<div>
+						Travelling<br />
+						{{#if location.coords.speed}}speed {{location.coords.speed}} {{/if}}
+						{{status}} since {{started}} {{#if timespent}}  for {{timespent}} {{/if}}
+					</div>
+				{{else}}
+					<div>
+						{{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}
+					</div>
+					<div style="font-size: smaller">
+						{{#if geoPlace.name}}{{geoPlace.vicinity}} {{else}}{{geoMerchant.vicinity}} {{/if}}<br />
+						{{status}} since {{started}} {{#if timespent}} for {{timespent}} {{/if}}
+<!-- 						<div>{{> venuesSelected}}</div> -->							
+					</div>
+					{{#if ifDebug}} 
+						<div style="font-size:50%">
+							{{place_id}}
+						</div>
+					{{/if}}
+					{{#if ifDebug}}<div style="font-size:50%"> finished: {{finished}}</div>{{/if}}
+				{{/if}}
+			</div>
+			<div class="col-xs-4 col-sm-4 col-md-4">
+				<div class="row">
+					<div class="col-xs-6 col-sm-6 col-md-6">
+						{{#if claimed}}
+							<span class="glyphicon glyphicon-home" style="font-size: xx-large" aria-hidden="true"></span>
+						{{/if}}
+					</div>
+					<div class="col-xs-6 col-sm-6 col-md-6">
+						<img style="width: auto; height: auto; max-width: 40px" src="
+							{{#if travel}}
+								img/app/car.png
+							{{else}}
+								{{#if geoPlace.icon}}  {{geoPlace.icon}} {{else}} {{geoMerchant.icon}} {{/if}}
+							{{/if}}
+						" />
+					</div>
+					
+				</div>
+				<div class="row">
+					<div class="col-xs-6 col-sm-6 col-md-6">
+						{{#unless travel}}<span class="badge">{{count}}</span>{{/unless}}
+					</div>
+				</div>
+			</div>
+		</div>
 
+		{{#if geoPlace.showbut}}
+			{{> buttons}}
+				{{#unless travel}}
+					{{> venuesSelected}}
+				{{/unless}}
+			{{else}}
+				{{#if geoMerchant.showbut}}
+					{{> buttons}}
+					{{#unless travel}}
+						{{> venuesSelected}}
+					{{/unless}}
+				{{/if}}
+		{{/if}}
+
+	{{/each}}
+</template>
+
+
+<template name="selectPlace">
 	<div class="content-scrollable">
 		{{#if gPlaces}}
 			<br /><br />

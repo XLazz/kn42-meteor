@@ -129,11 +129,9 @@
 			</div>
 		</div>
 
-
-				{{#if status}}
-					{{> buttons}}
-				{{/if}}
-
+		{{#if status}}
+			{{> buttons}}
+		{{/if}}
 
 	{{/with}}
 </template>
@@ -189,15 +187,15 @@
 					<input type="button" class="button btn-info btn btn-small
 						{{#if confirmed}}undo{{else}}{{#if travel}}undo{{else}}confirm{{/if}}{{/if}}
 						" id="{{_id}}" value="
-						{{#if confirmed}}undo{{else}}{{#if travel}}undo{{else}}confirm{{/if}}{{/if}}
+						{{#if confirmed}}undo{{else}}{{#if travel}}undo{{else}}conf{{/if}}{{/if}}
 					" />
 
 					{{#if confirmed}}
 						{{> claimIt}}
 					{{else}}
 						{{#unless travel}}
-							<input type="button" class="button locations btn btn-small btn-info" data-toggle="modal" data-target="#myModal" id="{{_id}}" value="Change" />
-							<input type="button" class="button travel btn btn-small btn-info" data-toggle="modal" data-target="#myModal" id="{{_id}}" value="Travel" />
+							<input type="button" class="button locations btn btn-small btn-info" id="{{_id}}" value="Change" />
+							<input type="button" class="button travel btn btn-small btn-info" id="{{_id}}" value="Travel" />
 						{{/unless}}
 					{{/if}}
 
@@ -239,16 +237,18 @@
 			 {{/with}}
 
 			{{#unless experiences}}
-				{{#autoForm id="experiencesForm" collection="Experiences"  doc=this type="update" autosave=true schema="Schemas.Experiences" }}
-					<div class="form-group">
-						{{> afFieldInput name="experience2" type="text" autocomplete="on" placeholder="add your experience"}}
-						{{> afFieldInput name="userId" type="hidden" value=userId}}
-						{{> afFieldInput name="placeId" type="hidden" value=place._id}}
+				{{#autoForm id="experiencesForm" collection="Experiences" template="bootstrap3-inline" doc=this type="insert" autosave=true schema="Schemas.Experiences" }}
+					<div class="form-group ">
+						{{> afFieldInput name="experience2" type="text" autocomplete="on" placeholder="add your experience"  template="bootstrap3-inline"}}
 					</div>
+					<div class="form-group ">
+						<button class="btn btn-primary btn-small" type="submit">add</button>
+					</div>
+					{{> afFieldInput name="userId" type="hidden" value=userId}}
+					{{> afFieldInput name="placeId" type="hidden" value=place._id}}
 				{{/autoForm}}
 			 {{/unless}}			 
-			 
-			 
+			
 <!-- 			<div class="control-group">
 				<form class="form-inline" id="{{currentPlace}}">
 					<select id="select-{{currentPlace}}-empty" class="demo-default" data-placeholder="Select or create...">			

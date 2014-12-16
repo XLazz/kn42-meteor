@@ -66,8 +66,6 @@ Template.lifelog.helpers({
 });
 
 Template.lifelog.events({
-
-	
 	"click .reloadlocations": function (event, template) {
 		if (!Meteor.userId()) {
 			return;
@@ -208,10 +206,12 @@ Template.showlocations.events({
 	"click .selectplace": function (event, template) {
 		var userId = Meteor.userId();
 		var radius = 50;
-		var userLocationId = $(event.currentTarget).attr("id");
+//		var userLocationId = $(event).attr("id");
+//		var userLocationId = template.find('.selectplace').attr();
+		var userLocationId = event.currentTarget.id;
 		var userLocation = UserPlaces.findOne(userLocationId);
 		console.log('click on div before call 0 ',userLocationId, userLocation);		
-		var place = Places.findOne({place_id: userLocation.place_id});
+		var place = Places.findOne({place_id: userLocation. userLocationId});
 		if (!place)
 			place = MerchantsCache.findOne({place_id: userLocation.place_id});
 		if (!place){
