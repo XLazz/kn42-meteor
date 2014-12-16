@@ -1,18 +1,30 @@
 <template name="claimedPlaces">
 	<div class="content-scrollable">
-		<div style="padding:10px; padding-top:40px">
+		<div class="container-fluid">
 		<h1 class="title-admin">Your places</h1>
 
-		<form>
-			{{#each claimed}}
-				<div style="font-size:smaller">
-				<label>Claimed on {{created}}</label><br />
-				<textarea style="width:100%" name="text" rows="2" placeholder="Show the latest Local Market news on the the frontpage...">{{name}}</textarea>
+
+
+				<div class="row">
+					<div class="col-xs-12 col-sm-12 col-md-12">
+<!-- 						<label>Claimed on {{claimed.created}} with {{claimed}}</label><br />
+						<textarea style="width:100%" name="text" rows="2" placeholder="Set here what you want to show about your claimed place ...">{{claimed.name}}</textarea> -->
+						{{#with claimed}}
+							{{#autoForm id="claimedPlaceForm" doc=this type="update" collection="ClaimedPlaces" schema="Schemas.ClaimForm"}}
+								<div class="form-group">
+									{{> afFieldInput name="name" type="text" autocomplete="on" placeholder="make it yours"}}
+								</div>
+								{{> afQuickField name="public"}}
+								<div class="form-group">
+									<button type="submit" class="btn btn-primary">Submit</button>
+								</div>
+							{{/autoForm}}
+						{{/with}}
+					</div>
 				</div>
 	<!-- 			<button type="submit" class="btn-primary">Save</button> -->
-			{{/each}}
-			
-		</form>
+
+
 		</div>
 	</div>
 </template>

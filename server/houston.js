@@ -10,3 +10,4 @@ Houston.add_collection(Friends);
 Houston.add_collection(Places);
 Houston.add_collection(Friends);
 Houston.add_collection(Experiences);
+Houston.add_collection(ClaimedPlaces);

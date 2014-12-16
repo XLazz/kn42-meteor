@@ -46,9 +46,9 @@ Template.profileDetails.helpers({
 //			console.log('Meteor.user() ', Meteor.user());
 		}
 //		console.log('checking profile ', user_details);
-/*     if (user_details.services.google !== undefined) {
-        user_details.profile.profile_picture = user_details.services.google.picture;
-    } */
+    if (!user_details.profile.picture) {
+        Meteor.call('updateProfile', userId) ;
+    }
 //		console.log('checking profile ', user_details.profile);
 		
 		return user_details;
@@ -188,8 +188,9 @@ Template.userSettings.helpers({
 
 Template.userSettings.events({
 	'click .removeauto': function (event, template) {
-		var myId = $(event.currentTarget).attr("id");
-		AutoPlaces.remove(myId);
+		var myId = template.find('.removeauto');
+		console.log('template.find ', myId.attr, myId.name, myId.id, myId );
+		AutoPlaces.remove(myId.id);
 	},
 });
 

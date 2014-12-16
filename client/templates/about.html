@@ -24,18 +24,10 @@
 					</div>
 					<div class="row">
 						<div class="col-md-12 col-xs-12">
-							<div class="row">
-								<div class="col-md-12 col-xs-12">
-									<button class="btn button" id='showset'>Settings</button>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-md-12 col-xs-12">
-									{{#if ifSettings}}{{> userSettings}}{{/if}}
-								</div>
-							</div>
+							<button class="btn button" id='showset'>Settings</button>
 						</div>
 					</div>
+					{{#if ifSettings}}{{> userSettings}}{{/if}}
 				</div>
 			{{else}}
 				{{> entrySignIn}}
@@ -70,21 +62,40 @@
 
 
 <template name="userSettings">
-	<div>
-		Places with auto-check
-		{{#each autoplace}}
-			<div>
-				{{place.name}} <button class="btn button inline removeauto" id='{{_id}}'>remove</button> 
-			</div>
-		{{/each}}
-		<hr>
+	<div class="row">
+		<div class="col-md-6 col-xs-6">
+			Your places
+		</div>
+		<div class="col-md-3 col-xs-3">
+			Claimed
+		</div>
+		<div class="col-md-3 col-xs-3">
+			Auto Check
+		</div>		
 	</div>
-	<div>
-		Privacy settings: <br />
-		and what really needs to be here?<br />
-		Name - yes/no<br />
-		My places - yes/no<br />
-		My fitness (what exactly)<br />
+	{{#each autoplace}}
+		<div class="row">
+			<div class="col-md-6 col-xs-6">
+				{{place.name}}
+			</div>
+			<div class="col-md-3 col-xs-3">
+				soon
+<!-- 				<input type="checkbox" name="claimed" id="{{place._id}}" checked> -->
+			</div>
+			<div class="col-md-3 col-xs-3 removeauto" id="{{_id}}">
+				<input type="checkbox" name="autocheck" checked>
+			</div>						
+		</div>
+	{{/each}}
+	<hr>
+	<div class="row">
+		<div class="col-md-12 col-xs-12">
+			Privacy settings: <br />
+			and what really needs to be here?<br />
+			Name - yes/no<br />
+			My places - yes/no<br />
+			My fitness (what exactly)<br />
+		</div>
 	</div>
 </template>
 
