@@ -3,10 +3,11 @@
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12">
 				{{#autoForm id="claimPlaceForm" type="insert" collection="ClaimedPlaces"}}
-					{{> afQuickField name="name" placeholder="Name your place"}}
-					
 					<div class="form-group">
-						{{> afFieldInput name="public" type="select-radio-inline" }}
+						{{> afFieldInput name="name" placeholder="Name your place"}}
+					</div>
+					{{> afQuickField name="public"}}
+					<div class="form-group">
 						{{> afFieldInput name="userId" type="hidden" value=userId}}
 						{{> afFieldInput name="created" type="hidden" value=created}}
 						{{> afFieldInput name="place_id" type="hidden" value=place_id}}
