@@ -289,8 +289,9 @@ Template.selectExperience.helpers({
 	experiences: function(){
 		userId = Meteor.userId();
 		var userLocation = Session.get('userLocation');
-		var services = Experiences.find({ place_id: userLocation.place_id, userId: userId });
-		console.log('experiences Experiences ', Session.get('userLocation'), userLocation.place_id, services.fetch());
+		var services = Experiences.findOne({ userId: userId });
+		console.log('experiences Experiences ', userLocation._id, Session.get('userLocation'), services);
+		return services;
 		if (services.count()) {
 			console.log('experiences return ', services.fetch());
 			return services.fetch();
@@ -298,7 +299,7 @@ Template.selectExperience.helpers({
 		var services = Services.find({place_id: userLocation.place_id});
 		console.log('experiences Services ',userLocation.place_id, services.fetch());
 		if (services.count()) {
-			return services.fetch();
+			return services;
 		}
 	},
 	types: function(){
@@ -321,9 +322,10 @@ Template.selectExperience.helpers({
 
 Template.selectExperience.events({
 	'submit form': function(event){
-    event.preventDefault();
-		console.log(event.target.selected);
-		var experience = $( "#select-" + Session.get('userLocation').user_history_location_id +"-empty").val();
+	},
+	'keydown #experience': function(event){
+		console.log('experiences selectExperience.events ', experience);
+/* 		var experience = $( "#select-" + Session.get('userLocation').user_history_location_id +"-empty").val();
 //		var experiences = $.csv.toArray(experiences);
 		console.log('experiences selectExperience.events ', experience);
 		Experiences.insert({
@@ -332,23 +334,8 @@ Template.selectExperience.events({
 			place_id: Session.get('userLocation').place_id,
 			created: new Date(),
 		});		
-		/* experiences.forEach(function (item, index, array){
-			if (item){
-				item = item.replace(/\s+/g, '');
-				if	((!Experiences.findOne({place_id: Session.get('currentPlace'), experience: item, userId: Meteor.userId()})) && (item)) {		
-					console.log('experiences inserting item ', Session.get('currentPlace'), item, Meteor.userId(), Experiences.findOne({place_id: Session.get('currentPlace'), experience: item, userId: Meteor.userId()}));
-					Experiences.insert({
-						userId: Meteor.userId(),
-						experience: item,
-						place_id: Session.get('currentPlace'),
-						created: new Date(),
-					});
-				}
-			}
-		}); */
-		return experience;
+		return experience; */
 	},
-
 });
 
 Template.buttons.helpers({
@@ -378,6 +365,7 @@ Template.buttons.events({
 			console.log('click .confirm buttons confirming userLocation 1 ', myPlace );
 		} else {
 			var merchant = MerchantsCache.findOne({place_id:place.place_id}, {fields:{_id:0}});
+			place.name = merchant.name
 			Places.insert(merchant);
 		}		
 		console.log('click .confirm buttons confirming userLocation ', place.name );

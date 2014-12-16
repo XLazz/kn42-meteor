@@ -25,71 +25,59 @@
 
 		<h2 class="list-title">You are at:</h2>
 		<div class="list-subtitle">See more</div>
-		
+
+		<div class="container-fluid">		
 		{{#if ifUser}}
-			<div class="list-activities">
-				{{> homelocation}}
-				{{> claimIt}}
-			</div>		
-			<div>
-				
-			</div>
+			{{> homelocation}}
+<!-- 			{{> claimIt}} -->
 		{{else}}
-		
-			<div style="width: 100%; height: auto; padding: 5px">
-				We need to create profile for you before you can start using service			
+			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12">
+					We need to create profile for you before you can start using service			
+				</div>
+				<a href="{{pathFor 'about'}}" class="btn-primary col-xs-12 col-sm-12 col-md-12" id="goprofile">Login</a>
 			</div>
-			<a href="{{pathFor 'about'}}" class="btn-primary" id="goprofile">Login</a>
-			<br />
-		{{/if}}
-			
-		<div >		
-		</div>
+		{{/if}}	
+<!-- 			<div class="row">
+				<div class="col-xs-12 col-sm-12 col-md-12">
+					<a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking</a>
+					
+					<h2 class="list-title">What's Cooking</h2>
+					<div class="list-subtitle">See what the community is cooking</div>
+					<div class="list-activities">
+						{{#if ifUser}}
+							{{#if currentUser.profile.foursquare}}		
+								{{> venues}}
+							{{/if}}
+						{{/if}}
+					</div>
+					<a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking</a>
 
-		<div>
-<!-- 		{{#if changeplace}}
-			{{> selectPlace}}
-		{{/if}} -->
-		</div>
-		<a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking</a>
-		
-		<h2 class="list-title">What's Cooking</h2>
-		<div class="list-subtitle">See what the community is cooking</div>
-		<div class="list-activities">
-			<div style="font-size:smaller">
-			{{#if ifUser}}
-				{{#if currentUser.profile.foursquare}}		
-					{{> venues}}
-				{{/if}}
-			{{/if}}
-			</div>
-		</div>
-		<a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking</a>
+					<h2 class="list-title">Events and places around you</h2>
+					<div class="list-subtitle">Hand-picked by the wisdom of automated processing</div>
+					<div class="list-recipes">
 
-		<h2 class="list-title">Events and places around you</h2>
-		<div class="list-subtitle">Hand-picked by the wisdom of automated processing</div>
-		<div class="list-recipes">
+						{{#each featuredRecipes}}
+							{{> recipeItem recipe=this size='small'}}
+						{{/each}}
+					</div>
+				</div>
 
-<!-- 			{{#each featuredRecipes}}
-				{{> recipeItem recipe=this size='small'}}
-			{{/each}} -->
-			
+				<a href="{{pathFor 'lifelog'}}" class="btn-primary">Explore your recent locations</a>
+			</div> -->
 		</div>
-
-		<a href="{{pathFor 'lifelog'}}" class="btn-primary">Explore your recent locations</a>
 
 	</div>
 </template>
 
 <template name="homelocation">
 	{{#with currentlocation}}
-		<div style="width: 100%; height: auto; padding: 5px">
-			<div class="selectplace" style="width: 100%; height: auto; padding:5px" id="
+		<div class="row">
+			<div class="selectplace col-xs-8 col-sm-8 col-md-8" id="
 				{{#if status}}
 					{{userPlace._id}}
 				{{/if}}
 			">
-				<div style="display:inline-block; width: 70%; vertical-align: top;">
 					{{#if userPlace.travel}}
 						<div>
 							Travelling<br />
@@ -114,37 +102,44 @@
 						{{/if}}
 						{{#if ifDebug}}<div style="font-size:50%"> finished: {{finished}}</div>{{/if}}
 					{{/if}}
-					
-				</div>
-				<div style="display:inline-block; width: auto; vertical-align: top;">
-					<div>
+			</div>
+			<div class="col-xs-4 col-sm-4 col-md-4">
+				<div class="row">
+					<div class="col-xs-6 col-sm-6 col-md-6">
 						{{#if claimed}}
 							<span class="glyphicon glyphicon-home" style="font-size: xx-large" aria-hidden="true"></span>
 						{{/if}}
-						<span>
-							<img style="width: auto; height: auto; max-width: 40px" src="
-								{{#if travel}}
-									img/app/car.png
-								{{else}}
-									{{#if geoPlace.icon}}  {{geoPlace.icon}} {{else}} {{geoMerchant.icon}} {{/if}}
-								{{/if}}
-							" />
-						</span>
 					</div>
-					{{#unless travel}}<div style="font-size: smaller; float:right"><span class="badge">{{userPlace.count}}</span></div>{{/unless}}
+					<div class="col-xs-6 col-sm-6 col-md-6">
+						<img style="width: auto; height: auto; max-width: 40px" src="
+							{{#if travel}}
+								img/app/car.png
+							{{else}}
+								{{#if geoPlace.icon}}  {{geoPlace.icon}} {{else}} {{geoMerchant.icon}} {{/if}}
+							{{/if}}
+						" />
+					</div>
+					
+				</div>
+				<div class="row">
+					<div class="col-xs-12 col-sm-12 col-md-12">
+						{{#unless travel}}<div style="font-size: smaller; float:right"><span class="badge">{{userPlace.count}}</span></div>{{/unless}}
+					</div>
 				</div>
 			</div>
-			<div style="padding-top:10px">
+		</div>
+
+
 				{{#if status}}
 					{{> buttons}}
 				{{/if}}
-			</div>
-		</div>
+
+
 	{{/with}}
 </template>
 
 <template name="locationmove">
-		<div style="width: 100%; height: auto; padding: 5px">
+		<div class="col-xs-12 col-sm-6 col-md-8">
 			<div class="selectplace" style="width: 100%; height: auto" id="
 				{{#if currentlocation.status}}
 					{{userPlace._id}}
@@ -188,72 +183,101 @@
 
 <template name="buttons">
 	{{#with buttonsPlace}}
-		<div>
-			<div style="display: inline-block; width: auto; vertical-align: top; ">
+		<div class="row">	
+			<div class="col-xs-12 col-sm-12 col-md-12">
 				<form class="form-inline buttons" id="{{_id}}">
-					<input type="button" class="button 
+					<input type="button" class="button btn-info btn btn-small
 						{{#if confirmed}}undo{{else}}{{#if travel}}undo{{else}}confirm{{/if}}{{/if}}
-						btn btn-small" id="{{_id}}" value="
+						" id="{{_id}}" value="
 						{{#if confirmed}}undo{{else}}{{#if travel}}undo{{else}}confirm{{/if}}{{/if}}
 					" />
 
-					{{#unless confirmed}}
+					{{#if confirmed}}
+						{{> claimIt}}
+					{{else}}
 						{{#unless travel}}
-							<input type="button" class="button locations btn btn-small" data-toggle="modal" data-target="#myModal" id="{{_id}}" value="Change" />
-							<input type="button" class="button travel btn btn-small" data-toggle="modal" data-target="#myModal" id="{{_id}}" value="Travel" />
+							<input type="button" class="button locations btn btn-small btn-info" data-toggle="modal" data-target="#myModal" id="{{_id}}" value="Change" />
+							<input type="button" class="button travel btn btn-small btn-info" data-toggle="modal" data-target="#myModal" id="{{_id}}" value="Travel" />
 						{{/unless}}
-					{{/unless}}
+					{{/if}}
 
 					<input type="hidden" id="lat-{{userPlace._id}}" value="{{latitude}}">
 					<input type="hidden" id="lng-{{userPlace._id}}" value="{{longitude}}">
 				</form>
 			</div>
-			<div style="display: inline-block; width: 65%">
-				{{#if confirmed}}
-					{{> selectExperience}}
-				{{/if}}
-			</div>
-			<br />
 		</div>
+		{{#if confirmed}}
+			{{> selectExperience}}
+		{{/if}}
 	{{/with}}
 </template>
 
 <template name="claimIt">
-	<div class="btn-info" style="width:100%">
-		{{#if claimed}}
-			<div class="editClaim" id="{{claimed._id}}">Claimed: {{claimed.name}}</div>
-		{{else}}
-			Claim your place: <input type="button" class="inline button claim btn btn-small" id="{{_id}}" value="Claim" />
-		{{/if}}
-	</div>
+<!-- 	<div class="row">
+		<div class="btn-info col-xs-12 col-sm-12 col-md-12"> -->
+			{{#if claimed}}
+				<button class="inline button claim btn btn-small editClaim" id="{{claimed._id}}">Claimed: {{claimed.name}}</button>
+			{{else}}
+				Claim your place: <input type="button" class="inline button claim btn btn-small" id="{{_id}}" value="Claim" />
+			{{/if}}
+<!-- 		</div>
+	</div> -->
 </template>
 	
 <template name="selectExperience">
-	<div class="demo">
-		<div class="control-group">
-			<form class="form-inline" id="{{currentPlace}}">
-<!-- 				<label for="select-{{currentPlace}}-empty">Add your experience:</label> -->
-				<select id="select-{{currentPlace}}-empty" class="demo-default" data-placeholder="Select or create...">			
-					{{#if experiences}}
-						{{#each experiences}}
-							<option value="{{experience}}">{{experience}}</option>
-						{{/each}}
-					{{else}}
-						{{#each types}}
-							<option value="{{this}}">{{this}}</option>
-						{{/each}}
-					{{/if}}			
-					<option value="">None</option>
-				</select>
-				<input class="button btn inline-block" type="submit" value="Submit your experience">
-			</form>
+	<div class="row demo">	
+		<div class="col-xs-12 col-sm-12 col-md-12">
+
+			{{#with experiences}}
+				{{#autoForm id="experiencesForm" collection="Experiences"  doc=this type="update" autosave=true schema="Schemas.Experiences" }}
+					<div class="form-group">
+						{{> afFieldInput name="experience2" type="text" autocomplete="on" placeholder="add your experience"}}
+						{{> afFieldInput name="userId" type="hidden" value=userId}}
+						{{> afFieldInput name="placeId" type="hidden" value=place._id}}
+					</div>
+				{{/autoForm}}
+			 {{/with}}
+
+			{{#unless experiences}}
+				{{#autoForm id="experiencesForm" collection="Experiences"  doc=this type="update" autosave=true schema="Schemas.Experiences" }}
+					<div class="form-group">
+						{{> afFieldInput name="experience2" type="text" autocomplete="on" placeholder="add your experience"}}
+						{{> afFieldInput name="userId" type="hidden" value=userId}}
+						{{> afFieldInput name="placeId" type="hidden" value=place._id}}
+					</div>
+				{{/autoForm}}
+			 {{/unless}}			 
+			 
+			 
+<!-- 			<div class="control-group">
+				<form class="form-inline" id="{{currentPlace}}">
+					<select id="select-{{currentPlace}}-empty" class="demo-default" data-placeholder="Select or create...">			
+						{{#if experiences}}
+							{{#each experiences}}
+								<option value="{{experience}}">{{experience}}</option>
+							{{/each}}
+						{{else}}
+							{{#each types}}
+								<option value="{{this}}">{{this}}</option>
+							{{/each}}
+						{{/if}}			
+						<option value="">None</option>
+					</select>
+					<input class="button btn inline-block" type="submit" value="Submit your experience">
+				</form>
+			</div> -->
 		</div>
-		<script>
-		$('#select-{{currentPlace}}-empty').selectize({
-			allowEmptyOption: true,
-			create: true
-		});
-		</script>
+<!-- 		<script>
+			var timer = null;
+			$('#experience').keydown(function(){
+						 clearTimeout(timer); 
+						 timer = setTimeout(doStuff, 1000)
+			});
+
+			function doStuff() {
+					alert('do stuff');
+			}
+		</script> -->
 	</div>
 </template>
 

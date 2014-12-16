@@ -87,7 +87,7 @@ Template.connectAccounts.helpers({
 //		var user_emails = Meteor.user().emails;
 		if (Meteor.userId()) {
 			var user_details = Meteor.user();
-//			console.log('Meteor.user() ', Meteor.user());
+			console.log('Meteor.user() ', Meteor.user());
 		}
 	
 		return user_details;

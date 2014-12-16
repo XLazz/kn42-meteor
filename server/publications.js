@@ -29,7 +29,13 @@ Meteor.publish(null, function() {
       admin: 1,
       bookmarkedRecipeNames: 1,
 			profile: 1,
-      'services.twitter.profile_image_url_https': 1
+      'services.twitter.profile_image_url_https': 1,
+			'services.google.id': 1,
+			'services.google.email': 1,
+			'services.google.picture': 1,
+			'services.google.locale': 1,
+			'services.foursquare.id': 1,
+			'services.foursquare.email': 1,
     }
   });
 	return People.find();
@@ -85,7 +91,17 @@ Meteor.publishComposite('placesByUser', function(userId, limit) {
 				find: function(geolog){return VenuesCache.find({place_id: geolog.place_id },{ limit: 1 })}
 			},{
 				find: function(geolog){return GeoLog.find({timestamp: geolog.timestamp },{ limit: 1 })}
-			}			
+			},{
+				find: function(geolog){
+					var coords = geolog.location;
+					var radius_search = 0.001;
+					var latup = parseFloat(coords.latitude) + radius_search;
+					var latdown = parseFloat(coords.latitude) - radius_search;
+					var lngup = parseFloat(coords.longitude) + radius_search;
+					var lngdown = parseFloat(coords.longitude) - radius_search;					
+					return ClaimedPlaces.find({'coords.latitude': { $gt: latdown, $lt: latup }, 'coords.longitude': { $gt: lngdown, $lt: lngup }});
+				}
+			}
 		]
 	}
 });
@@ -117,17 +133,25 @@ Meteor.publishComposite('placesByGeo', function(userId, limit) {
 						{ place_id: geolog.place_id },
 						{ limit: 1 });
 				}
-			},
-/* 			{
+			}, {
 				find: function(geolog) {
 					// Find post author. Even though we only want to return
 					// one record here, we use "find" instead of "findOne"
 					// since this function should return a cursor.
-					return PlacesSubst.find(
-						{ old_place_id: geolog.place_id },
-						{ limit: 1 });
-				}
-			} */
+					return ClaimedPlaces.find({}, { limit: 1 });
+				}			
+			
+/* 			},{
+				find: function(geolog){
+					var coords = geolog.location;
+					var radius_search = 0.001;
+					var latup = parseFloat(coords.latitude) + radius_search;
+					var latdown = parseFloat(coords.latitude) - radius_search;
+					var lngup = parseFloat(coords.longitude) + radius_search;
+					var lngdown = parseFloat(coords.longitude) - radius_search;					
+					return ClaimedPlaces.find({'coords.latitude': { $gt: latdown, $lt: latup }, 'coords.longitude': { $gt: lngdown, $lt: lngup }});
+				} */
+			}
 		]
 	}
 });

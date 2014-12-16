@@ -4,7 +4,8 @@ Meteor.methods({
 		if (!userId) {
 			return;
 		}
-		UpdateProfile(userId);
+		console.log('calling UpdateProfile');
+		return UpdateProfile(userId);
 	},
 
 	'getLocations':function(userId, list){
@@ -304,7 +305,11 @@ Meteor.methods({
 		var place = UserPlaces.findOne(location.userplaceId);
 		var api_key = GetApi(userId);
 //		var url = 'http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&had=' + had + '&stars=' + stars + '&comment=' + comment + '&location_id='+ location.location_id + '&google_place='+ place_id;
-		var url = 'http://kn42.xlazz.com/server/request.php?api_key=' +api_key +'&location=update&location_id='+ location.location_id + '&google_place=' +location.place_id + '&userplaceId=' + location.userplaceId + '&status=' +location.status +'&timestamp=' +place.timestamp+ '&timestampEnd=' +place.timestampEnd;
+		if (place) {
+			var url = 'http://kn42.xlazz.com/server/request.php?api_key=' +api_key +'&location=update&location_id='+ location.location_id + '&google_place=' +location.place_id + '&userplaceId=' + location.userplaceId + '&status=' +location.status +'&timestamp=' +place.timestamp+ '&timestampEnd=' +place.timestampEnd;
+		} else {
+			var url = 'http://kn42.xlazz.com/server/request.php?api_key=' +api_key +'&location=update&location_id='+ location.location_id + '&google_place=' +location.place_id + '&userplaceId=' + location.userplaceId + '&status=' +location.status ;
+		}
 		console.log('submitPlace  1 ', api_key, url);
 		var myJSON = Meteor.http.call('GET',url);
 		console.log('submitPlace ', myJSON.content);

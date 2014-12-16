@@ -7,3 +7,6 @@ Houston.add_collection(UserPlaces);
 Houston.add_collection(MerchantsCache);
 Houston.add_collection(VenuesCache);
 Houston.add_collection(Friends);
+Houston.add_collection(Places);
+Houston.add_collection(Friends);
+Houston.add_collection(Experiences);
