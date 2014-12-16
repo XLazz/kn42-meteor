@@ -169,46 +169,49 @@
 
 <template name="selectPlace">
 	<div class="content-scrollable">
-		{{#if gPlaces}}
-			<br /><br />
-			{{> confirm}}
-			{{#each gPlaces}}
-				{{#each content}} 
-					content
-					{{content}}
+		<div class="container-fluid">
+			{{#if gPlaces}}
+				<br /><br />
+				{{> confirm}}
+				{{#each gPlaces}}
+					{{#each content}} 
+						content
+						{{content}}
+					{{/each}}
+					
+					<div class="row setlocations" id="{{place_id}}">
+						<div class="col-xs-8 col-sm-8 col-md-8">{{#if name}} {{name}} {{else}} Unknown {{user_history_location_id}}  {{/if}}</div>
+						<div class="col-xs-4 col-sm-4 col-md-4">
+							<form class="form-inline" >
+								<div class="form-group">
+	<!-- 								<input type="button" class="button setlocations btn btn-primary" id="{{place_id}}" value="Set" /> -->
+									<img class="setlocations3" id="icon-{{place_id}}" style="width:40px" src="{{#if icon2}}  {{icon2}} {{else}} {{icon}} {{/if}}" />
+									<input type="hidden" id="place-{{place_id}}" value="{{name}}">
+								</div>
+							</form>	
+						</div>
+					</div>	
 				{{/each}}
-				<div class="kn-container setlocations {{place_id}}" style="overflow:hidden; height: auto; min-height: 40px; padding:5px" id="{{place_id}}">
-					<div class="kn-leftcol">{{#if name}} {{name}} {{else}} Unknown {{user_history_location_id}}  {{/if}}</div>
-					<div class="kn-rightcol">
+				<div class="row elsewhere" id="{{place_id}}">
+					<div class="col-xs-8 col-sm-8 col-md-8">Elsewhere</div>
+					<div class="col-xs-4 col-sm-4 col-md-4">
 						<form class="form-inline" >
 							<div class="form-group">
-<!-- 								<input type="button" class="button setlocations btn btn-primary" id="{{place_id}}" value="Set" /> -->
-								<img class="setlocations3" id="icon-{{place_id}}" style="width:40px" src="{{#if icon2}}  {{icon2}} {{else}} {{icon}} {{/if}}" />
-								<input type="hidden" id="place-{{place_id}}" value="{{name}}">
+	<!-- 							<input type="button" class="button elsewhere btn btn-primary" id="0" value="Set" /> -->
+								<img class="setlocations3" id="icon-{{place_id}}" style="width:40px" src="img/app/rss_icon.png" />
+								<input type="hidden" id="place-0" value="else">
 							</div>
 						</form>	
 					</div>
-				</div>	
-			{{/each}}
-			<div class="kn-container elsewhere {{place_id}}" style="overflow:hidden; height: auto; min-height: 40px; padding:5px" id="{{place_id}}">
-				<div class="kn-leftcol">Elsewhere</div>
-				<div class="kn-rightcol">
-					<form class="form-inline" >
-						<div class="form-group">
-<!-- 							<input type="button" class="button elsewhere btn btn-primary" id="0" value="Set" /> -->
-							<img class="setlocations3" id="icon-{{place_id}}" style="width:40px" src="img/app/rss_icon.png" />
-							<input type="hidden" id="place-0" value="else">
-						</div>
-					</form>	
 				</div>
-			</div>
-			<div class="kn-container" style="height: 23px">
-			</div>
-			<br />
-		{{else}}
-			{{> searching}}
-		{{/if}}		
-		<hr>
+				<div class="kn-container" style="height: 23px">
+				</div>
+				<br />
+			{{else}}
+				{{> searching}}
+			{{/if}}		
+			<hr>
+		</div>
 	</div>
 	<input type="button" class="button cancel btn btn-primary btn-down" value="Cancel" />
 </template>
@@ -216,15 +219,17 @@
 <template name="searching">
 	<div class="kn-ontop">
 		{{> spinner}}
-		<img src="img/app/qVHae.gif" />
+<!-- 		<img src="img/app/qVHae.gif" /> -->
 	</div>
 </template>
 
 <template name='confirm'>
-	<div class="kn-container">
-		<label for="allloc" class="checkbox-inline allloc"> 
-			<input type="checkbox" name="allloc" id="allloc" checked="{{isChecked}}"/> Apply for all locations like that one
-		</label>
+	<div class="row">
+		<div class="col-xs-12 col-sm-12 col-md-12">
+			<label for="allloc" class="checkbox-inline allloc"> 
+				<input type="checkbox" name="allloc" id="allloc" checked="{{isChecked}}"/> Apply for all locations like that one
+			</label>
+		</div>
 	</div>
 </template>
 
