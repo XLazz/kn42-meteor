@@ -13,8 +13,8 @@
 							{{#autoForm id="claimedPlaceForm" doc=this type="update" collection="ClaimedPlaces" schema="Schemas.ClaimForm"}}
 								<div class="form-group">
 									{{> afFieldInput name="name" type="text" autocomplete="on" placeholder="make it yours"}}
+									{{> afFieldInput name="public" type="select-radio-inline" }}
 								</div>
-								{{> afQuickField name="public"}}
 								<div class="form-group">
 									<button type="submit" class="btn btn-primary">Submit</button>
 								</div>
