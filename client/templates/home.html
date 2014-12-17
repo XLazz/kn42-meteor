@@ -12,7 +12,7 @@
 	<div class="content-scrollable">
 		<div class="bg-image home">
 			<h1 class="title-home">
-				<img src="img/app/dolphin-kn42-1000x500.png" alt="Kn42 Personal Companion"/>
+<!-- 				<img src="img/app/logo.png" alt="Kn42 Personal Companion"/> -->
 			</h1>
 			<span class="hours"><span class="title-callout">Take me anywhere</span></span>
 			<span class="arrow"></span>
@@ -24,93 +24,38 @@
 		</div>
 
 		<h2 class="list-title">You are at:</h2>
-		<div class="list-subtitle">See more</div>
+<!-- 		<div class="list-subtitle">See more</div> -->
 
 		<div class="container-fluid">		
-		{{#if ifUser}}
-			{{> homelocation}}
-<!-- 			{{> claimIt}} -->
-		{{else}}
-			<div class="row">
-				<div class="col-xs-12 col-sm-12 col-md-12">
-					We need to create profile for you before you can start using service			
-				</div>
-				<a href="{{pathFor 'about'}}" class="btn-primary col-xs-12 col-sm-12 col-md-12" id="goprofile">Login</a>
-			</div>
-		{{/if}}	
-<!-- 			<div class="row">
-				<div class="col-xs-12 col-sm-12 col-md-12">
-					<a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking</a>
-					
-					<h2 class="list-title">What's Cooking</h2>
-					<div class="list-subtitle">See what the community is cooking</div>
-					<div class="list-activities">
-						{{#if ifUser}}
-							{{#if currentUser.profile.foursquare}}		
-								{{> venues}}
-							{{/if}}
-						{{/if}}
+			{{#if ifUser}}
+				{{> homelocation}}
+	<!-- 			{{> claimIt}} -->
+			{{else}}
+				<div class="row">
+					<div class="col-xs-12 col-sm-12 col-md-12">
+						We need to create profile for you before you can start using service			
 					</div>
-					<a href="{{pathFor 'geolog'}}" class="btn-primary">See what's cooking</a>
-
-					<h2 class="list-title">Events and places around you</h2>
-					<div class="list-subtitle">Hand-picked by the wisdom of automated processing</div>
-					<div class="list-recipes">
-
-						{{#each featuredRecipes}}
-							{{> recipeItem recipe=this size='small'}}
-						{{/each}}
-					</div>
+					<a href="{{pathFor 'about'}}" class="btn-primary col-xs-12 col-sm-12 col-md-12" id="goprofile">Login</a>
 				</div>
-
-				<a href="{{pathFor 'lifelog'}}" class="btn-primary">Explore your recent locations</a>
-			</div> -->
+			{{/if}}	
 		</div>
 
+		<div class="callout-news">
+			<span class="white fa fa-gift"></span> <span class="title-callout">Special offers</span>
+		</div>
+		<div class="container-fluid">		
+			offers are coming
+		</div>
 	</div>
 </template>
 
 <template name="homelocation">
 	{{#with currentlocation}}
 		<div class="row">
-			<div class="selectplace col-xs-8 col-sm-8 col-md-8" id="
-				{{#if status}}
-					{{userPlace._id}}
-				{{/if}}
-			">
-					{{#if userPlace.travel}}
-						<div>
-							Travelling<br />
-							{{#if location.coords.speed}}speed {{location.coords.speed}} {{/if}}
-							{{status}} since {{started}} {{#if timespent}}  for {{timespent}} {{/if}}
-						</div>
-					{{else}}
-						<div>
-							{{#if userPlace.name}} {{userPlace.name}} {{else}}
-								{{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}
-							{{/if}}
-						</div>
-						<div style="font-size: smaller">
-							{{#if geoPlace.name}}{{geoPlace.vicinity}} {{else}}{{geoMerchant.vicinity}} {{/if}}<br />
-							{{status}} {{#if status}} since {{started}} {{#if timespent}} for {{timespent}} {{/if}} {{/if}}
-<!-- 						<div>{{> venuesSelected}}</div> -->							
-						</div>
-						{{#if ifDebug}} 
-							<div style="font-size:50%">
-								{{userPlace.place_id}}
-							</div>
-						{{/if}}
-						{{#if ifDebug}}<div style="font-size:50%"> finished: {{finished}}</div>{{/if}}
-					{{/if}}
-			</div>
-			<div class="col-xs-4 col-sm-4 col-md-4">
+			<div class="container-fluid kn-container">
+			<div class="col-xs-2 col-sm-2 col-md-2">
 				<div class="row">
-					<div class="col-xs-6 col-sm-6 col-md-6">
-						{{#if claimed}}
-							<span class="glyphicon glyphicon-home" style="font-size: xx-large" aria-hidden="true"></span>
-						{{/if}}
-					</div>
-					<div class="col-xs-6 col-sm-6 col-md-6">
+					<div class="col-xs-12 col-sm-12 col-md-12">
 						<img style="width: auto; height: auto; max-width: 40px" src="
 							{{#if travel}}
 								img/app/car.png
@@ -118,14 +63,49 @@
 								{{#if geoPlace.icon}}  {{geoPlace.icon}} {{else}} {{geoMerchant.icon}} {{/if}}
 							{{/if}}
 						" />
-					</div>
-					
+					</div>				
 				</div>
 				<div class="row">
 					<div class="col-xs-12 col-sm-12 col-md-12">
 						{{#unless travel}}<div style="font-size: smaller; float:right"><span class="badge">{{userPlace.count}}</span></div>{{/unless}}
 					</div>
 				</div>
+			</div>
+			<div class="selectplace col-xs-8 col-sm-8 col-md-8" id="
+				{{#if status}}
+					{{userPlace._id}}
+				{{/if}}
+			">
+				{{#if userPlace.travel}}
+					<div>
+						Travelling<br />
+						{{#if location.coords.speed}}speed {{location.coords.speed}} {{/if}}
+						{{status}} since {{started}} {{#if timespent}}  for {{timespent}} {{/if}}
+					</div>
+				{{else}}
+					<div>
+						{{#if userPlace.name}} {{userPlace.name}} {{else}}
+							{{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}
+						{{/if}}
+					</div>
+					<div style="font-size: smaller">
+						{{#if geoPlace.name}}{{geoPlace.vicinity}} {{else}}{{geoMerchant.vicinity}} {{/if}}<br />
+<!-- 						<div>{{> venuesSelected}}</div> -->							
+					</div>
+					{{#if ifDebug}} 
+						<div style="font-size:50%">
+							{{status}} {{#if status}} since {{started}} {{#if timespent}} for {{timespent}} {{/if}} {{/if}} 
+							finished: {{finished}}
+							{{userPlace.place_id}}
+						</div>
+					{{/if}}
+				{{/if}}
+			</div>
+			<div class="col-xs-2 col-sm-2 col-md-2">
+				{{#if claimed}}
+					<span class="glyphicon glyphicon-home" style="font-size: xx-large" aria-hidden="true"></span>
+				{{/if}}
+			</div>
 			</div>
 		</div>
 
@@ -182,20 +162,20 @@
 <template name="buttons">
 	{{#with buttonsPlace}}
 		<div class="row">	
-			<div class="col-xs-12 col-sm-12 col-md-12">
+			<div class="col-xs-12 col-sm-12 col-md-12 center">
 				<form class="form-inline buttons" id="{{_id}}">
-					<input type="button" class="button btn-info btn btn-small
+					<input type="button" class="button btn-secondary btn btn-small flleft
 						{{#if confirmed}}undo{{else}}{{#if travel}}undo{{else}}confirm{{/if}}{{/if}}
 						" id="{{_id}}" value="
 						{{#if confirmed}}undo{{else}}{{#if travel}}undo{{else}}conf{{/if}}{{/if}}
 					" />
-
+					
 					{{#if confirmed}}
 						{{> claimIt}}
 					{{else}}
 						{{#unless travel}}
-							<input type="button" class="button locations btn btn-small btn-info" id="{{_id}}" value="Change" />
-							<input type="button" class="button travel btn btn-small btn-info" id="{{_id}}" value="Travel" />
+							<input type="button" class="button locations btn btn-small btn-tertiary " id="{{_id}}" value="Change" />
+							<input type="button" class="button travel btn btn-small btn-quartiary flright" id="{{_id}}" value="Travel" />
 						{{/unless}}
 					{{/if}}
 
@@ -203,6 +183,8 @@
 					<input type="hidden" id="lng-{{userPlace._id}}" value="{{longitude}}">
 				</form>
 			</div>
+		</div>
+		<div class="separator">
 		</div>
 		{{#if confirmed}}
 			{{> selectExperience}}
@@ -214,9 +196,9 @@
 <!-- 	<div class="row">
 		<div class="btn-info col-xs-12 col-sm-12 col-md-12"> -->
 			{{#if claimed}}
-				<button class="inline button claim btn btn-small editClaim" id="{{claimed._id}}">Claimed: {{claimed.name}}</button>
+				<span class="right"><button class="inline button claim btn btn-small editClaim" id="{{claimed._id}}">Claimed: {{claimed.name}}</button></span>
 			{{else}}
-				Claim your place: <input type="button" class="inline button claim btn btn-small" id="{{_id}}" value="Claim" />
+				<span class="right">Claim your place: <input type="button" class="inline button claim btn btn-quartiary btn-small" id="{{_id}}" value="Claim" /></span>
 			{{/if}}
 <!-- 		</div>
 	</div> -->
@@ -241,35 +223,18 @@
 					<div class="form-group ">
 						{{> afFieldInput name="experience2" type="text" autocomplete="on" placeholder="add your experience"  template="bootstrap3-inline"}}
 					</div>
-					<div class="form-group ">
+<!-- 					<div class="form-group ">
 						<button class="btn btn-primary btn-small" type="submit">add</button>
-					</div>
+					</div> -->
 					{{> afFieldInput name="userId" type="hidden" value=userId}}
 					{{> afFieldInput name="placeId" type="hidden" value=place._id}}
 				{{/autoForm}}
 			 {{/unless}}			 
 			
-<!-- 			<div class="control-group">
-				<form class="form-inline" id="{{currentPlace}}">
-					<select id="select-{{currentPlace}}-empty" class="demo-default" data-placeholder="Select or create...">			
-						{{#if experiences}}
-							{{#each experiences}}
-								<option value="{{experience}}">{{experience}}</option>
-							{{/each}}
-						{{else}}
-							{{#each types}}
-								<option value="{{this}}">{{this}}</option>
-							{{/each}}
-						{{/if}}			
-						<option value="">None</option>
-					</select>
-					<input class="button btn inline-block" type="submit" value="Submit your experience">
-				</form>
-			</div> -->
 		</div>
-<!-- 		<script>
+		<script>
 			var timer = null;
-			$('#experience').keydown(function(){
+			$('#experience2').keydown(function(){
 						 clearTimeout(timer); 
 						 timer = setTimeout(doStuff, 1000)
 			});
@@ -277,7 +242,7 @@
 			function doStuff() {
 					alert('do stuff');
 			}
-		</script> -->
+		</script>
 	</div>
 </template>
 

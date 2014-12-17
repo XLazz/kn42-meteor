@@ -3,7 +3,9 @@
   nav.scrolled .title-page { opacity: 1; }
 
   .bg-image.home {
-    height: 50%;
+/*     height: 50%; */
+		height: 40%;
+		max-height: 260px;
 
     // Achieves down arrow mask effect
     &:before,
@@ -16,7 +18,7 @@
 
     // Right side of down arrow
     &:before {
-      .position(absolute, auto, 0, 0, 50%, auto, .5rem);
+      .position(absolute, auto, 0, 0, 30%, auto, .5rem);
       margin-left: .5rem;
     }
 
@@ -63,11 +65,12 @@
     .font-s2;
     padding: .75rem 1.25rem 1rem;
     text-align: center;
+		background-color: @color-secondary;
 
     .title-callout {
       .title-caps;
       .type-black;
-      color: @color-primary;
+      color: @color-raw;
     }
   }
 

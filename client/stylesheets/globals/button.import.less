@@ -9,7 +9,9 @@
   .type-black;
   .title-caps;
   .transition( all 200ms ease-in );
-  color: @color-empty;
+/*   color: @color-empty; */
+	color: white;
+	border: 0;
   display: inline-block;
   position: relative;
   text-align: center;
@@ -23,38 +25,47 @@
 
   &[class*="primary"] {
     background-color: @color-primary;
-    color: @color-empty;
+/*     color: @color-empty; */
 
-    &:hover { background-color: darken(@color-primary, 5%); }
+    &:hover { background-color: darken(@color-primary, 15%); }
     &:active { box-shadow: rgba(0,0,0,.3) 0 1px 3px 0 inset; }
   }
 
   &[class*="secondary"] {
-    background: @color-tertiary;
-    color: rgba(255,255,255,.4);
+    background: @color-secondary;
+/*     color: rgba(255,255,255,.4); */
 
-    &:hover { background-color: darken(@color-tertiary, 5%); }
+    &:hover { background-color: darken(@color-tertiary, 15%); }
     &:active { box-shadow: rgba(0,0,0,.3) 0 1px 3px 0 inset; }
 
-    &.active,
+/*     &.active,
     &.no-state:first-child {
       background: @color-secondary;
       color: @color-empty;
 
       &:hover{ background-color: darken(@color-secondary, 5%); }
       &:active{ box-shadow: rgba(0,0,0,.3) 0 1px 3px 0 inset; }
-    }
+    } */
 
     &.no-state { color: @color-empty; }
   }
 
   &[class*="tertiary"] {
-    background: @color-raw;
-    color: @color-primary;
+    background: @color-tertiary;
+/*     color: @color-primary; */
 
-    &:hover { background-color: @color-raw; }
+		&:hover { background-color: darken(@color-primary, 15%); }
+		&:active { box-shadow: rgba(0,0,0,.3) 0 1px 3px 0 inset; }
   }
 
+  &[class*="quartiary"] {
+    background: @color-quartiary;
+/*     color: @color-primary; */
+
+		&:hover { background-color: darken(@color-primary, 15%); }
+		&:active { box-shadow: rgba(0,0,0,.3) 0 1px 3px 0 inset; }
+  }	
+	
   &[class*="twitter"] {
     background-color: @color-twitter;
     color: @color-empty;

@@ -9,7 +9,7 @@
     &:after {
       .position(absolute, 50%, 50%, auto, auto, 432px, 882px);
       .transform(translate3d(50%, -50%, 0));
-      background-image: url('img/app/chrome-iphone6-432x882@2x.jpg');
+/*       background-image: url('img/app/chrome-iphone6-432x882@2x.jpg'); */
       content: '';
       display: block;
       background-size: contain;
@@ -62,7 +62,7 @@ body {
 .content-scrollable {
   .position(absolute, 0, 0, 0, 0);
 	bottom: 50px;
-  background: @color-empty;
+/*   background: @color-empty; */
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -79,8 +79,54 @@ body {
   }
 }
 
+.right {
+	float: right;
+}
+
+.center{
+	text-align: center;
+}
+
+.flleft{
+	float:left;
+}
+
+.flright{
+	float:right;
+}
+
+.white {
+	color: white;
+}
+
+.fa {
+	font-size: larger;
+}
+
 .overlay {
   .background-image(linear-gradient(top, rgba(232, 234, 241,.97), rgba(243,243,244, .97) 100%));
   .position(absolute, 0, 0, 0, 0);;
   z-index: 1;
+}
+
+.kn-container {
+	/* margin: 5px; */
+	background: #ffffff;
+	/* left: 20px; */
+	/* right: 20px; */
+	/* padding: 20px; */
+	margin: 20px;
+	width: auto;
+	box-shadow: 5px 5px 2px #888888;
+	.ellipsized;
+	.flex(1);
+	-webkit-border-radius: 4px !important;
+		 -moz-border-radius: 4px !important;
+					border-radius: 4px !important;
+	-webkit-border-top: 4px !important;
+		 -moz-border-top: 4px !important;
+					border-top: 4px !important;
+	-webkit-border-bottom: 4px !important;
+		 -moz-border-bottom: 4px !important;
+					border-bottom: 4px !important;
 }

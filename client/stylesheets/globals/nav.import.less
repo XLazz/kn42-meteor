@@ -7,7 +7,8 @@ nav {
   z-index: 10;
 
   &.black {
-    background: transparent;
+/*     background: transparent; */
+		background: #9cc334;
     color: @color-empty;
 
     .nav-item {
@@ -17,14 +18,15 @@ nav {
     // Gradient over image to give nav contrast, extends past nav boundaries
     &:after {
       .background-image(linear-gradient(top, rgba(0,0,0,.30), rgba(0,0,0,0) 100%));
-      .position(absolute, 0, 0, auto, 0, 100%, 3.5em);
+/*       .position(absolute, 0, 0, auto, 0, 100%, 3.5em); */
       content: '';
       z-index: -1;
     }
   }
 
   &.scrolled {
-    background: rgba(255,255,255,.97);
+/*     background: rgba(255,255,255,.97); */
+		background: #9cc334;
     color: @color-full;
 
     &:after { opacity: 0; }
