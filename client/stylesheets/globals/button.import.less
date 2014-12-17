@@ -24,12 +24,20 @@
   }
 
   &[class*="primary"] {
-    background-color: @color-primary;
+/*     background-color: @color-primary; */
 /*     color: @color-empty; */
 
     &:hover { background-color: darken(@color-primary, 15%); }
     &:active { box-shadow: rgba(0,0,0,.3) 0 1px 3px 0 inset; }
   }
+	
+  &[class*="cancel"] {
+    background-color: @color-tertiary;
+/*     color: @color-empty; */
+
+    &:hover { background-color: darken(@color-primary, 15%); }
+    &:active { box-shadow: rgba(0,0,0,.3) 0 1px 3px 0 inset; }
+  }	
 
   &[class*="secondary"] {
     background: @color-secondary;

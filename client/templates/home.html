@@ -95,6 +95,7 @@
 					{{#if ifDebug}} 
 						<div style="font-size:50%">
 							{{status}} {{#if status}} since {{started}} {{#if timespent}} for {{timespent}} {{/if}} {{/if}} 
+							<br />
 							finished: {{finished}}
 							{{userPlace.place_id}}
 						</div>
@@ -186,9 +187,13 @@
 		</div>
 		<div class="separator">
 		</div>
+
 		{{#if confirmed}}
+		{{#Animate}}		
 			{{> selectExperience}}
+		{{/Animate}}	
 		{{/if}}
+
 	{{/with}}
 </template>
 
@@ -205,36 +210,37 @@
 </template>
 	
 <template name="selectExperience">
-	<div class="row demo">	
+	<div class="row experience">	
 		<div class="col-xs-12 col-sm-12 col-md-12">
 
 			{{#with experiences}}
-				{{#autoForm id="experiencesForm" collection="Experiences"  doc=this type="update" autosave=true schema="Schemas.Experiences" }}
+				
+				{{#autoForm id="experiencesForm2" collection="Experiences"  doc=this type="update" autosave=true schema="Schemas.Experiences" }}
 					<div class="form-group">
-						{{> afFieldInput name="experience2" type="text" autocomplete="on" placeholder="add your experience"}}
+						{{> afFieldInput name="experience" type="text" autocomplete="on" placeholder="add your experience"}}
 						{{> afFieldInput name="userId" type="hidden" value=userId}}
-						{{> afFieldInput name="placeId" type="hidden" value=place._id}}
 					</div>
 				{{/autoForm}}
-			 {{/with}}
+			{{/with}}
 
 			{{#unless experiences}}
-				{{#autoForm id="experiencesForm" collection="Experiences" template="bootstrap3-inline" doc=this type="insert" autosave=true schema="Schemas.Experiences" }}
-					<div class="form-group ">
-						{{> afFieldInput name="experience2" type="text" autocomplete="on" placeholder="add your experience"  template="bootstrap3-inline"}}
+				{{#autoForm id="experiencesForm1" collection="Experiences" template="plain" type="insert" schema="Schemas.Experiences" }}
+					<div class="form-inline">			
+						{{> afFieldInput name="experience" type="text" autocomplete="on" placeholder="add your experience"  template="plain"}}
+						{{> afFieldInput name="userId" type="hidden" value=userId}}
+						{{#with currentPlace}}
+							{{> afFieldInput name="place_id" type="hidden" value=place_id}}
+						{{/with}}
+						<button type="submit" class="form-inline button btn btn-small btn-tertiary right" id="{{_id}}">Add</button>
 					</div>
-<!-- 					<div class="form-group ">
-						<button class="btn btn-primary btn-small" type="submit">add</button>
-					</div> -->
-					{{> afFieldInput name="userId" type="hidden" value=userId}}
-					{{> afFieldInput name="placeId" type="hidden" value=place._id}}
 				{{/autoForm}}
-			 {{/unless}}			 
+			{{/unless}}
+
 			
 		</div>
-		<script>
+<!-- 		<script>
 			var timer = null;
-			$('#experience2').keydown(function(){
+			$('#experience').keydown(function(){
 						 clearTimeout(timer); 
 						 timer = setTimeout(doStuff, 1000)
 			});
@@ -242,7 +248,7 @@
 			function doStuff() {
 					alert('do stuff');
 			}
-		</script>
+		</script> -->
 	</div>
 </template>
 

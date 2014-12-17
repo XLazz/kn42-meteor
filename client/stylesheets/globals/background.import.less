@@ -1,21 +1,23 @@
 [class^="bg-image"],
 [class*=" bg-image"] {
+	margin-top: 1em;
   background-position: center center;
   background-repeat: no-repeat;
 /*   background-size: cover; */
   overflow: hidden;
   position: relative;
-
+	background-color: white;
+	
   &[class*="about"] {
     .background-image(
-      linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,.0) 100%),
+      linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 100%),
       url('img/app/logo.png')
     );
   }
 
   &[class*="home"] {
     .background-image(
-      linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,.1) 100%),
+      linear-gradient(top, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 100%),
       url('img/app/logo.png')
     );
   }

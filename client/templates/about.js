@@ -106,7 +106,7 @@ Template.connectAccounts.events({
 		}
 	},
 	'click #connect_fb': function (event, template) {
-		alert('coming soon');
+		alert('FB coming soon');
 		return;
 		if (Meteor.user()) {
 				console.log('connecting with fb');
@@ -117,7 +117,7 @@ Template.connectAccounts.events({
 		}		
 	},
 	'click #connect_twtr': function (event, template) {
-		alert('coming soon');
+		alert('TWTR coming soon');
 		return;
 		if (Meteor.user()) {
 				console.log('connecting with twtr');
@@ -138,7 +138,7 @@ Template.connectAccounts.events({
 		}		
 	},
 	'click #connect_runk': function (event, template) {
-		alert('coming soon');
+		alert('Runkeeper coming soon');
 		return;
 		if (Meteor.user()) {
 				console.log('connecting with runk');

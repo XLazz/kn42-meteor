@@ -2,6 +2,14 @@
   .title-page { opacity: 0; }
   nav.scrolled .title-page { opacity: 1; }
 
+	.experience {
+			opacity: 1; // value after the animate class got removed
+			transition: opacity 200ms;
+	}
+	.experience.animate {
+			opacity: 0; // initial value
+	}
+	
   .bg-image.home {
 /*     height: 50%; */
 		height: 40%;
@@ -52,7 +60,7 @@
     .font-s2;
     .position(absolute, auto, auto, 1rem, 50%, 100%);
     .transform(translate3d(-50%,0,0));
-    color: @color-empty;
+    color: @color-primary;
     text-align: center;
 
     .title-callout {

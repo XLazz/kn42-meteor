@@ -286,10 +286,13 @@ Template.homeinside.events({
 });
 
 Template.selectExperience.helpers({
+	userId: function(){
+		return Meteor.userId();
+	},
 	experiences: function(){
 		userId = Meteor.userId();
 		var userLocation = Session.get('userLocation');
-		var services = Experiences.findOne({ userId: userId });
+		var services = Experiences.findOne({ userId: userId, place_id: userLocation.place_id });
 		console.log('experiences Experiences ', userLocation._id, Session.get('userLocation'), services);
 		return services;
 		if (services.count()) {
@@ -316,15 +319,30 @@ Template.selectExperience.helpers({
 	},
 	
 	currentPlace: function() {
-		return Session.get('userLocation').user_history_location_id;
+		var userLocation = Session.get('userLocation');
+		console.log('experiences userLocation ', userLocation.place_id, userLocation);
+		return userLocation;
 	},
 });
 
 Template.selectExperience.events({
-	'submit form': function(event){
+	'submit form': function(event, template){
 	},
-	'keydown #experience': function(event){
-		console.log('experiences selectExperience.events ', experience);
+	'keydown .form-control': function(event, template){
+/* 		var timer = null;
+		$('#experience').keydown(function(){
+					 clearTimeout(timer); 
+					 timer = setTimeout(doStuff, 1000)
+		}); */
+
+		function doStuff() {
+				alert('do stuff');
+		}
+		var what = template.find('.form-control');
+		var whatname = template.find('.form-control').name;
+		var text = template.find('.inner-editor');
+		var form = template.find('#experiencesForm1');
+		console.log('experiences selectExperience.events ', form.text, what, text, form );
 /* 		var experience = $( "#select-" + Session.get('userLocation').user_history_location_id +"-empty").val();
 //		var experiences = $.csv.toArray(experiences);
 		console.log('experiences selectExperience.events ', experience);
