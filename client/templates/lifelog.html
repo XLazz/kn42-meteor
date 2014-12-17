@@ -29,71 +29,6 @@
   </div>
 </template>
 
-<template name="showlocations2">
-	<h4>Your places</h4>	
-	<div>
-	</div>
-	<div>
-		{{#each locations}}
-				<div style="width: 100%; height: auto; padding: 5px">
-					<div class="selectplace" style="width: 100%; height: auto; padding-bottom: 5px;" id="{{_id}}">
-						<div style="display:inline-block; width: 20%; vertical-align: top;">{{>profilePic}}</div> 
-						<div style="display:inline-block; width: 55%; vertical-align: top;">
-							<div>
-								{{#if travel}}
-									Travel
-								{{else}}
-									{{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}
-								{{/if}}
-							</div>
-							<div style="font-size:smaller">
-								id {{_id}}
-								{{geoPlace.vicinity}} <br />
-								Time spent {{timespent}} on {{started}} 
-							</div>
-							{{#if ifDebug}} 
-								<div style="font-size:50%">
-									{{place_id}}
-								</div>
-							{{/if}}
-						</div>
-						<div style="display:inline-block; width: 10%; vertical-align: top;">
-							<div>
-								<img style="width: auto; height: auto; max-width: 40px" src="
-									{{#if travel}}
-										img/app/car.png
-									{{else}}
-										{{#if geoPlace.icon}} {{geoPlace.icon}} {{else}} {{geoMerchant.icon}} {{/if}}
-									{{/if}}
-								" />
-							</div>
-							{{#unless travel}}<div style="font-size: smaller"><span class="badge">{{count}}</span></div>{{/unless}}
-						</div>
-					</div>
-					{{#if ifDebug}}<div style="font-size:50%"> finished: {{finished}}</div>{{/if}}
-					<div style="width: 100%; height: auto; padding-top:10px">
-{{#Animate}}
-						{{#if geoPlace.showbut}}
-							{{> buttons}}
-								{{#unless travel}}
-									{{> venuesSelected}}
-								{{/unless}}
-							{{else}}
-								{{#if geoMerchant.showbut}}
-									{{> buttons}}
-									{{#unless travel}}
-										{{> venuesSelected}}
-									{{/unless}}
-								{{/if}}
-						{{/if}}
-{{/Animate}}
-						<hr>
-					</div>
-				</div>
-		{{/each}}
-	</div>
-</template>
-
 <template name="showlocations">
 	{{#each locations}}
 		<hr>
@@ -144,7 +79,7 @@
 				</div>
 				<div class="row">
 					<div class="col-xs-12 col-sm-12 col-md-12">
-						{{#unless travel}}<span class="badge">{{count}}</span>{{/unless}}
+						{{#unless travel}}<span class="badge flright">{{count}}</span>{{/unless}}
 					</div>
 				</div>
 			</div>
