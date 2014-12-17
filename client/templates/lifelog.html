@@ -86,17 +86,19 @@
 		</div>
 
 		{{#if geoPlace.showbut}}
-			{{> buttons}}
-				{{#unless travel}}
-					{{> venuesSelected}}
-				{{/unless}}
-			{{else}}
-				{{#if geoMerchant.showbut}}
-					{{> buttons}}
+			{{#Animate}}		
+				{{> buttons}}
 					{{#unless travel}}
 						{{> venuesSelected}}
 					{{/unless}}
-				{{/if}}
+				{{else}}
+					{{#if geoMerchant.showbut}}
+						{{> buttons}}
+						{{#unless travel}}
+							{{> venuesSelected}}
+						{{/unless}}
+					{{/if}}
+			{{/Animate}}		
 		{{/if}}
 
 	{{/each}}

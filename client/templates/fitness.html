@@ -1,0 +1,80 @@
+<template name="fitness">
+  <div class="page about">
+    {{> nav title='Fitness' black=true}}
+
+    <div class="content-scrollable">
+      <div class="bg-image about">
+				<h1 class="title-about">
+	<!-- 				<img src="img/app/title-about.svg" alt="LifeLog"/> -->
+				</h1> 
+      </div>
+      <div class="description-about">
+				{{ifUser}}
+      </div>
+			{{> routes}}
+		
+    </div>
+  </div>
+</template>
+
+<template name="routes">
+	<div class="container-fluid loading animate">
+		<div class="row ">
+			<div class="col-xs-12 col-sm-12 col-md-12 center">
+				<button class="btn btn-large btn-secondary findfit">Find me a route nearby</button>
+				<div class="alert alert-info" role="alert">We will show the nearest fitness route</div>
+			</div>
+		</div>
+		{{#if ifFindFit}}
+			{{#Animate}}
+				<div class="row showactiv loading animate">
+					<div class="col-xs-12 col-sm-12 col-md-12">
+						{{#each activities}}
+							<div class="row showactiv loading animate" id="{{_id}}">
+								<div class="col-xs-12 col-sm-12 col-md-12">
+									<span class="label label-info">{{activity}}</span>							
+								</div>
+							</div>
+						{{/each}}
+					</div>
+				</div>
+<!-- 				<div class="row findroute loading animate">
+					<div class="col-xs-12 col-sm-12 col-md-12 center">
+						<button class="btn btn-large btn-secondary findfit">Select Activities</button>
+						<div class="alert alert-info kninfo" role="alert">We will show the nearest fitness route</div>
+					</div>
+				</div> -->
+			{{/Animate}}
+		{{/if}}
+		<div class="row ">
+			<div class="col-xs-12 col-sm-12 col-md-12 center">
+				<button class="btn btn-large btn-secondary inline startfit">Start</button>
+				<button class="btn btn-large btn-secondary inline stopfit">Stop</button>
+				{{#unless ifFitness}}
+					<div class="alert alert-info kninfo" role="alert">
+						With start button we change the gps request frequency to 30 sec, stop submitting it to the server and add a special flag 'fitness' in geolog collection
+					</div>			
+				{{/unless}}
+			</div>
+		</div>
+		{{#if ifFitness}}
+			{{#Animate}}
+				<div class="row showlog loading animate">
+					<div class="col-xs-6 col-sm-6 col-md-6">
+						<img src="/img/app/animated-green-runner.gif" />
+					</div>
+					<div class="col-xs-6 col-sm-6 col-md-6">
+						{{#each geolog}}
+							<div class="row showlog loading animate" id="{{_id}}">
+								<div class="col-xs-12 col-sm-12 col-md-12">
+									<span class="label label-info">{{time}} {{location.coords.speed}}</span>							
+								</div>
+							</div>
+						{{/each}}
+					</div>
+				</div>
+			{{/Animate}}
+		{{/if}}
+	</div>
+</template>
+

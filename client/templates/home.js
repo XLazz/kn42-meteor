@@ -370,7 +370,6 @@ Template.buttons.helpers({
 	},
 });
 
-
 Template.buttons.events({
 	"click .confirm": function (event, template) {
 		var userId = Meteor.userId();
@@ -439,6 +438,13 @@ Template.buttons.events({
 	},		
 	
 });
+
+Template.buttons.rendered = function() {
+  var $item = $(this.find('.buttons-row'));
+  Meteor.defer(function() {
+    $item.removeClass('loading');
+  });
+}
 
 Template.claimIt.helpers({
 	"claimed": function (event, template) {

@@ -88,7 +88,8 @@ insertPlace = function(userId, lastLoc, currentPlaceAlt){
 	if (userplace.travel)
 		location.status = 'travel';
 	location.place_id = currentPlaceAlt.place_id;
-	Meteor.call('submitPlace', userId, location, experience);
+	if (!Session.get('fitness')) 
+		Meteor.call('submitPlace', userId, location, experience);
 	return true;
 }
 
@@ -239,11 +240,12 @@ UpdateGeoCordova = function(){
 	var userId = Meteor.userId();
 	GeolocationFG.get(function(location) {
 		console.log('UpdateGeoCordova ',  location, this);
-		if (location.coords.speed) {
+		var fitness = Session.get('fitness');
+/* 		if (location.coords.speed) {
 			Session.set('interval', 50000);
 		} else {
 			Session.set('interval', 800000);
-		}
+		} */
 		var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
 		if (!geoId) {
 			GeoLog.insert({
@@ -252,7 +254,8 @@ UpdateGeoCordova = function(){
 				device: GeolocationBG2.device(),
 				userId: Meteor.userId(),
 				created: new Date(),
-				timestamp: location.timestamp
+				timestamp: location.timestamp,
+				fitness: fitness
 			});
 		}
 	//		Session.set('interval', 60000);
