@@ -52,11 +52,11 @@
 
 <template name="connectAccounts">
 			Connected accounts <br />
-			{{#if user_details.services.google}} 		<i class="connected fa fa-google"></i> <i class="connected fa fa-check-square"></i>		{{else}} <span id='connect_google'><i class="fa fa-google"></i><i class="fa fa-circle-o"></i> 			</span>{{user_details.services.google.id}} {{/if}}<br />	
-			{{#if user_details.services.facebook}}		<i class="connected fa fa-facebook"></i> <i class="connected fa fa-check-square"></i>	{{else}} <span id='connect_fb'><i class="fa fa-facebook"></i><i class="fa fa-circle-o"></i>		</span>{{user_details.facebook.google.id}} {{/if}}<br />
-			{{#if user_details.services.twitter}} 		<i class="connected fa fa-twitter"></i> <i class="connected fa fa-check-square"></i>	{{else}} <span id='connect_twtr'><i class="fa fa-twitter"></i><i class="fa fa-circle-o"></i>			</span>{{user_details.twitter.google.id}} {{/if}}<br />
-			{{#if user_details.services.foursquare}}	<i class="connected fa fa-foursquare"></i> <i class="connected fa fa-check-square"></i>{{else}} <span id='connect_fsqr'><i class="fa fa-foursquare"></i><i class="fa fa-circle-o"></i>	</span>{{user_details.services.foursquare.id}} {{/if}}<br />
-			{{#if user_details.services.runkeeper}} 	<i class="connected fa fa-bicycle"></i> <i class="connected fa fa-check-square"></i>	{{else}} <span id='connect_runk'><i class="fa fa-bicycle"></i><i class="fa fa-circle-o"></i>			</span>{{user_details.services.runkeeper.id}} {{/if}}<br />
+			{{#if user_details.services.google}} 		<i class="connected fa fa-google"></i> <i class="connected fa fa-check-square"></i>		{{else}} <span id='connect_google'><i class="toconnect fa fa-google"></i><i class="toconnect fa fa-circle-o"></i> 			</span>{{user_details.services.google.id}} {{/if}}<br />	
+			{{#if user_details.services.facebook}}		<i class="connected fa fa-facebook"></i> <i class="connected fa fa-check-square"></i>	{{else}} <span id='connect_fb'><i class="toconnect fa fa-facebook"></i><i class="toconnect fa fa-circle-o"></i>		</span>{{user_details.facebook.google.id}} {{/if}}<br />
+			{{#if user_details.services.twitter}} 		<i class="connected fa fa-twitter"></i> <i class="connected fa fa-check-square"></i>	{{else}} <span id='connect_twtr'><i class="toconnect fa fa-twitter"></i><i class="toconnect fa fa-circle-o"></i>			</span>{{user_details.twitter.google.id}} {{/if}}<br />
+			{{#if user_details.services.foursquare}}	<i class="connected fa fa-foursquare"></i> <i class="connected fa fa-check-square"></i>{{else}} <span id='connect_fsqr'><i class="toconnect fa fa-foursquare"></i><i class="toconnect fa fa-circle-o"></i>	</span>{{user_details.services.foursquare.id}} {{/if}}<br />
+			{{#if user_details.services.runkeeper}} 	<i class="connected fa fa-bicycle"></i> <i class="connected fa fa-check-square"></i>	{{else}} <span id='connect_runk'><i class="toconnect fa fa-bicycle"></i><i class="toconnect fa fa-circle-o"></i>			</span>{{user_details.services.runkeeper.id}} {{/if}}<br />
 			{{#if ifDebug}}<button class="btn button" id='check_profile'>check</button>{{/if}}
 </template>
 

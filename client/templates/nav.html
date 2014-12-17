@@ -4,7 +4,8 @@
       {{#if back}}
         <a class="nav-item js-back" href="#"><span class="icon-arrow-left-alt"></span></a>
       {{else}}
-        <a class="nav-item js-menu" href="#"><span class="fa fa-bars"></span></a>
+        <div class="flleft"><a class="nav-item js-menu" href="#"><span class="fa fa-bars"></span></a></div>
+        <div class="flright"><a class="nav-item js-profile flright" href="{{pathFor 'profile'}}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></a></div>
       {{/if}}
     </div>
 
