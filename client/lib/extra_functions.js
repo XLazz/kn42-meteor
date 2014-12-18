@@ -231,6 +231,7 @@ UpdateGeo = function (){
 			created: new Date(),
 			timestamp: location.timestamp,
 			fitness: Session.get('fitness'),
+			interval: Session.get('interval'),
 		});
 		addPlace(location);
 	}
@@ -256,6 +257,7 @@ UpdateGeoCordova = function(){
 				created: new Date(),
 				timestamp: location.timestamp,
 				fitness: Session.get('fitness'),
+				interval: Session.get('interval'),
 			});
 		}
 	//		Session.set('interval', 60000);

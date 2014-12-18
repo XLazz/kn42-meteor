@@ -1,30 +1,7 @@
 
 
 Template.fitness.helpers({
-	ifUser: function (){
-		userId = Meteor.userId();
-		if (!FitnessActivities.findOne()) {
-			var activities = ['jogging','walking','bicycling'];
-			console.log('FitnessActivities empty ',  activities);
-			activities.forEach(function (item, index, array) {
-			console.log('FitnessActivities empty, adding item',  item);			
-				FitnessActivities.insert(
-					{
-						activity: item,
-						date: new Date
-					}
-				);
-			});
-		}
 
-		if (!Session.get('userLocation')) {
-			place = UserPlaces.findOne({userId: userId},{sort: {timestamp: -1}});
-			// if (place)
-				// Session.set('userLocation', place);
-		}
-		if (Meteor.userId()) {return 'true'};
-	},
-	
 	currentUser: function(){
 		if (!Meteor.userId()) {return;}
 		console.log('curr user ',  Meteor.user());
@@ -59,6 +36,19 @@ Template.fitness.helpers({
 Template.routes.helpers({
 	ifFindFit: function () {
 		console.log(' findfit ', Session.get('findfit'));
+		if (!FitnessActivities.findOne()) {
+			var activities = ['jogging','walking','bicycling'];
+			console.log('FitnessActivities empty ',  activities);
+			activities.forEach(function (item, index, array) {
+			console.log('FitnessActivities empty, adding item',  item);			
+				FitnessActivities.insert(
+					{
+						activity: item,
+						date: new Date
+					}
+				);
+			});
+		}
 		return Session.get('findfit');
 	},
 	ifFitness: function () {
@@ -68,6 +58,16 @@ Template.routes.helpers({
 	activities: function(){
 		return FitnessActivities.find();
 	},
+	ifUser: function (){
+		userId = Meteor.userId();
+		if (!Session.get('userLocation')) {
+			place = UserPlaces.findOne({userId: userId},{sort: {timestamp: -1}});
+			// if (place)
+				// Session.set('userLocation', place);
+		}
+		if (Meteor.userId()) {return 'true'};
+	},
+	
 	geolog: function(){
 		var geolog = GeoLog.find({userId: Meteor.userId()}, {
 			sort: {timestamp: -1}, limit:5,
@@ -98,7 +98,7 @@ Template.routes.events({
 		Session.set('fitness', true);
 		Session.set('findfit', false);
 		Session.set('geoback', true );
-		Session.set('interval', 30000);
+		Session.set('interval', 20000);
 		UpdateGeo();
 		PollingGeo();
 		return;

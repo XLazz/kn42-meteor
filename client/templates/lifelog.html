@@ -8,7 +8,7 @@
 					</div> -->
     <div class="content-scrollable">
 			<div class="container-fluid">	
-				<hr>
+				<div class="top-separator"></div>
 				{{> showlocations}}
 				{{> overlay}}			
 			</div>
@@ -31,7 +31,6 @@
 
 <template name="showlocations">
 	{{#each locations}}
-		<hr>
 		<div class="row">
 			<div class="selectplace col-xs-8 col-sm-8 col-md-8" id="{{_id}}">
 <!-- 				<div>{{geoPlace.vicinity}}
@@ -100,7 +99,7 @@
 					{{/if}}
 			{{/Animate}}		
 		{{/if}}
-
+		<hr>
 	{{/each}}
 </template>
 
