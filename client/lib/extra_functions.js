@@ -229,7 +229,8 @@ UpdateGeo = function (){
 			device: 'browser',
 			userId: Meteor.userId(),
 			created: new Date(),
-			timestamp: location.timestamp
+			timestamp: location.timestamp,
+			fitness: Session.get('fitness'),
 		});
 		addPlace(location);
 	}
@@ -240,7 +241,6 @@ UpdateGeoCordova = function(){
 	var userId = Meteor.userId();
 	GeolocationFG.get(function(location) {
 		console.log('UpdateGeoCordova ',  location, this);
-		var fitness = Session.get('fitness');
 /* 		if (location.coords.speed) {
 			Session.set('interval', 50000);
 		} else {
@@ -255,7 +255,7 @@ UpdateGeoCordova = function(){
 				userId: Meteor.userId(),
 				created: new Date(),
 				timestamp: location.timestamp,
-				fitness: fitness
+				fitness: Session.get('fitness'),
 			});
 		}
 	//		Session.set('interval', 60000);
