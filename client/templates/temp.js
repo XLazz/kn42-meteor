@@ -47,7 +47,7 @@ Template.test.helpers({
 				sort: {createdAt: -1}, 
 				limit: 20,
 				transform: function(doc){
-					doc.date =  moment.unix(doc.createdAt).format("MM/DD/YY"); 
+					doc.date =  moment.unix(doc.createdAt).format("MM/DD/YY hh:mm"); 
 					console.log('checkinsFsqr -1 ', doc.createdAt, doc.date, doc.id );
 					return doc;
 				}

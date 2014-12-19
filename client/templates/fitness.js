@@ -175,6 +175,7 @@ Template.routes.events({
 		GeoLog.update(geolog._id,{$set:{fitness: 'end'}}); */
 		Session.set('fitness', false);
 		Session.set('fitnessTrack', false);
+		Session.set('fitActivity', false);
 		return;
 	},
 	"click .fitActivity": function (event, template) {
