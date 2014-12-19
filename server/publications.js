@@ -22,6 +22,10 @@ Meteor.publish('recipe', function(name) {
   ];
 });
 
+Meteor.publish('CheckinsFsqr', function() {
+  return CheckinsFsqr.find({}, {limit: 20});
+});
+
 // autopublish the user's bookmarks and admin status
 Meteor.publish(null, function() {
   return Meteor.users.find(this.userId, {

@@ -39,6 +39,39 @@ Template.test.helpers({
 			return 'stopped';
 		}
 	},
+	checkinsFsqr: function(){
+		var userId = Meteor.userId();
+		var checkinsFsqr = CheckinsFsqr.find(
+			{userId:userId},
+			{
+				sort: {createdAt: -1}, 
+				limit: 20,
+				transform: function(doc){
+					doc.date =  moment.unix(doc.createdAt).format("MM/DD/YY"); 
+					console.log('checkinsFsqr -1 ', doc.createdAt, doc.date, doc.id );
+					return doc;
+				}
+			}
+		);
+		console.log('checkinsFsqr 0 ', checkinsFsqr.fetch() );
+		if (checkinsFsqr && checkinsFsqr.count()){
+			checkinsFsqr.count = checkinsFsqr.count();
+		} 
+	
+		if (!Session.get('FsqrCall'))
+			Session.set('FsqrCall', 0);
+		if (moment().valueOf() - Session.get('FsqrCall') > 3000) { 
+			console.log('checkinsFsqr 1 ', (moment().valueOf() - Session.get('FsqrCall')) );
+			Session.set('FsqrCall', moment().valueOf());
+			Meteor.call('checkinsFsqr', Meteor.userId(), function(err, results){
+				var timestamp = moment().valueOf() + 5000;
+				Session.set('FsqrCall', timestamp);
+				return;
+			});
+		}
+		console.log('checkinsFsqr ', checkinsFsqr.fetch());
+		return checkinsFsqr;
+	},
 });
 
 Template.test.events({

@@ -89,10 +89,35 @@ Template.connectAccounts.helpers({
 			var user_details = Meteor.user();
 			console.log('Meteor.user() ', Meteor.user());
 		}
-	
 		return user_details;
 	},
-	
+	checkinsFsqr: function(){
+		var userId = Meteor.userId();
+		var checkinsFsqr = CheckinsFsqr.find({userId:userId});
+		if (checkinsFsqr && checkinsFsqr.count()){
+			checkinsFsqr.count = checkinsFsqr.count();
+		} else {
+			console.log('checkinsFsqr 1 ', (moment().valueOf() - Session.get('FsqrCall')), checkinsFsqr.count() );
+			if (!Session.get('FsqrCall'))
+				Session.set('FsqrCall', 0);
+			if (moment().valueOf() - Session.get('FsqrCall') > 3000) { 
+				Session.set('FsqrCall', moment().valueOf());
+				Meteor.call('checkinsFsqr', Meteor.userId(), function(err, results){
+					var timestamp = moment().valueOf() + 5000;
+					Session.set('FsqrCall', timestamp);
+					return;
+				});
+			}
+		}
+		console.log('checkinsFsqr ', checkinsFsqr.fetch());
+		return checkinsFsqr;
+	},
+	fsqrReady: function(){
+		// the handle has a special "ready" method, which is a reactive
+		// data source it indicates if the data provided by the publication 
+		// has made its way to the client
+		return fsqrHandle.ready();
+	}
 });
 
 Template.connectAccounts.events({
@@ -149,6 +174,7 @@ Template.connectAccounts.events({
 		}		
 	},
 	'click #check_profile': function (event, template) {
+		Meteor.call('removevenuesFsqr');
 		Meteor.call('showProfile', Meteor.userId(), function(err, results){
 			console.log('showProfile ', results);
 		});

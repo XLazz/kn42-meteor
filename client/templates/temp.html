@@ -24,15 +24,20 @@
 </template>
 
 <template name="test">
-	<div class="kn-ontop">
+<!-- 	<div class="kn-ontop">
 		test
 		{{> spinner}}
-<!-- 		<img src="img/app/qVHae.gif" /> -->
-	</div>
+	</div> -->
 <!-- 	{{#each mytypes}}
 		{{type}}
 		
 	{{/each}} -->
+	getting fsqr
+	{{#each checkinsFsqr}}
+		<div>
+		{{date}} {{venue.name}} {{venue.location.city}}
+		</div>
+	{{/each}}
 
 
 </template>

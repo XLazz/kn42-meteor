@@ -158,6 +158,22 @@ GetFsqrLoc = function(coords, query){
 	console.log('calling fsqr final. never should come here ', response);
 }
 
+GetFsqrChk = function(limit){
+	var today = moment().format('YYYYMMDD');
+	
+	try {
+		var url = 'https://api.foursquare.com/v2/users/self/checkins?oauth_token=' + fsqrToken + '&v=' + today +'&limit=' + limit;
+		console.log('GetFsqrChk url', url);
+		var myJSON = Meteor.http.call('GET', url);
+		var response = JSON.parse(myJSON.content);
+		return response;
+	} catch(e){
+		console.error('error calling fsqr ', e, e.response);
+		return false;
+	}
+	console.log('calling fsqr final. never should come here ', response);
+}
+
 GetGoogleLoc = function(userId, coords, radius){
 	var response;
 	console.log('GetGoogleLoc coords ', coords);

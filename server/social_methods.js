@@ -75,9 +75,44 @@ Meteor.methods({
 		}
 		return venues;		
 	},
+
+	'checkinsFsqr': function(userId){
+		var fsqrToken = fsqrApi(userId);
+		var limit = 200;
+		if (CheckinsFsqr.findOne())
+			limit = 1;
+		console.log('checkins Fsqr userId ', userId, fsqrToken );	
+		if (!fsqrToken){
+			console.error('no Fsqr token or query ');
+			return;
+		}
+		var checkins = GetFsqrChk (limit);
+		if (!checkins)
+			return;
+		checkins = checkins.response.checkins.items;
+		console.log('checkins Fsqr http call 1 update ', userId );
+		if (checkins.length !== 0) {
+			var i = 0
+			console.log('checkins Fsqr http call 2 update ', userId, ' # of results', checkins.length );
+			checkins.forEach(function (item, index, array) {
+				i++;
+				item.updated = moment().valueOf();
+				item.userId = userId;
+				item.itemI = i;
+				console.log('checkins Fsqr http call 3 update item ', i );
+				CheckinsFsqr.upsert({id:item.id}, item);
+			});
+		} else {
+			console.log('checkins empty ', userId, ' # of results', checkins.length, ' url ', url  );
+/* 			VenuesCache.remove({userId: userId,}); 		 */
+		}
+		return checkins;		
+	},
+	
 	
 	removevenuesFsqr: function(){
 		VenuesCache.remove({});
+		CheckinsFsqr.remove({});
 	},
 });
 
