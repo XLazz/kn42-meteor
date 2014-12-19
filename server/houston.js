@@ -12,3 +12,6 @@ Houston.add_collection(Friends);
 Houston.add_collection(Experiences);
 Houston.add_collection(ClaimedPlaces);
 Houston.add_collection(FitnessActivities);
+Houston.add_collection(FitnessRoutes);
+Houston.add_collection(FitnessTracks);
+Houston.add_collection(Tracks);

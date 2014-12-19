@@ -55,8 +55,22 @@ Template.routes.helpers({
 		console.log(' findfit ', Session.get('findfit'));
 		return Session.get('fitness');
 	},
+	fitActivity: function(){
+		return Session.get('fitActivity')
+	},
 	activities: function(){
-		return FitnessActivities.find();
+		var fitActivity = Session.get('fitActivity');
+		
+		var activities = FitnessActivities.find(
+		{},
+		{transform: function(doc){
+			if (doc._id == fitActivity) 
+				doc.selected = true;
+			return doc;
+		}}
+		);
+		console.log(' activities ', fitActivity, activities.fetch());
+		return activities;
 	},
 	ifUser: function (){
 		userId = Meteor.userId();
@@ -68,18 +82,46 @@ Template.routes.helpers({
 		if (Meteor.userId()) {return 'true'};
 	},
 	
-	geolog: function(){
-		var geolog = GeoLog.find({userId: Meteor.userId()}, {
-			sort: {timestamp: -1}, limit:5,
-			transform: function(doc){	
-				var time = doc.location.timestamp;
-				time = moment(time).format("h:mm:ss");
-				doc.time = time;
+	track: function(){
+		console.log(' track fitness fitnessTrack ', Session.get('fitnessTrack'));
+		if (!Session.get('fitnessTrack')){
+			var fitnessTrack = FitnessTracks.findOne({userId:Meteor.userId()},{sort:{timestamp: -1}, limit: 5});
+			console.log(' track fitness last ', fitnessTrack);
+			Session.set('fitnessTrack', fitnessTrack);
+		} else {	
+			var track = Tracks.find({userId: Meteor.userId(), fitnessTrackId: Session.get('fitnessTrack')._id }, {
+				sort: {timestamp: -1}, limit:5,
+				transform: function(doc){	
+					var time = doc.location.timestamp;
+					time = moment(time).format("h:mm:ss");
+					doc.time = time;
+					return doc;
+				}
+			});
+			track.fitnessTrackIdd = Session.get('fitnessTrack')._id;
+			console.log(' track fitness ', track);
+			return track;
+		}
+	},
+	userTracks: function(){
+		var userTracks = FitnessTracks.find(
+			{userId: Meteor.userId()},
+			{transform: function(doc){
+				doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm");
+				doc.duration = moment.duration(doc.timestampEnd - doc.timestamp).humanize();
 				return doc;
-			}
-		});
-		console.log(' geolog fitness ', geolog);
-		return geolog;
+			}}
+		);
+		return userTracks;
+	},
+	fitnessTrack: function(){
+		var fitnessTrack = FitnessTracks.findOne({fitnessTrackId: this._id});
+		return fitnessTrack;
+	},
+	trackActivity: function(){
+		var activity = FitnessActivities.findOne(this.activityId);
+		console.log(' trackActivity ', this.activityId, this, activity);
+		return activity;
 	},
 });
 
@@ -91,26 +133,58 @@ Template.routes.events({
 		Session.set('findfit', true);
 		return;
 	},
+	"click .juststart": function (event, template) {
+		if (!Meteor.userId()) {
+			return;
+		}
+		Session.set('findfit', true);
+		return;
+	},
 	"click .startfit": function (event, template) {
 		if (!Meteor.userId()) {
 			return;
 		}
+		if (!Session.get('fitActivity')) {
+			alert('please select activity first');
+			return;
+		}
+		var userId = Meteor.userId();
+		var fitActivity = Session.get('fitActivity');
+		Session.set('fitActivity', fitActivity);
 		Session.set('fitness', true);
 		Session.set('findfit', false);
 		Session.set('geoback', true );
-		Session.set('interval', 20000);
+		Session.set('interval', 10000);
 		UpdateGeo();
 		PollingGeo();
+		FitnessTracks.insert({userId: userId, activityId: Session.get('fitActivity'), timestamp: moment().valueOf(), created: new Date()});
+		console.log(' click startfit ', fitActivity);
 		return;
 	},
 	"click .stopfit": function (event, template) {
 		if (!Meteor.userId()) {
 			return;
 		}
-		Session.set('fitness', false);
 		Session.set('interval', 300000);
 		UpdateGeo();
 		PollingGeo();
+		var fitnessTrack = Session.get('fitnessTrack');
+		var timestampEnd = moment().valueOf();
+		FitnessTracks.update(fitnessTrack._id,{$set:{timestampEnd: timestampEnd}});
+/* 		var geolog = GeoLog.findOne({fitnessTrackId: fitnessTrack._id});
+		GeoLog.update(geolog._id,{$set:{fitness: 'end'}}); */
+		Session.set('fitness', false);
+		Session.set('fitnessTrack', false);
+		return;
+	},
+	"click .fitActivity": function (event, template) {
+		if (!Meteor.userId()) {
+			return;
+		}
+//		var fitActivity = template.find('.fitActivity').id;
+		var fitActivity = $(event.target).attr('id');
+		console.log('click .fitActivity ',  fitActivity, $(event.target));
+		Session.set('fitActivity', fitActivity);
 		return;
 	},
 });

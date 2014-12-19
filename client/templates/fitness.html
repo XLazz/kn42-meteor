@@ -18,61 +18,92 @@
 
 <template name="routes">
 	<div class="container-fluid loading animate">
-		<div class="row ">
-			<div class="col-xs-12 col-sm-12 col-md-12 center">
-				<button class="btn btn-large btn-secondary findfit">Find me a route nearby</button>
-				<div class="alert alert-info" role="alert">We will show the nearest fitness route</div>
-			</div>
-		</div>
-		{{#if ifFindFit}}
-			{{#Animate}}
-				<div class="row showactiv loading animate">
-					<div class="col-xs-12 col-sm-12 col-md-12">
-						{{#each activities}}
-							<div class="row showactiv loading animate" id="{{_id}}">
-								<div class="col-xs-12 col-sm-12 col-md-12">
-									<span class="label label-info">{{activity}}</span>							
-								</div>
-							</div>
-						{{/each}}
-					</div>
+		{{#unless ifFitness}}
+			<div class="row ">
+				<div class="col-xs-6 col-sm-6 col-md-6 center">
+					<button class="btn btn-large btn-secondary findfit">Find a route</button>				
 				</div>
-<!-- 				<div class="row findroute loading animate">
-					<div class="col-xs-12 col-sm-12 col-md-12 center">
-						<button class="btn btn-large btn-secondary findfit">Select Activities</button>
-						<div class="alert alert-info kninfo" role="alert">We will show the nearest fitness route</div>
+				<div class="col-xs-6 col-sm-6 col-md-6 center">
+					<button class="btn btn-large btn-secondary juststart">Just start</button>				
+				</div>
+			</div>
+			{{#if ifFindFit}}
+				{{#Animate}}
+					<div class="row showactiv loading animate">
+						<div class="col-xs-12 col-sm-12 col-md-12">
+							<div class="alert alert-info" role="alert">We will show the nearest fitness route</div>
+							{{#each activities}}
+								<div class="row showactiv loading animate" id="{{_id}}">
+									<div class="col-xs-12 col-sm-12 col-md-12">
+										<span class="label {{#if selected}} label-primary {{else}} label-info {{/if}} fitActivity" id="{{_id}}">{{activity}}</span>							
+									</div>
+								</div>
+							{{/each}}
+						</div>
 					</div>
-				</div> -->
-			{{/Animate}}
-		{{/if}}
+	<!-- 				<div class="row findroute loading animate">
+						<div class="col-xs-12 col-sm-12 col-md-12 center">
+							<button class="btn btn-large btn-secondary findfit">Select Activities</button>
+							<div class="alert alert-info kninfo" role="alert">We will show the nearest fitness route</div>
+						</div>
+					</div> -->
+				{{/Animate}}
+			{{/if}}
+		{{/unless}}
 		<div class="row ">
 			<div class="col-xs-12 col-sm-12 col-md-12 center">
-				<button class="btn btn-large btn-secondary inline startfit">Start</button>
-				<button class="btn btn-large btn-secondary inline stopfit">Stop</button>
-				{{#unless ifFitness}}
+				{{#if fitActivity}}
+					{{#unless ifFitness}}
+						<button class="btn btn-large btn-secondary inline startfit">Start</button>
+					{{/unless}}
+				{{/if}}
+				{{#if ifFitness}}
+					<button class="btn btn-large btn-secondary inline stopfit">Stop</button>
+				{{/if}}
+				{{#unless fitActivity}}
 					<div class="alert alert-info kninfo" role="alert">
 						With start button we change the gps request frequency to 30 sec, stop submitting it to the server and add a special flag 'fitness' in geolog collection
 					</div>			
 				{{/unless}}
+				
 			</div>
 		</div>
 		{{#if ifFitness}}
 			{{#Animate}}
+				<!-- Current track here -->
 				<div class="row showlog loading animate">
 					<div class="col-xs-6 col-sm-6 col-md-6">
-						<img src="/img/app/animated-green-runner.gif" />
+						<img src="/img/app/animated-green-runner.gif" /><br />
+						{{track.fitnessTrackIdd}}
 					</div>
 					<div class="col-xs-6 col-sm-6 col-md-6">
-						{{#each geolog}}
+						{{#each track}}
 							<div class="row showlog loading animate" id="{{_id}}">
 								<div class="col-xs-12 col-sm-12 col-md-12">
-									<span class="label label-info">{{time}} {{location.coords.speed}}</span>							
+									<span class="label label-primary">{{time}} {{location.coords.speed}}</span>							
 								</div>
 							</div>
 						{{/each}}
 					</div>
 				</div>
 			{{/Animate}}
+		{{else}}
+			<!-- Previous tracks -->
+			<div class="row showtrack loading animate" >
+				<div class="col-xs-12 col-sm-12 col-md-12">
+					Recent tracks
+				</div>
+			</div>
+			{{#each userTracks}}
+				<div class="row showtrack loading animate" id="{{_id}}">
+					<div class="col-xs-2 col-sm-2 col-md-2">				
+						<i class="fa fa-bicycle"></i>
+					</div>
+					<div class="col-xs-10 col-sm-10 col-md-10">
+						<span class="label label-primary">{{date}} {{trackActivity.activity}} </span> <span class="label label-primary">{{duration}}</span>
+					</div>
+				</div>
+			{{/each}}
 		{{/if}}
 	</div>
 </template>

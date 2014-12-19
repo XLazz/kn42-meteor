@@ -220,20 +220,14 @@ UpdateGeo = function (){
 //	var handle = Deps.autorun(function () {
 	var userId = Meteor.userId();
 	var location = Geolocation.currentLocation();
+	if (!location)
+		return;
 	var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
-	console.log('UpdateGeo event ', location, geoId, this);
-	if (!geoId) {
-		GeoLog.insert({
-			location: location,
-			uuid: Meteor.uuid(),
-			device: 'browser',
-			userId: Meteor.userId(),
-			created: new Date(),
-			timestamp: location.timestamp,
-			fitness: Session.get('fitness'),
-			interval: Session.get('interval'),
-		});
-		addPlace(location);
+	console.log('UpdateGeo event ', location, geoId, Session.get('fitActivity'), Session.get('fitness'), Session.get('fitstart'), Session.get('fitstop'), Session.get('fitnessTrackId') );
+	if ((!geoId)||Session.get('fitness')){
+		var uuid = Meteor.uuid();
+		var device = 'browser';
+		UpdateGeoDB(location, uuid, device);
 	}
 	return location;
 };
@@ -249,22 +243,69 @@ UpdateGeoCordova = function(){
 		} */
 		var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
 		if (!geoId) {
-			GeoLog.insert({
-				location: location,
-				uuid: GeolocationBG2.uuid(),
-				device: GeolocationBG2.device(),
-				userId: Meteor.userId(),
-				created: new Date(),
-				timestamp: location.timestamp,
-				fitness: Session.get('fitness'),
-				interval: Session.get('interval'),
-			});
+			var uuid = GeolocationBG2.uuid();
+			var device =GeolocationBG2.device();
+			UpdateGeoDB(location, uuid, device);
 		}
 	//		Session.set('interval', 60000);
-		addPlace(location);
+		
 		return location;
 	});
 }
+
+UpdateGeoDB = function(location, uuid, device){
+	var userId = Meteor.userId();
+	var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
+		
+	console.log('UpdateGeoDB ',  location, Session.get('fitActivity'), Session.get('fitness'), Session.get('fitstart'), Session.get('fitstop'), Session.get('fitnessTrack') );
+
+	if (Session.get('fitness')){
+		if (!Session.get('fitnessTrack')) {
+			return;
+/* 			var fitnessTrack = FitnessTracks.findOne({userId:Meteor.userId()},{sort:{timestamp: -1}});
+			console.log(' UpdateGeoDB set  fitnessTrack ', fitnessTrack);
+			if (!fitnessTrack) {
+				Session.set('fitness', false);
+				return;
+			}
+			GeoLog.insert({
+				location: location,
+				userId: Meteor.userId(),
+				created: new Date(),
+				timestamp: location.timestamp,
+				fitness: 'start',
+				interval: Session.get('interval'),
+				fitnessTrackId: fitnessTrack._id,
+			});
+			Session.set('fitnessTrack', fitnessTrack); */
+		}
+
+		Tracks.insert({
+			location: location,
+			uuid: Meteor.uuid(),
+			device: 'browser',
+			userId: Meteor.userId(),
+			created: new Date(),
+			activityId: Session.get('fitActivity'),
+			interval: Session.get('interval'),
+			fitnessTrackId: Session.get('fitnessTrack')._id,		
+		});		
+
+	}
+	
+	if ((!Session.get('fitnessTrack'))&&(!geoId)){
+		GeoLog.insert({
+			location: location,
+			uuid: uuid,
+			device: device,
+			userId: userId,
+			created: new Date(),
+			timestamp: location.timestamp,
+			interval: Session.get('interval'),
+		});	
+		addPlace(location);
+	} 
+};
 
 findClaimed = function(userId, coords){
 	var radius_search = 0.001;

@@ -77,6 +77,20 @@ Meteor.publishComposite('autoPlacesByUser', function(userId, limit) {
 	}
 });
 
+Meteor.publishComposite('TracksByUser', function(userId, limit) {
+	return {
+		find: function() { return FitnessTracks.find({userId: userId}, {sort: {created: -1}, limit: limit}) },
+		children: [
+			{
+				find: function(doc){return Tracks.find({fitnessTrackId: doc._id },{ limit: 1 })},
+			},
+			{
+				find: function(doc){return FitnessActivities.find({_id: doc._activity },{ limit: 1 })},
+			}	
+		]
+	}
+});
+
 Meteor.publishComposite('placesByUser', function(userId, limit) {
 	return {
 		find: function() { return UserPlaces.find({userId: userId}, {sort: {timestamp: -1}, limit: limit}) },
