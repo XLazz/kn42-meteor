@@ -63,6 +63,20 @@ Template.lifelog.helpers({
 	userLocationId: function(){
 		return Session.get('userLocation')._id;
 	},	
+  searching: function() {
+    if (!UserPlaces.findOne({userId: userId})) {
+      Session.set('query', true);
+			console.log('calling php server for json for ', userId );
+			Meteor.call('getLocations', userId, 'list', function(err,results){
+				if (results)
+					console.log('calling php server for json 2 ', results.length);
+			});
+		} else {
+      Session.set('query', false);
+			Session.set('searching', false);
+		}		
+    return Session.get('searching');
+  }
 });
 
 Template.lifelog.events({
@@ -123,6 +137,12 @@ Template.showlocations.helpers({
 		console.log('locations helper ', userId );
 		var places;
 		var userId = Meteor.userId();
+    if (!UserPlaces.findOne({userId: userId})) {
+      Session.set('query', true);
+		} else {
+      Session.set('query', false);
+			Session.set('searching', false);
+		}
 		console.log('locations ',this);
 		if (!Session.get('radius')) {
 			Session.set('radius', 50);
@@ -154,11 +174,7 @@ Template.showlocations.helpers({
 			return;
 		console.log('locations helper places ', userId, places.fetch() );
 		if (!places.count()){
-			console.log('calling php server for json for ', userId );
-			Meteor.call('getLocations', userId, 'list', function(err,results){
-				if (results)
-					console.log('calling php server for json 2 ', results.length);
-			});
+
 		} 
 		return places;
 	},

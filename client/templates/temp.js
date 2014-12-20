@@ -48,7 +48,7 @@ Template.test.helpers({
 				limit: 20,
 				transform: function(doc){
 					doc.date =  moment.unix(doc.createdAt).format("MM/DD/YY hh:mm"); 
-					console.log('checkinsFsqr -1 ', doc.createdAt, doc.date, doc.id );
+					// console.log('checkinsFsqr -1 ', doc.createdAt, doc.date, doc.id );
 					return doc;
 				}
 			}
@@ -72,6 +72,58 @@ Template.test.helpers({
 		console.log('checkinsFsqr ', checkinsFsqr.fetch());
 		return checkinsFsqr;
 	},
+	ifFsqr: function(){
+		return Session.get('checkinsFsqr');
+	},
+
+	myTube: function(){
+		Tracker.autorun(function () {
+				Meteor.subscribe("userData", Meteor.userId());
+		//    Meteor.subscribe("allUserData");
+		});
+		
+		var options = {
+			access_token: Meteor.user().services.google.accessToken,
+			userId: Meteor.user().services.google.id,
+			me: 'me',
+		};
+		GoogleApi.get('/plus/v1/people/me', options, function(err, results){
+			console.log('GoogleApi ', err, results);	
+		});
+
+		var options = {
+			access_token: Meteor.user().services.google.accessToken,
+			userId: Meteor.user().services.google.id,
+			me: 'me',
+		};
+		GoogleApi.get('/plus/v1/people/me', options, function(err, results){
+			console.log('GoogleApi ', err, results);	
+		});		
+	
+		if (Meteor.user() && !Meteor.loggingIn()) {
+				var url = "https://www.googleapis.com/youtube/v3/channels";
+				var params = {
+					access_token: Meteor.user().services.google.accessToken,
+					part: "snippet",
+					mine: "true"
+				};
+				console.log('cjecking myTube params ', params);
+				if (!Meteor.user().services.google.accessToken) {
+					console.log('empty accessToken ', Meteor.user().services.google);
+					return;
+				}
+/* 				Meteor.http.get(url, {params: params}, function (err, result) {
+						console.log('checikng tube2 ',result.statusCode, result.data);
+						var retdata =  result.data;
+						console.log('cjecking myTube 3 ', result);
+						Session.set("myTube", retdata.items);
+				}); */
+		}
+		var myTube = Session.get("myTube");
+		console.log('myTube ', myTube);
+		return myTube;
+	}
+	
 });
 
 Template.test.events({
@@ -88,6 +140,37 @@ Template.test.events({
 			
 		return friends;
 	},
+	"click .checkinsFsqr": function (event, template) {
+		if (!Meteor.userId()) {
+			return;
+		}
+		var ifFsqr = Session.get('checkinsFsqr');
+		if (!ifFsqr) {
+			Session.set('checkinsFsqr', true);
+		} else {
+			Session.set('checkinsFsqr', false);
+		}
+	},
+	"click .getTube": function (event, template) {
+		Tracker.autorun(function () {
+				Meteor.subscribe("userData", Meteor.userId());
+		//    Meteor.subscribe("allUserData");
+		});
 
+		console.log('userData ', Meteor.user());
+
+		var options = {
+			access_token: Meteor.user().services.google.accessToken,
+/* 			part: "snippet",
+			mine: "true" */
+			userId: Meteor.user().services.google.id,
+			me: 'me',
+		};
+		GoogleApi.get('/plus/v1/people', options, function(err, results){
+			console.log('GoogleApi ', err, results);	
+		});		
+		
+		return Meteor.user();
+	},
 });
 

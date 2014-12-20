@@ -32,12 +32,28 @@
 		{{type}}
 		
 	{{/each}} -->
-	getting fsqr
-	{{#each checkinsFsqr}}
-		<div>
-		{{date}} {{venue.name}} {{venue.location.city}}
-		</div>
-	{{/each}}
+	<!-- GoogleApi.get('/your/api/path', options, callback);	 -->
+	<div>
+	<button class="btn btn-secondary checkinsFsqr">Fsqr</button>
+	</div>
+	<div>
+		getting fsqr
+		{{#if ifFsqr}}
+			{{#each checkinsFsqr}}
+				<div>
+				{{date}} {{venue.name}} {{venue.location.city}}
+				</div>
+			{{/each}}
+		{{/if}}
+	</div>
+	<button class="btn btn-secondary getTube">Goog</button>
+	<div>
+		myTube 1
+		{{#each myTube}}
+			myTube
+		{{/each}}
+	</div>
+
 
 
 </template>

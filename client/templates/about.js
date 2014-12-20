@@ -174,7 +174,7 @@ Template.connectAccounts.events({
 		}		
 	},
 	'click #check_profile': function (event, template) {
-		Meteor.call('removevenuesFsqr');
+//		Meteor.call('removevenuesFsqr');
 		Meteor.call('showProfile', Meteor.userId(), function(err, results){
 			console.log('showProfile ', results);
 		});

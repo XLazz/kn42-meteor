@@ -9,8 +9,14 @@
     <div class="content-scrollable">
 			<div class="container-fluid">	
 				<div class="top-separator"></div>
-				{{> showlocations}}
-				{{> overlay}}			
+
+				{{#if searching}}
+					<p>Downloading history from server...</p>
+					{{> spinner}}
+				{{else}}
+					{{> showlocations}}
+					{{> overlay}}
+				{{/if}}
 			</div>
 <!--       <div class="list-recipes">
 					<hr>

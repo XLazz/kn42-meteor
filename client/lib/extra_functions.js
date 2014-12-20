@@ -40,7 +40,14 @@ ifStatic = function(userId, currentPlace, currentPlaceAlt, location){
 	currentPlace.geoId = lastLoc._id
 	
 	if (!lastPlace) {
-		insertPlace(userId, lastLoc, currentPlaceAlt);
+		console.log('ifStatic no last place, calling php server ');
+		Meteor.call('getLocations', userId, 'list', function(err,results){
+			if (results) {
+				if (!results.length)
+					insertPlace(userId, lastLoc, currentPlaceAlt);
+				console.log('calling php server for json 2 ', results.length);
+			}
+		});
 	} else {
 		if (lastPlace.timestampEnd) {
 			var claimed = findClaimed(userId, lastLoc.location.coords);

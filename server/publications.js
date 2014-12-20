@@ -1,4 +1,4 @@
-Meteor.publish('bookmarkCounts', function() {
+/* Meteor.publish('bookmarkCounts', function() {
   return BookmarkCounts.find();
 });
 
@@ -20,18 +20,13 @@ Meteor.publish('recipe', function(name) {
     BookmarkCounts.find({recipeName: name}),
     Activities.find({recipeName: name})
   ];
-});
-
-Meteor.publish('CheckinsFsqr', function() {
-  return CheckinsFsqr.find({}, {limit: 20});
-});
+}); */
 
 // autopublish the user's bookmarks and admin status
 Meteor.publish(null, function() {
-  return Meteor.users.find(this.userId, {
+/*   return Meteor.users.find(this.userId, {
     fields: {
       admin: 1,
-      bookmarkedRecipeNames: 1,
 			profile: 1,
       'services.twitter.profile_image_url_https': 1,
 			'services.google.id': 1,
@@ -41,9 +36,17 @@ Meteor.publish(null, function() {
 			'services.foursquare.id': 1,
 			'services.foursquare.email': 1,
     }
-  });
+  }); */
 	return People.find();
 	return Services.find();
+});
+
+Meteor.publish("userinfo", function () {
+	return Meteor.users.find({_id: this.userId}, {fields: {profile: 1, services: 1, admin: 1}});
+});
+
+Meteor.publish('CheckinsFsqr', function() {
+  return CheckinsFsqr.find({}, {limit: 20});
 });
 
 People.allow({

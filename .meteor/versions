@@ -22,6 +22,7 @@ boilerplate-generator@1.0.2
 callback-hook@1.0.2
 check@1.0.3
 coffeescript@1.0.5
+cscottnet:googleapis@0.4.7_1
 dburles:collection-helpers@1.0.1
 dburles:mongo-collection-instances@0.2.2
 ddp@1.0.13
@@ -76,6 +77,7 @@ mongo@1.0.10
 mongo-livedata@1.0.7
 mrt:jquery-csv@0.7.1
 mrt:moment@2.8.1
+mrt:q@1.0.1
 mrt:underscore-string-latest@2.3.3
 msamoylov:accounts-foursquare@1.0.3
 msamoylov:foursquare@1.0.3
@@ -87,6 +89,7 @@ oauth2@1.1.2
 observe-sequence@1.0.4
 ordered-dict@1.0.2
 peppelg:bootstrap-3-modal@1.0.0
+percolate:google-api@1.0.1
 percolate:momentum@0.6.2
 percolate:velocityjs@1.1.0
 percolate:wireframing@0.2.0
