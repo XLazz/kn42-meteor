@@ -103,7 +103,7 @@ Template.connectAccounts.helpers({
 			if (moment().valueOf() - Session.get('FsqrCall') > 3000) { 
 				Session.set('FsqrCall', moment().valueOf());
 				Meteor.call('checkinsFsqr', Meteor.userId(), function(err, results){
-					var timestamp = moment().valueOf() + 5000;
+					var timestamp = moment().valueOf();
 					Session.set('FsqrCall', timestamp);
 					return;
 				});

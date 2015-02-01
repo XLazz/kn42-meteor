@@ -45,15 +45,16 @@
 					<div>
 						Travelling<br />
 						{{#if location.coords.speed}}speed {{location.coords.speed}} {{/if}}
-						{{status}} since {{started}} {{#if timespent}}  for {{timespent}} {{/if}}
+						{{status}} since {{timestart}} {{#if timespent}}  for {{timespent}} {{/if}}
 					</div>
 				{{else}}
 					<div>
 						{{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}
 					</div>
 					<div style="font-size: smaller">
+						{{#if checkinFsqr}} <i class="fa fa-foursquare"></i> {{checkinFsqr.venue.name}} {{checkinFsqr.date}}<br />{{/if}} 
 						{{#if geoPlace.name}}{{geoPlace.vicinity}} {{else}}{{geoMerchant.vicinity}} {{/if}}<br />
-						{{status}} since {{started}} {{#if timespent}} for {{timespent}} {{/if}}
+						{{status}} since {{timestart}} {{#if timespent}} for {{timespent}} {{/if}}
 <!-- 						<div>{{> venuesSelected}}</div> -->							
 					</div>
 					{{#if ifDebug}} 
@@ -61,7 +62,7 @@
 							{{place_id}}
 						</div>
 					{{/if}}
-					{{#if ifDebug}}<div style="font-size:50%"> finished: {{finished}}</div>{{/if}}
+					{{#if ifDebug}}<div style="font-size:50%">{{timestamp}} finished: {{finished}}</div>{{/if}}
 				{{/if}}
 			</div>
 			<div class="col-xs-4 col-sm-4 col-md-4">

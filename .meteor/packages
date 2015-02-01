@@ -65,3 +65,7 @@ percolate:google-api
 cscottnet:googleapis
 oauth2
 google
+http
+standard-app-packages
+chenroth:googlemaps-api
+meteorhacks:async

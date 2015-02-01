@@ -1,0 +1,75 @@
+<template name="autolog">
+  <div class="page about">
+    {{> nav title='Driving' black=true}}
+
+    <div class="content-scrollable">
+      <div class="bg-image about">
+				<h1 class="title-about">
+	<!-- 				<img src="img/app/title-about.svg" alt="LifeLog"/> -->
+				</h1> 
+      </div>
+      <div class="description-about">
+      </div>
+			{{> autoroutes}}
+		
+    </div>
+  </div>
+</template>
+
+<template name="autoroutes">
+	<div class="container-fluid loading animate">
+		<div class="row ">
+			<div class="col-xs-6 col-sm-6 col-md-6 center">
+				{{#if ifDriving}}
+					<button class="btn btn-large btn-secondary inline stopdriving">Stop</button>
+				{{else}}
+					<button class="btn btn-large btn-secondary inline startdriving">Start</button>
+				{{/if}}				
+			</div>
+<!-- 			{{#unless ifDriving}}
+				<div class="alert alert-info kninfo" role="alert">
+					With start button we change the gps request frequency to 30 sec, stop submitting it to the server and add a special flag 'auto' in geolog collection
+				</div>			
+			{{/unless}} -->
+		</div>
+		
+		{{#if ifDriving}}
+			{{#Animate}}
+				<!-- Current track here -->
+				<div class="row showlog loading animate">
+					<div class="col-xs-6 col-sm-6 col-md-6">
+						<img src="/img/app/animated-green-runner.gif" /><br />
+						{{track.drivingTrackId}}
+					</div>
+					<div class="col-xs-6 col-sm-6 col-md-6">
+						{{#each drive}}
+							<div class="row showlog loading animate" id="{{_id}}">
+								<div class="col-xs-12 col-sm-12 col-md-12">
+									<span class="label label-primary">{{time}} {{location.coords.speed}}</span>							
+								</div>
+							</div>
+						{{/each}}
+					</div>
+				</div>
+			{{/Animate}}
+		{{else}}
+			<!-- Previous tracks -->
+			<div class="row showtrack loading animate" >
+				<div class="col-xs-12 col-sm-12 col-md-12">
+					Recent logs
+				</div>
+			</div>
+			{{#each userDrives}}
+				<div class="row showtrack loading animate" id="{{_id}}">
+					<div class="col-xs-2 col-sm-2 col-md-2">				
+						<i class="fa fa-car"></i>
+					</div>
+					<div class="col-xs-10 col-sm-10 col-md-10">
+						<span class="label label-primary">{{date}} {{trackActivity.activity}} </span> <span class="label label-primary">{{duration}}</span>
+					</div>
+				</div>
+			{{/each}}
+		{{/if}}
+	</div>
+</template>
+

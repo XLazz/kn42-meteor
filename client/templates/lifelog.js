@@ -8,41 +8,6 @@
 	});
 }; */
 
-getGPlace = function(place_id){
-	var callGoogle;
-	var place;
-//	var place = Places.findOne({place_id: place_id});
-//	if (!place) {
-		
-	if (Session.get('googleCall')) {
-		var now = moment().valueOf() - Session.get('googleCall');
-		console.log('getGPlace session 1 ', Session.get('googleCall'), now);
-		if (moment().valueOf() - Session.get('googleCall') > 2) {
-			console.log('getGPlace session 2 ', Session.get('googleCall'), now);
-			Session.set('googleCall', false);	
-		}
-	}
-	console.log('getGPlace session 3 ', Session.get('googleCall'), place_id);
-	if (!Session.get('googleCall')){
-		console.log('Google call getGPlace in getGPlace function ', place_id);
-		Meteor.call('getGPlace', place_id, function(err, results) {
-			console.log('getGPlace ', results);
-			if (results) {
-				if (results.result.place_id.length > 25) {
-					var initiator = 'getGPlace function';
-					Meteor.call('getGLoc', Meteor.userId(), Session.get('userLocation').location, 30, initiator);
-				}
-				Session.set('googleCall', false);	
-				return results;
-			}
-		});
-		Session.set('googleCall', moment().valueOf());
-	}
-	if (!place)
-		return;
-	return place;
-};
-
 Template.lifelog.helpers({
 	ifDebug: function(){
 		console.log('ifDebug ', Session.get('debug'));
@@ -64,18 +29,24 @@ Template.lifelog.helpers({
 		return Session.get('userLocation')._id;
 	},	
   searching: function() {
-    if (!UserPlaces.findOne({userId: userId})) {
-      Session.set('query', true);
-			console.log('calling php server for json for ', userId );
-			Meteor.call('getLocations', userId, 'list', function(err,results){
-				if (results)
-					console.log('calling php server for json 2 ', results.length);
-			});
-		} else {
-      Session.set('query', false);
-			Session.set('searching', false);
-		}		
-    return Session.get('searching');
+		var userId = Meteor.userId();
+    if (UserPlaces.findOne({userId: userId})) {
+			console.log('searching UserPlaces 1 ', UserPlaces.findOne({userId: userId}));
+			if (UserPlaces.findOne({userId: userId})._id) {
+				console.log('searching UserPlaces 2 ', UserPlaces.findOne({userId: userId}));
+				return;
+			}
+		}
+
+		console.log('searching UserPlaces empty lets search ');
+		Session.set('getPlaces', true);
+		console.log('searchin session 2 ', Session.get('getPlacesNotReady'), Session.get('getPlaces'));	
+		if (!Session.get('getPlacesNotReady')){
+			var limit = 20;
+			var searchHandle = Meteor.subscribe('downloadPlaces', userId, limit);
+			Session.set('getPlacesNotReady', ! searchHandle.ready());		
+		}	
+    return Session.get('getPlacesNotReady');
   }
 });
 
@@ -88,10 +59,12 @@ Template.lifelog.events({
 		
 		Session.set('googleCall', moment().valueOf());
 		Meteor.call('removeAllLocations', Meteor.userId(), function(err, results){
-			setTimeout(function(){
+			Session.set('getPlacesNotReady', false);
+//			Session.set('getPlaces', false);
+/* 			setTimeout(function(){
     //do what you need here
 				Session.set('googleCall', false);
-			}, 100);		
+			}, 100);		 */
 		});
 //		Meteor.call('getLocations', Meteor.userId(), 'list');
 //		Meteor.call('getLocations','list',function(err,results));
@@ -103,6 +76,8 @@ Template.lifelog.events({
 		console.log('updatelocations events ');
 		Meteor.call('getLocations', Meteor.userId(), 'list', function(err, results){
 			console.log('getLocations http call ', results);
+			Session.set('getPlaces', false);
+			Session.set('getPlacesNotReady', false);
 		});
 //		Meteor.call('getLocations','list',function(err,results));
 	},
@@ -126,24 +101,29 @@ Template.showlocations.helpers({
 	geologs: function(){
 		geologs = GeoLog.find({}, {sort: {timestamp: -1}});
 		if (!geologs)
-			Meteor.call('getLocations', Meteor.userId(), 'list');
+			console.log('locations helper geolog empty. call php getLocations ' );
+			// Meteor.call('getLocations', Meteor.userId(), 'list');
 		return geologs;
 	},
+	
 	
 	locations: function(){
 		if (!Meteor.userId()) {
 			return;
 		}
-		console.log('locations helper ', userId );
+		
 		var places;
 		var userId = Meteor.userId();
-    if (!UserPlaces.findOne({userId: userId})) {
-      Session.set('query', true);
-		} else {
-      Session.set('query', false);
-			Session.set('searching', false);
-		}
-		console.log('locations ',this);
+		console.log('locations helper 1 ', userId );
+    if (!UserPlaces.findOne({userId: userId})) 
+			return;
+		if (!UserPlaces.findOne({userId: userId})._id)
+			return;
+			
+		Session.set('query', false);
+		Session.set('searching', false);
+
+		console.log('locations helper 2 ',UserPlaces.findOne({userId: userId}));
 		if (!Session.get('radius')) {
 			Session.set('radius', 50);
 		}
@@ -152,8 +132,8 @@ Template.showlocations.helpers({
 			{
 				sort: {timestamp: -1},
 				transform: function(doc){		
-					var then = doc.timestamp;
-					var now = doc.timestampEnd;
+					var then = parseInt(doc.timestamp);
+					var now = parseInt(doc.timestampEnd);
 					if (now) 
 						doc.finished = moment(now).format("MM/DD/YY HH:mm");
 					if (!now) {
@@ -163,7 +143,9 @@ Template.showlocations.helpers({
 					var duration = then - now;
 					duration = moment.duration(duration).humanize();
 					doc.timespent = duration;
-					doc.started = moment(then).format("MM/DD/YY HH:mm");
+					doc.timestart = moment(then).format("MM/DD/YY HH:mm");
+/* 					doc.then = moment(then) ;
+					doc.then2 = doc.timestamp; */
 					var count = UserPlaces.find({userId: userId, place_id: doc.place_id}).count();
 					doc.count = count;
 					return doc;
@@ -209,6 +191,31 @@ Template.showlocations.helpers({
 		return place;
 	},	
 	
+	checkinFsqr: function(){
+		if (!this.timestampEnd)
+			this.timestampEnd = moment().valueOf();
+		var checkinFsqr;
+		var timestampFsqr;
+		var nameFsqr;
+		if (this.foursquareId) {
+			checkinFsqr = CheckinsFsqr.findOne({id: this.foursquareId});
+		} else {
+			checkinFsqr = CheckinsFsqr.findOne(
+			{
+				userId:this.userId,	
+				createdAt: { $gt: this.timestamp/1000+300*60, $lt: this.timestampEnd/1000+300*60}	},{	limit: 1, sort: {createdAt: -1}
+			});
+		}
+		if (checkinFsqr) {
+			timestampFsqr = checkinFsqr.createdAt;
+			checkinFsqr.date = moment.unix(timestampFsqr).format("MM/DD/YY HH:mm");
+			nameFsqr = checkinFsqr.venue.name;
+		}
+			
+/* 		console.log('locations helper checkinFsqr ', this.userId, nameFsqr, this.timestamp/1000+300*60, this.timestamp/1000, timestampFsqr, this.timestampEnd/1000+300*60, checkinFsqr  ); */
+		return checkinFsqr;		
+	},
+	
 	'showExp': function(){
 		return Session.get('showExp');
 	},
@@ -222,11 +229,73 @@ Template.showlocations.events({
 	"click .selectplace": function (event, template) {
 		var userId = Meteor.userId();
 		var radius = 50;
+		var name =[];
 //		var userLocationId = $(event).attr("id");
 //		var userLocationId = template.find('.selectplace').attr();
 		var userLocationId = event.currentTarget.id;
 		var userLocation = UserPlaces.findOne(userLocationId);
-		console.log('click on div before call 0 ',userLocationId, userLocation);		
+
+		console.log('click on div before inside 0 ',userLocationId, userLocation, userLocation.place_id);		
+		if (userLocation.place_id) {
+			console.log('click on div inside 0 ',userLocationId, userLocation, userLocation.place_id);		
+		} else {
+			var location = userLocation.location;
+			var radius = 50;
+			var initiator = 'showlocations.events';
+			if (userLocation.foursquareId) {
+				userLocation.fsqrName = CheckinsFsqr.findOne({id: userLocation.foursquareId}).venue.name;
+				name = userLocation.fsqrName.split(" ");
+			}
+/* 			Meteor.call('getGLoc', userId, location, radius, initiator); */
+//			https://maps.googleapis.com/maps/api/place/radarsearch/json?location=48.859294,2.347589&radius=5000&types=food|cafe&keyword=vegetarian&key=AddYourOwnKeyHere
+/* 			var options = {
+				location: userLocation.location.latitude +','+ userLocation.location.longitude,
+				radius: 500,
+				types: 'food',
+				keyword: 'vegetarian',
+				key: 'AIzaSyAQH9WdmrwMKphSHloMai5iYlcS5EsXMQA',
+			}
+			GoogleApi.get('/your/api/path', options, function(err, results) {
+				console.log('GoogleApi results ', options, err, results);
+			}); */
+
+			var location = userLocation.location.latitude +','+ userLocation.location.longitude;
+			var params = {
+				location: userLocation.location,
+				radius: 20,
+				name: name[0],
+				foursquareId: userLocation.foursquareId
+			};
+/* 			var params = {
+				latlng: userLocation.location.coords.latitude +','+ userLocation.location.coords.longitude,
+				radius: 20,
+				sensor: null,
+				types: null,
+				lang: null,
+				name: name[0],
+				rankby: '', 
+				pagetoken: '',
+				foursquareId: userLocation.foursquareId
+			} */
+			console.log('click on div before call inside 1 ',userLocationId, userLocation, userLocation.place_id);		
+/* 			Meteor.call('googleMapsReverse', params, function(err, data){
+				if (err) {
+					console.log('err ', err);
+				}
+				console.log('googleMapsReverse results ', err, data);
+			}); */
+			Meteor.call('getGLoc', userId, params, initiator, function(err, results){
+			
+			});
+/* 			Meteor.call('googleMapsPlaces', params, function(err, data){
+				if (err) {
+					console.log('err ', err);
+				}
+				console.log('googleMapsPlaces results ', err, data);
+			}); */
+		}
+
+		console.log('click on div before call 0 ',userLocationId, userLocation, userLocation.place_id);		
 		var place = Places.findOne({place_id: userLocation. userLocationId});
 		if (!place)
 			place = MerchantsCache.findOne({place_id: userLocation.place_id});
@@ -234,6 +303,7 @@ Template.showlocations.events({
 			console.log('Google call getGPlace in showlocations events  selectplace ', userLocation.place_id);
 			getGPlace(userLocation.place_id);
 		}
+		
 		console.log('click on div before call 1 ',userLocationId,  userLocation.place_id, place);			
 		if (userLocation) {
 			Session.set('userLocation', userLocation);
@@ -277,8 +347,12 @@ Template.selectPlace.helpers({
 		}
 		
 //		console.log('gotPlaces no MerchantsCache ', UserLocations.findOne({user_history_location_id: Session.get('userLocation').user_history_location_id}, {sort: {started: -1}}), Session.get('radius')); 
-		
-		var gotPlaces = Meteor.call('getGLoc', userId, userLocation.location, radius, function(err, results){
+		var params = {
+			radius: radius,
+			location: userLocation.location
+		}
+		var initiator = 'selectPlace.helpers';
+		var gotPlaces = Meteor.call('getGLoc', userId, params, initiator, function(err, results){
 			console.log('selectPlace helpers getGLoc results ', results.results);	
 			return results;
 		});
@@ -344,6 +418,8 @@ Template.selectPlace.events({
 
 		if (!Places.findOne({place_id: place_id})) {
 			var myPlace = MerchantsCache.findOne({place_id: place_id},{fields:{_id:0, 'address.components': 0, reviews: 0, photos: 0}});
+			console.log('setlocation MerchantsCache.findOne ', place_id, myPlace);
+			myPlace.updated = moment().valueOf();
 			Places.insert(myPlace);
 		}
 		var userLocation = UserPlaces.findOne(userLocation._id);	

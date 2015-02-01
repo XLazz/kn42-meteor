@@ -82,23 +82,23 @@ Template.test.helpers({
 		//    Meteor.subscribe("allUserData");
 		});
 		
-		var options = {
+/* 		var options = {
 			access_token: Meteor.user().services.google.accessToken,
 			userId: Meteor.user().services.google.id,
 			me: 'me',
 		};
 		GoogleApi.get('/plus/v1/people/me', options, function(err, results){
 			console.log('GoogleApi ', err, results);	
-		});
+		}); */
 
-		var options = {
+/* 		var options = {
 			access_token: Meteor.user().services.google.accessToken,
 			userId: Meteor.user().services.google.id,
 			me: 'me',
 		};
 		GoogleApi.get('/plus/v1/people/me', options, function(err, results){
 			console.log('GoogleApi ', err, results);	
-		});		
+		});		 */
 	
 		if (Meteor.user() && !Meteor.loggingIn()) {
 				var url = "https://www.googleapis.com/youtube/v3/channels";
@@ -166,9 +166,52 @@ Template.test.events({
 			userId: Meteor.user().services.google.id,
 			me: 'me',
 		};
-		GoogleApi.get('/plus/v1/people', options, function(err, results){
+/* 		GoogleApi.get('/plus/v1/people', options, function(err, results){
 			console.log('GoogleApi ', err, results);	
-		});		
+		});		 */
+/* var result = GoogleMaps.getDistance("Melbourne", "Sydney");
+console.log(result); */
+
+// from tests
+
+/*   var result = GoogleMaps.getDistance(
+    "100 East Main Street, Louisville KY, 40202",
+    "500 East Main Street, Louisville KY, 40202"
+  );
+  var expect = {
+    duration: 139,
+    duration_nice: "2 mins",
+    distance: 1036,
+    distance_nice: "1.0 km"
+  } */
+	var params;
+	var geolog = GeoLog.findOne({}, {sort: {timestamp: -1}});
+// from tests
+	var params = {
+		latlng: geolog.location.coords.latitude +','+ geolog.location.coords.longitude,
+		radius: 50,
+	}
+/* 	Meteor.call('googleMaps', params, function(err, results){
+		console.log('googleMaps ', params, err, results);
+	}); */
+	Meteor.call('googleMapsPlaces', params, function(err, results){
+		console.log('googleMapsPlaces ', params, err, results);
+	});
+/* 	var result = GoogleMaps.getDistance("Melbourne", "Sydney");
+	console.log(result);
+
+// from tests
+
+  var result = GoogleMaps.getDistance(
+    "100 East Main Street, Louisville KY, 40202",
+    "500 East Main Street, Louisville KY, 40202"
+  );
+  var expect = {
+    duration: 139,
+    duration_nice: "2 mins",
+    distance: 1036,
+    distance_nice: "1.0 km"
+  } */
 		
 		return Meteor.user();
 	},

@@ -39,6 +39,90 @@ Meteor.publish(null, function() {
   }); */
 	return People.find();
 	return Services.find();
+	return Places.find({},{limit:100});
+	return MerchantsCache.find({},{limit:100});
+});
+
+Meteor.publish('downloadPlaces', function(userId, limit) {
+  var self = this;
+	var api_key = GetApi(userId);
+  try {
+    var response = HTTP.get('http://kn42.xlazz.com/server/desktop.php', {
+      params: {
+        api_key: api_key,
+				location: 'list',
+      }
+    });	
+		
+		var userLocations = JSON.parse(response.content).user_locations;
+		console.log('called php server for json 3. num of els ', userLocations);
+		userLocations.forEach(function (item, index, array) {
+			if (!item) {
+				console.log('got empty item on downloadPlaces ');
+//				return;
+			} else {
+				console.log('inserting item for user 1 ', item.user_history_location_id, item.timestamp, item.timestampEnd, item.started, item.finished);
+				if (!item.timestamp || item.timestamp == 0) 
+					item.timestamp = moment(item.started).valueOf();
+				if (!item.timestampEnd || item.timestampEnd == 0)
+					if (item.finished)
+						item.timestampEnd = moment(item.finished).valueOf();
+				if (item.status == 'confirmed')
+						item.confirmed = true;
+				if (item.status == 'travel')
+						item.travel = true;				
+				if (item.status == 'fitness')
+						item.fitness = true;		
+				if (!item.userplaceId){
+					var random = Random.id();
+					_id = random;
+					console.log('inserting item for user 2 ', userId, _id, item.userplaceId, random, Random.id());
+				} else {
+					_id = item.userplaceId;
+					
+				}
+				var location = {coords: {latitude: item.latitude, longitude: item.longitude}};
+				var doc = {
+					_id: _id,
+					userId: userId,
+					user_history_location_id: item.user_history_location_id,
+					location_id: item.location_id,
+					location: location,
+					place_id: item.place_id,
+					started: item.started,
+					finished: item.finished,
+					timestamp: item.timestamp,
+					timestampEnd: item.timestampEnd,
+					confirmed: item.confirmed,
+					travel: item.travel, 
+					fitness: item.fitness,
+				};
+				console.log('inserting item for user ', userId, _id, item.user_history_location_id);
+				UserPlaces.upsert(_id, doc);
+				Meteor.call('getGPlace', item.place_id, function(err, results){
+					console.log('getGPlace results.result.place_id.length ');
+	/* 				if (results) { 
+						console.log('getGPlace results.result.place_id.length ', results.result.place_id.length);
+						if (results.result.place_id.length > 25) {
+							var userLocation = {};
+							userLocation.location = {};
+							userLocation.location.coords = item;
+							var radius = 30;
+							Meteor.call('getGLoc', userId, userLocation, radius);
+						}
+					} */
+					return;
+				});				
+			}
+      
+    });
+
+    self.ready();
+
+  } catch(error) {
+    console.error(error);
+  }
+/////////////////////////////////////////////////////////////	
 });
 
 Meteor.publish("userinfo", function () {
@@ -114,15 +198,30 @@ Meteor.publishComposite('placesByUser', function(userId, limit) {
 				find: function(geolog){return GeoLog.find({timestamp: geolog.timestamp },{ limit: 1 })}
 			},{
 				find: function(geolog){
-					var coords = geolog.location;
 					var radius_search = 0.001;
-					var latup = parseFloat(coords.latitude) + radius_search;
-					var latdown = parseFloat(coords.latitude) - radius_search;
-					var lngup = parseFloat(coords.longitude) + radius_search;
-					var lngdown = parseFloat(coords.longitude) - radius_search;					
-					return ClaimedPlaces.find({'coords.latitude': { $gt: latdown, $lt: latup }, 'coords.longitude': { $gt: lngdown, $lt: lngup }});
+					var coords = geolog.location;
+					if (coords) {
+						var latup = parseFloat(coords.latitude) + radius_search;
+						var latdown = parseFloat(coords.latitude) - radius_search;
+						var lngup = parseFloat(coords.longitude) + radius_search;
+						var lngdown = parseFloat(coords.longitude) - radius_search;					
+						return ClaimedPlaces.find({'coords.latitude': { $gt: latdown, $lt: latup }, 'coords.longitude': { $gt: lngdown, $lt: lngup }});
+					}
 				}
+			},{
+				find: function(geolog){return checkinFsqr = CheckinsFsqr.find({userId:geolog.userId},{limit: 1})}
 			}
+/* 			CheckinsFsqr.find(
+			{userId:userId},
+			{
+				sort: {createdAt: -1}, 
+				limit: 20,
+				transform: function(doc){
+					doc.date =  moment.unix(doc.createdAt).format("MM/DD/YY hh:mm"); 
+					// console.log('checkinsFsqr -1 ', doc.createdAt, doc.date, doc.id );
+					return doc;
+				}
+			} */
 		]
 	}
 });
@@ -160,18 +259,11 @@ Meteor.publishComposite('placesByGeo', function(userId, limit) {
 					// one record here, we use "find" instead of "findOne"
 					// since this function should return a cursor.
 					return ClaimedPlaces.find({}, { limit: 1 });
-				}			
-			
-/* 			},{
+				}
+			},{
 				find: function(geolog){
-					var coords = geolog.location;
-					var radius_search = 0.001;
-					var latup = parseFloat(coords.latitude) + radius_search;
-					var latdown = parseFloat(coords.latitude) - radius_search;
-					var lngup = parseFloat(coords.longitude) + radius_search;
-					var lngdown = parseFloat(coords.longitude) - radius_search;					
-					return ClaimedPlaces.find({'coords.latitude': { $gt: latdown, $lt: latup }, 'coords.longitude': { $gt: lngdown, $lt: lngup }});
-				} */
+					return checkinFsqr = CheckinsFsqr.find({userId:geolog.userId},{limit: 1})
+				},
 			}
 		]
 	}

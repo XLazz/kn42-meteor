@@ -52,7 +52,7 @@
 		<div class="top-separator"></div>
 		<h4>Your coords (debug screen, will not be shown to the end user)</h4>	
 		{{#each geologs}}
-			<div class="row geolog">
+			<div class="row geolog"  id="{{_id}}">
 				<div class="col-xs-12 col-sm-12 col-md-12">
 					<div>date: {{created}}</div>
 					<div>lng: {{location.coords.longitude}} lat: {{location.coords.latitude}}</div>

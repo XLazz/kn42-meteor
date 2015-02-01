@@ -89,8 +89,12 @@ Meteor.methods({
 		var checkins = GetFsqrChk (limit);
 		if (!checkins)
 			return;
+
 		checkins = checkins.response.checkins.items;
 		console.log('checkins Fsqr http call 1 update ', userId );
+		var place = {};
+		var earliestUserPlace = UserPlaces.findOne({userId: userId},{sort:{timestamp:1}});
+			
 		if (checkins.length !== 0) {
 			var i = 0
 			console.log('checkins Fsqr http call 2 update ', userId, ' # of results', checkins.length );
@@ -100,7 +104,19 @@ Meteor.methods({
 				item.userId = userId;
 				item.itemI = i;
 				console.log('checkins Fsqr http call 3 update item ', i );
-				CheckinsFsqr.upsert({id:item.id}, item);
+				CheckinsFsqr.upsert({id:item.id}, item)
+/* 				if (earliestUserPlace ){ */
+					if (item.venue){
+						place.foursquareId = item.id;
+						place.userId = userId;
+						place.timestamp = 1000*(item.createdAt);
+						place.timestampEnd = 1000*(item.createdAt);
+						place.location = {coords:{latitude: item.venue.location.lat, longitude: item.venue.location.lng}};
+						place.started = moment(place.timestamp).format("YYYY-MM-DD HH:mm:ss");
+						place.confirmed = true;
+						UserPlaces.upsert({foursquareId: place.foursquareId}, place);
+					}
+/* 				}		 */		
 			});
 		} else {
 			console.log('checkins empty ', userId, ' # of results', checkins.length, ' url ', url  );

@@ -41,13 +41,13 @@ ifStatic = function(userId, currentPlace, currentPlaceAlt, location){
 	
 	if (!lastPlace) {
 		console.log('ifStatic no last place, calling php server ');
-		Meteor.call('getLocations', userId, 'list', function(err,results){
+/* 		Meteor.call('getLocations', userId, 'list', function(err,results){
 			if (results) {
 				if (!results.length)
 					insertPlace(userId, lastLoc, currentPlaceAlt);
 				console.log('calling php server for json 2 ', results.length);
 			}
-		});
+		}); */
 	} else {
 		if (lastPlace.timestampEnd) {
 			var claimed = findClaimed(userId, lastLoc.location.coords);
@@ -66,6 +66,7 @@ insertPlace = function(userId, lastLoc, currentPlaceAlt){
 	var experience, location, place, userplace;
 	console.log('User was stationary enough at ', currentPlaceAlt.place_id, currentPlaceAlt.name);
 	place = Places.findOne({place_id: currentPlaceAlt.place_id});
+	currentPlaceAlt.updated = moment().valueOf();
 	if (!place) {					
 		Places.insert(
 			currentPlaceAlt
@@ -95,7 +96,7 @@ insertPlace = function(userId, lastLoc, currentPlaceAlt){
 	if (userplace.travel)
 		location.status = 'travel';
 	location.place_id = currentPlaceAlt.place_id;
-	if (!Session.get('fitness')) 
+	if (!Session.get('fitness') || !Session.get('driving')) 
 		Meteor.call('submitPlace', userId, location, experience);
 	return true;
 }
@@ -147,7 +148,11 @@ addPlace = function (location){
 		
 	//we have coords, lets check google
 	var initiator = 'addPlace function';
-	Meteor.call('getGLoc', userId, location, radius, initiator, function(err,results){
+	var params = {
+		location: location,
+		radius: radius
+	};
+	Meteor.call('getGLoc', userId, params, initiator, function(err,results){
 		var experience;
 		console.log('getGLoc call  ', results);
 				
@@ -231,7 +236,7 @@ UpdateGeo = function (){
 		return;
 	var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
 	console.log('UpdateGeo event ', location, geoId, Session.get('fitActivity'), Session.get('fitness'), Session.get('fitstart'), Session.get('fitstop'), Session.get('fitnessTrackId') );
-	if ((!geoId)||Session.get('fitness')){
+	if (!geoId){
 		var uuid = Meteor.uuid();
 		var device = 'browser';
 		UpdateGeoDB(location, uuid, device);
@@ -251,7 +256,7 @@ UpdateGeoCordova = function(){
 		var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
 		if (!geoId) {
 			var uuid = GeolocationBG2.uuid();
-			var device =GeolocationBG2.device();
+			var device = GeolocationBG2.device();
 			UpdateGeoDB(location, uuid, device);
 		}
 	//		Session.set('interval', 60000);
@@ -267,26 +272,6 @@ UpdateGeoDB = function(location, uuid, device){
 	console.log('UpdateGeoDB ',  location, Session.get('fitActivity'), Session.get('fitness'), Session.get('fitstart'), Session.get('fitstop'), Session.get('fitnessTrack') );
 
 	if (Session.get('fitness')){
-		if (!Session.get('fitnessTrack')) {
-			return;
-/* 			var fitnessTrack = FitnessTracks.findOne({userId:Meteor.userId()},{sort:{timestamp: -1}});
-			console.log(' UpdateGeoDB set  fitnessTrack ', fitnessTrack);
-			if (!fitnessTrack) {
-				Session.set('fitness', false);
-				return;
-			}
-			GeoLog.insert({
-				location: location,
-				userId: Meteor.userId(),
-				created: new Date(),
-				timestamp: location.timestamp,
-				fitness: 'start',
-				interval: Session.get('interval'),
-				fitnessTrackId: fitnessTrack._id,
-			});
-			Session.set('fitnessTrack', fitnessTrack); */
-		}
-
 		Tracks.insert({
 			location: location,
 			uuid: Meteor.uuid(),
@@ -297,10 +282,24 @@ UpdateGeoDB = function(location, uuid, device){
 			interval: Session.get('interval'),
 			fitnessTrackId: Session.get('fitnessTrack')._id,		
 		});		
-
 	}
+
+	if (Session.get('driving')){
+		console.log('driveTrack ', Session.get('driveTrack'));
+		Drives.insert({
+			location: location,
+			uuid: Meteor.uuid(),
+			device: 'browser',
+			userId: Meteor.userId(),
+			created: new Date(),
+			interval: Session.get('interval'),
+			driveTrackId: Session.get('driveTrack')._id,		
+		});		
+	}	
 	
-	if ((!Session.get('fitnessTrack'))&&(!geoId)){
+	if (!Session.get('fitness') && !Session.get('driving')){
+	
+		console.log(' adding to geolog fitness ', Session.get('fitness'), ' driving ', Session.get('driving'));
 		GeoLog.insert({
 			location: location,
 			uuid: uuid,
@@ -311,7 +310,8 @@ UpdateGeoDB = function(location, uuid, device){
 			interval: Session.get('interval'),
 		});	
 		addPlace(location);
-	} 
+	}
+	
 };
 
 findClaimed = function(userId, coords){
@@ -327,3 +327,37 @@ findClaimed = function(userId, coords){
 	return claimed;
 }
 
+getGPlace = function(place_id){
+	var callGoogle;
+	var place;
+//	var place = Places.findOne({place_id: place_id});
+//	if (!place) {
+		
+	if (Session.get('googleCall')) {
+		var now = moment().valueOf() - Session.get('googleCall');
+		console.log('getGPlace session 1 ', Session.get('googleCall'), now);
+		if (moment().valueOf() - Session.get('googleCall') > 2) {
+			console.log('getGPlace session 2 ', Session.get('googleCall'), now);
+			Session.set('googleCall', false);	
+		}
+	}
+	console.log('getGPlace session 3 ', Session.get('googleCall'), place_id);
+	if (!Session.get('googleCall')){
+		console.log('Google call getGPlace in getGPlace function ', place_id);
+/* 		Meteor.call('getGPlace', place_id, function(err, results) {
+			console.log('getGPlace ', results);
+			if (results) {
+				if (results.result.place_id.length > 25) {
+					var initiator = 'getGPlace function';
+					Meteor.call('getGLoc', Meteor.userId(), Session.get('userLocation').location, 30, initiator);
+				}
+				Session.set('googleCall', false);	
+				return results;
+			}
+		}); */
+		Session.set('googleCall', moment().valueOf());
+	}
+	if (!place)
+		return;
+	return place;
+};

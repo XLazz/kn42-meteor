@@ -85,9 +85,15 @@
 				{{else}}
 					<div>
 						{{#if userPlace.name}} {{userPlace.name}} {{else}}
-							{{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}
+							{{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}<br />
 						{{/if}}
 					</div>
+					{{#if checkinFsqr}} 
+						<div style="width: auto; white-space: normal">
+							<i class="fa fa-foursquare"></i> {{checkinFsqr.venue.name}} {{checkinFsqr.date}}
+						</div>
+					{{/if}} 
+					
 					<div style="font-size: smaller">
 						{{#if geoPlace.name}}{{geoPlace.vicinity}} {{else}}{{geoMerchant.vicinity}} {{/if}}<br />
 <!-- 						<div>{{> venuesSelected}}</div> -->							

@@ -45,14 +45,32 @@ Template.coords.helpers({
 		var place = MerchantsCache.findOne({'place_id': this.place_id});
 		if (!place) {
 			var radius = 50;
-//			console.log('getGLoc calling ', userId, this);
-			Meteor.call('getGLoc', userId, this.location, radius, function(err, results) {
+//			console.log('getGLoc calling ', userId, this)
+			var params = {
+				location: this.location,
+				radius: radius
+			};
+			var initiator = 'geoMerchant';
+			Meteor.call('getGLoc', userId, params, initiator, function(err, results) {
 				console.log('getGLoc call in geoMerchant ', userId, this.location, results);
 				return results;
 			});
 		}
 //		console.log('geoMerchant ', this.place_id);
 		return place;
+	},
+});
+
+Template.coords.events({
+	"click .geolog": function (event, template) {
+		console.log(' click geolog ', this._id, this);
+		var initiator = 'geolog click';
+		var params = {
+			location: this.location,
+			radius: 100
+		};
+		Meteor.call('getGLoc', Meteor.userId(), params, initiator);
+		return;
 	},
 });
 

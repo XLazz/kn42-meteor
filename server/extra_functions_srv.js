@@ -174,7 +174,7 @@ GetFsqrChk = function(limit){
 	console.log('calling fsqr final. never should come here ', response);
 }
 
-GetGoogleLoc = function(userId, coords, radius){
+GetGoogleLoc = function(userId, coords, radius, name){
 	var response;
 	console.log('GetGoogleLoc coords ', coords);
 /* 	if ((!userLocation.location) && (userLocation.timestamp)) {
@@ -187,7 +187,7 @@ GetGoogleLoc = function(userId, coords, radius){
 		var radius = radius;
 		var google_server_key = 'AIzaSyAQH9WdmrwMKphSHloMai5iYlcS5EsXMQA';
 		var url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
-		url = url +'?location=' + location + '&key=' + google_server_key + '&radius=' + radius
+		url = url +'?location=' + location + '&key=' + google_server_key + '&radius=' + radius + '&name=' + name;
 		console.log('calling google 0 ', url);
 		var response1 = Meteor.http.call("GET", url);
 /*     var response1 = Meteor.http.call("GET", url,
@@ -235,4 +235,67 @@ GetGooglePlace = function(place_id){
 		console.error('error calling google place_id ', e, e.response);
 		return false;
   } 	
+}
+
+GoogleMaps.getReverseGeocode = function(params){
+	var api = Meteor.wrapAsync(GoogleMaps.reverseGeocode.bind(GoogleMaps));
+	var data = api(
+		params.latlng,
+		params.callback
+	);
+  console.log(data);
+  return data;
+}
+
+GoogleMaps.getPlaces2 = function(params){
+	console.log('GoogleMaps.getPlaces ', params);
+	var api = Meteor.wrapAsync(GoogleMaps.places.bind(GoogleMaps));
+	var data = api(
+		params.latlng,
+		params.radius,
+		params.google_server_key,
+		params.callback,
+		params.sensor,
+		params.types,
+		params.lang,
+		params.name
+	);
+  console.log(data);
+  return data;
+}
+
+GoogleMaps.getPlaces = function(params){
+	console.log('GoogleMaps.getPlaces ', params);
+/* 	GoogleMaps.places(
+		params.latlng,
+		params.radius,
+		params.google_server_key,
+		function (error, data) {
+			console.log('places ');
+			if (error) {
+				console.error(error);
+				return;
+			}
+			return data;
+		},
+		params.sensor,
+		params.types,
+		params.lang,
+		params.name
+	); */
+	console.log('places response ', response);
+	return response
+}
+
+GoogleMaps.asyncPlaces = Async.wrap (GoogleMaps.places);
+
+updatePlace = function(data) {
+	if (data.results) {
+		if (data.results[1]) {
+			place_id = data.results[1].place_id;
+		} else {
+			place_id = data.results[0].place_id;
+		}
+	}
+	UserPlaces.update({foursquareId: data.foursquareId}, {$set: {place_id: place_id}}, {multi:true});
 }

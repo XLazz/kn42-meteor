@@ -66,7 +66,7 @@ Template.homelocation.helpers({
 		if (!GeoLog.findOne({userId: userId}, {sort: {timestamp: -1}}))
 			return;
 		if (!GeoLog.findOne({userId: userId}, {sort: {timestamp: -1}}).status) {
-//			console.log('currentlocation moving');
+			console.log('currentlocation moving');
 			currentlocation = GeoLog.findOne(
 				{userId: userId}, 
 				{
@@ -87,6 +87,7 @@ Template.homelocation.helpers({
 
 						if (doc.status)
 							doc.place_id = doc.stationary_place_id;
+						console.log('currentlocation ', doc);
 						return doc;
 					}
 				}
@@ -94,7 +95,7 @@ Template.homelocation.helpers({
 		} else {
 			// since we are stationary going to user places
 			console.log('currentlocation stationary');
-			var currentlocation = UserPlaces.findOne(
+			currentlocation = UserPlaces.findOne(
 				{userId: userId}, 
 				{
 					sort: {timestamp: -1},
@@ -111,8 +112,10 @@ Template.homelocation.helpers({
 						duration = moment.duration(duration).humanize();
 						doc.timespent = duration;
 						doc.started = moment(then).format("MM/DD/YY HH:mm");
-						var count = UserPlaces.find({userId: userId, place_id: doc.place_id}).count();
-						doc.count = count;
+						if (doc.place_id) {
+							var count = UserPlaces.find({userId: userId, place_id: doc.place_id}).count();
+							doc.count = count;
+						}
 						return doc;
 					}
 				}
@@ -137,6 +140,7 @@ Template.homelocation.helpers({
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
 		place = UserPlaces.findOne({userId:userId, place_id: this.place_id},{sort: {timestamp: -1}});
+		console.log('userPlace place_id ', this.place_id, ' place ', place);
 		if (!place)
 			return;
 		Session.set('userLocation', place);
@@ -177,9 +181,16 @@ Template.homelocation.helpers({
 		if (!place) {
 			var radius = 50;
 			if ((!place) && (!Session.get('googleCall'))){
-				console.log('Google call getGLoc in geoMerchant homelocation ', this.place_id, this.place);
+				console.log('Google call getGLoc in geoMerchant homelocation ', this.place_id, this.place, this);
 				var initiator = 'homelocation geoMerchant';
-				Meteor.call('getGLoc', userId, this.place.location, radius, initiator, function(err, results) {
+				// if (!this.location)
+					// return;
+				var params = {
+					location: this.location,
+					radius: radius
+				};
+
+				Meteor.call('getGLoc', userId, params, initiator, function(err, results) {
 					if (results)
 						Session.set('googleCall', false);	
 				});
@@ -196,6 +207,28 @@ Template.homelocation.helpers({
 		console.log('geoMerchant ', this, this.place_id, place);
 		return place;
 	},	
+	
+/* 	checkinFsqr: function(){
+		if (!this.timestampEnd)
+			this.timestampEnd = moment().valueOf();
+		var timestampFsqr;
+		var nameFsqr;
+		var checkinFsqr = CheckinsFsqr.findOne(
+			{
+			userId:this.userId,	
+			createdAt: { $gt: this.timestamp/1000+300*60, $lt: this.timestampEnd/1000+300*60}	},{	limit: 1, sort: {createdAt: -1},
+			transform: function(doc){
+//				doc.timestamp = doc.timestamp+300*60;
+				doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm");
+				return doc;
+			}
+			});
+		if (checkinFsqr) {
+			timestampFsqr = checkinFsqr.createdAt;
+			nameFsqr = checkinFsqr.venue.name;
+		}
+		return checkinFsqr;		
+	}, */
 	
 	currentplace: function(){
 		userLocation = Session.get('userLocation');
