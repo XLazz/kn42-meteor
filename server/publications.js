@@ -39,10 +39,30 @@ Meteor.publish(null, function() {
   }); */
 	return People.find();
 	return Services.find();
+	return Geolog.find({userId:this.userId},{limit:100});
+	
 	return Places.find({},{limit:100});
-	return MerchantsCache.find({},{limit:100});
+	return GooglePlaces.find({});
 });
 
+Meteor.publish('UserPlaces', function(userId) {
+	return UserPlaces.find({userId:this.userId});
+});
+Meteor.publish('Places', function(userId) {
+	return Places.find();
+});
+Meteor.publish('GooglePlaces', function(userId) {
+	return GooglePlaces.find();
+});
+Meteor.publish('MerchantsCache', function(userId) {
+	return MerchantsCache.find();
+});
+Meteor.publish('Drives', function(userId) {
+	return Drives.find({userId:this.userId});
+});
+Meteor.publish('DriveTracks', function(userId) {
+	return DriveTracks.find({userId:this.userId});
+});
 Meteor.publish('downloadPlaces', function(userId, limit) {
   var self = this;
 	var api_key = GetApi(userId);

@@ -38,7 +38,7 @@ Template.lifelog.helpers({
 			}
 		}
 
-		console.log('searching UserPlaces empty lets search ');
+		console.log('searching UserPlaces empty lets search ', UserPlaces.findOne(), UserPlaces.findOne({userId: userId}));
 		Session.set('getPlaces', true);
 		console.log('searchin session 2 ', Session.get('getPlacesNotReady'), Session.get('getPlaces'));	
 		if (!Session.get('getPlacesNotReady')){

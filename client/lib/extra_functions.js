@@ -113,10 +113,10 @@ PollingGeo = function(){
 		var runGeo = function() {
 			
 			if (Meteor.isCordova) {
-				console.log('Polling geo 2 cordova ', myInterval, Session.get('geoback'));
+				console.log('Polling geo 2 cordova inside interval ', myInterval, Session.get('geoback'), Session.get('watchGPS'));
 				UpdateGeoCordova();
 			} else {
-				console.log('Polling geo 2 browser ', myInterval, Session.get('geoback'));
+				console.log('Polling geo 2 browser inside interval ', myInterval, Session.get('geoback'), Session.get('watchGPS'));
 				UpdateGeo();
 			}
 		}
@@ -269,7 +269,7 @@ UpdateGeoDB = function(location, uuid, device){
 	var userId = Meteor.userId();
 	var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
 		
-	console.log('UpdateGeoDB ',  location, Session.get('fitActivity'), Session.get('fitness'), Session.get('fitstart'), Session.get('fitstop'), Session.get('fitnessTrack') );
+	console.log('UpdateGeoDB ',  'watchGPS', Session.get('watchGPS'), location, 'fitness', Session.get('fitActivity'), Session.get('fitness'), Session.get('fitstart'), Session.get('fitstop'), Session.get('fitnessTrack'), 'driving', Session.get('driving'), Session.get('driveTrack') );
 
 	if (Session.get('fitness')){
 		Tracks.insert({

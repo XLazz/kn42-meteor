@@ -9,13 +9,14 @@ Template.autolog.helpers({
 	}
 });
 
-Template.autoroutes.helpers({
+Template.driving.helpers({
 	ifDriving: function () {
 		console.log(' driving ', Session.get('driving'));
 		return Session.get('driving');
 	},
 	ifUser: function (){
-		if (Meteor.userId()) {return 'true'};
+		if (Meteor.userId()) 
+			return 'true';
 	},
 	
 	drive: function(){
@@ -26,6 +27,7 @@ Template.autoroutes.helpers({
 				var time = doc.location.timestamp;
 				time = moment(time).format("h:mm:ss");
 				doc.time = time;
+				console.log(' track drive 1 ', doc);
 				return doc;
 			}
 		});
@@ -51,7 +53,7 @@ Template.autoroutes.helpers({
 	},
 });
 
-Template.autoroutes.events({
+Template.driving.events({
 	"click .startdriving": function (event, template) {
 		if (!Meteor.userId()) {
 			return;
@@ -64,32 +66,33 @@ Template.autoroutes.events({
 		Session.set('driving', true);
 		Session.set('geoback', true );
 		Session.set('interval', 10000);
-		UpdateGeo();
-		PollingGeo();		
+		PollingGeo();
+//		PollingGeo();		
 		return;
 	},
 	"click .stopdriving": function (event, template) {
 		if (!Meteor.userId()) {
 			return;
 		}
-		Session.set('interval', 300000);
-		UpdateGeo();
-		PollingGeo();
+
 		var driveTrack = Session.get('driveTrack');
 		var timestampEnd = moment().valueOf();
 		DriveTracks.update(driveTrack._id,{$set:{timestampEnd: timestampEnd}});
-/* 		var geolog = GeoLog.findOne({fitnessTrackId: fitnessTrack._id});
-		GeoLog.update(geolog._id,{$set:{fitness: 'end'}}); */
 		Session.set('driving', false);
 		Session.set('driveTrack', false);
+		Session.set('geoback', false );
+		PollingGeo();
+		Session.set('interval', 300000);
+		Session.set('geoback', true);
+		PollingGeo();
 		return;
 	}
 });
 
-Template.autolog.rendered = function() {
+/* Template.autolog.rendered = function() {
 //	Session.set('findfit', false);
   var $item = $(this.find('.findroute'));
   Meteor.defer(function() {
     $item.removeClass('loading');
   });
-}
+} */
