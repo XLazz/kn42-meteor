@@ -1,3 +1,19 @@
+calculateDistance = function(lat1, lon1, lat2, lon2) {
+  var R = 6371; // km
+  var dLat = (lat2 - lat1).toRad();
+  var dLon = (lon2 - lon1).toRad(); 
+  var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
+          Math.sin(dLon / 2) * Math.sin(dLon / 2); 
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+  var d = R * c;
+  return d;
+};
+
+Number.prototype.toRad = function() {
+  return this * Math.PI / 180
+}
+
 truncateDecimals = function (number, digits) {
     var multiplier = Math.pow(10, digits),
         adjustedNum = number * multiplier,
@@ -235,7 +251,7 @@ UpdateGeo = function (){
 	if (!location)
 		return;
 	var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
-	console.log('UpdateGeo event ', location, geoId, Session.get('fitActivity'), Session.get('fitness'), Session.get('fitstart'), Session.get('fitstop'), Session.get('fitnessTrackId') );
+	console.log('UpdateGeo event ', location, geoId, 'fitActivity:', Session.get('fitActivity'), 'fithnes:', Session.get('fitness'), Session.get('fitstart'), Session.get('fitstop'), 'fitnessTrackId', Session.get('fitnessTrackId') );
 	if (!geoId){
 		var uuid = Meteor.uuid();
 		var device = 'browser';
@@ -268,10 +284,22 @@ UpdateGeoCordova = function(){
 UpdateGeoDB = function(location, uuid, device){
 	var userId = Meteor.userId();
 	var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
-		
+	
 	console.log('UpdateGeoDB ',  'watchGPS', Session.get('watchGPS'), location, 'fitness', Session.get('fitActivity'), Session.get('fitness'), Session.get('fitstart'), Session.get('fitstop'), Session.get('fitnessTrack'), 'driving', Session.get('driving'), Session.get('driveTrack') );
 
+	if (Session.get('location')) {
+		var distance = calculateDistance(Session.get('location').coords.latitude, Session.get('location').coords.longitude, location.coords.latitude, location.coords.longitude);
+		console.log('distance ', distance);
+	} else {
+		var distance = 0;
+	}
+	location.distance = distance;
+	Session.set('location', location);	
+	
 	if (Session.get('fitness')){
+		if (!Session.get('fitnessTrack')) {
+			FitnessTracks.insert({userId: userId, activityId: Session.get('fitActivity'), timestamp: moment().valueOf(), created: new Date()});
+		}		
 		Tracks.insert({
 			location: location,
 			uuid: Meteor.uuid(),
@@ -282,10 +310,23 @@ UpdateGeoDB = function(location, uuid, device){
 			interval: Session.get('interval'),
 			fitnessTrackId: Session.get('fitnessTrack')._id,		
 		});		
+		if (!Session.get('fitness').fitnessStart) {	
+			console.log('adding fitnessStart ');
+			var fitnessTrack = Session.get('fitnessTrack');
+			var fitnessStart = Tracks.findOne({fitnessTrackId:fitnessTrack._id},{sort: {created: -1}});
+			console.log('adding fitnessStart 1 ', fitnessTrack );
+			console.log('adding fitnessStart 2 ', fitnessTrack._id, fitnessStart.location );
+			FitnessTracks.update(fitnessTrack._id,{$set:{fitStart: fitnessStart.location}});
+			var fitnessTrack = FitnessTracks.findOne(fitnessTrack._id,{sort: {created: -1}});
+			Session.set('fitnessTrack', fitnessTrack);
+		}
 	}
 
 	if (Session.get('driving')){
 		console.log('driveTrack ', Session.get('driveTrack'));
+		if (!Session.get('driveTrack')) {
+			DriveTracks.insert({userId: userId, activityId: Session.get('driveActivity'), timestamp: moment().valueOf(), created: new Date()});
+		}		
 		Drives.insert({
 			location: location,
 			uuid: Meteor.uuid(),
@@ -295,6 +336,15 @@ UpdateGeoDB = function(location, uuid, device){
 			interval: Session.get('interval'),
 			driveTrackId: Session.get('driveTrack')._id,		
 		});		
+		if (!Session.get('driveTrack').driveStart) {	
+			console.log('adding driveStart ');
+			var driveTrack = Session.get('driveTrack');
+			var driveStart = Drives.findOne({driveTrackId:driveTrack._id},{sort: {created: -1}});
+			console.log('adding driveStart 2 ', driveTrack._id, driveStart.location );
+			DriveTracks.update(driveTrack._id,{$set:{driveStart: driveStart.location}});
+			var driveTrack = DriveTracks.findOne(driveTrack._id,{sort: {created: -1}});
+			Session.set('driveTrack', driveTrack);
+		}
 	}	
 	
 	if (!Session.get('fitness') && !Session.get('driving')){

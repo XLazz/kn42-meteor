@@ -80,7 +80,7 @@
 						{{#each track}}
 							<div class="row showlog loading animate" id="{{_id}}">
 								<div class="col-xs-12 col-sm-12 col-md-12">
-									<span class="label label-primary">{{time}} {{location.coords.speed}}</span>							
+									<span class="label label-primary">{{time}} {{location.coords.speed}} {{location.distance}} km</span>	
 								</div>
 							</div>
 						{{/each}}
@@ -95,14 +95,16 @@
 				</div>
 			</div>
 			{{#each userTracks}}
-				<div class="row showtrack loading animate" id="{{_id}}">
-					<div class="col-xs-2 col-sm-2 col-md-2">				
-						<i class="fa fa-bicycle"></i>
+				{{#if show}}
+					<div class="row showtrack loading animate" id="{{_id}}">
+						<div class="col-xs-2 col-sm-2 col-md-2">				
+							<i class="fa fa-bicycle"></i>
+						</div>
+						<div class="col-xs-10 col-sm-10 col-md-10">
+							<span class="label label-primary">{{date}} {{trackActivity.activity}} </span><span class="label label-primary">{{duration}} {{distance}} km</span>
+						</div>
 					</div>
-					<div class="col-xs-10 col-sm-10 col-md-10">
-						<span class="label label-primary">{{date}} {{trackActivity.activity}} </span> <span class="label label-primary">{{duration}}</span>
-					</div>
-				</div>
+				{{/if}}
 			{{/each}}
 		{{/if}}
 	</div>

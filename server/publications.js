@@ -63,6 +63,12 @@ Meteor.publish('Drives', function(userId) {
 Meteor.publish('DriveTracks', function(userId) {
 	return DriveTracks.find({userId:this.userId});
 });
+Meteor.publish('Friends', function(userId) {
+	return Friends.find({userId:this.userId});
+});
+Meteor.publish('FitnessActivities', function(userId) {
+	return FitnessActivities.find();
+});
 Meteor.publish('downloadPlaces', function(userId, limit) {
   var self = this;
 	var api_key = GetApi(userId);

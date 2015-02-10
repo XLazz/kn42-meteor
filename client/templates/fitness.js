@@ -85,7 +85,7 @@ Template.routes.helpers({
 	track: function(){
 		console.log(' track fitness fitnessTrack ', Session.get('fitnessTrack'));
 		if (!Session.get('fitnessTrack')){
-			var fitnessTrack = FitnessTracks.findOne({userId:Meteor.userId()},{sort:{timestamp: -1}, limit: 5});
+			var fitnessTrack = FitnessTracks.findOne({userId:Meteor.userId()},{sort:{created: -1}, limit: 5});
 			console.log(' track fitness last ', fitnessTrack);
 			Session.set('fitnessTrack', fitnessTrack);
 		} else {	
@@ -98,25 +98,44 @@ Template.routes.helpers({
 					return doc;
 				}
 			});
-			track.fitnessTrackIdd = Session.get('fitnessTrack')._id;
+			track.fitnessTrackId = Session.get('fitnessTrack')._id;
 			console.log(' track fitness ', track);
 			return track;
 		}
 	},
 	userTracks: function(){
 		var userTracks = FitnessTracks.find(
-			{userId: Meteor.userId()},
-			{transform: function(doc){
-				doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm");
-				doc.duration = moment.duration(doc.timestampEnd - doc.timestamp).humanize();
-				return doc;
-			}}
+			{userId: Meteor.userId()},{
+				sort:{created: -1},
+				transform: function(doc){
+					doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm");
+					doc.duration = moment.duration(doc.timestampEnd - doc.timestamp).humanize();
+					doc.dur_sec = doc.timestampEnd - doc.timestamp;
+					if (doc.dur_sec > 60000)
+						doc.show = true;
+					return doc;
+				}
+			}
 		);
 		return userTracks;
 	},
 	fitnessTrack: function(){
 		var fitnessTrack = FitnessTracks.findOne({fitnessTrackId: this._id});
 		return fitnessTrack;
+	},
+  distance: function(){
+		var sum = 0;
+		var distance;
+		var fitnessTrackId = this._id;
+		var cursor = Tracks.find({fitnessTrackId: fitnessTrackId});
+		console.log ('checking distance for 1 ', fitnessTrackId, cursor.location, cursor.fetch());
+		cursor.forEach(function(item, index, array){
+			var location = item.location;
+			sum = sum + item.location.distance;
+			sum = truncateDecimals(sum, 3);
+			console.log ('checking distance 2 for each ', location, item.location.distance, sum);
+		});
+		return sum;
 	},
 	trackActivity: function(){
 		var activity = FitnessActivities.findOne(this.activityId);

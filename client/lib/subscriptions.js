@@ -13,8 +13,10 @@ Tracker.autorun(function () {
 		Meteor.subscribe('GooglePlaces');
 		Meteor.subscribe('Places');
 		Meteor.subscribe('MerchantsCache');
-		Meteor.subscribe('Drives');
-		Meteor.subscribe('DriveTracks');
+		Meteor.subscribe('Drives', userId);
+		Meteor.subscribe('DriveTracks', userId);
+		Meteor.subscribe('Friends', userId);
+		Meteor.subscribe('FitnessActivities');
 //    Meteor.subscribe("allUserData");
 });
 /* Template.registerHelper("Schemas", Schemas); */
