@@ -124,18 +124,23 @@ Template.routes.helpers({
 		return fitnessTrack;
 	},
   distance: function(){
-		var sum = 0;
-		var distance;
 		var fitnessTrackId = this._id;
+		var distance = 0;
+		fitnessTrack = FitnessTracks.findOne(fitnessTrackId);
+		console.log(' fitnessTrack ', fitnessTrack);
+		if (fitnessTrack.distance) {
+			return fitnessTrack.distance;
+		}
 		var cursor = Tracks.find({fitnessTrackId: fitnessTrackId});
 		console.log ('checking distance for 1 ', fitnessTrackId, cursor.location, cursor.fetch());
 		cursor.forEach(function(item, index, array){
 			var location = item.location;
-			sum = sum + item.location.distance;
-			sum = truncateDecimals(sum, 3);
-			console.log ('checking distance 2 for each ', location, item.location.distance, sum);
+			distance = distance + item.location.distance;
+			distance = truncateDecimals(distance, 3);
+			console.log ('checking distance 2 for each ', location, item.location.distance, distance);
 		});
-		return sum;
+		FitnessTracks.update(fitnessTrackId,{$set:{distance: distance}});
+		return distance;
 	},
 	trackActivity: function(){
 		var activity = FitnessActivities.findOne(this.activityId);
@@ -168,6 +173,9 @@ Template.routes.events({
 			return;
 		}
 		var userId = Meteor.userId();
+		FitnessTracks.insert({userId: userId, activityId: Session.get('fitActivity'), timestamp: moment().valueOf(), created: new Date()});
+		var fitnessTrack = FitnessTracks.findOne({userId:Meteor.userId()},{sort: {created: -1}});
+		Session.set('fitnessTrack', fitnessTrack);
 		var fitActivity = Session.get('fitActivity');
 		Session.set('fitActivity', fitActivity);
 		Session.set('fitness', true);
@@ -176,7 +184,6 @@ Template.routes.events({
 		Session.set('interval', 10000);
 		UpdateGeo();
 		PollingGeo();
-		FitnessTracks.insert({userId: userId, activityId: Session.get('fitActivity'), timestamp: moment().valueOf(), created: new Date()});
 		console.log(' click startfit ', fitActivity);
 		return;
 	},

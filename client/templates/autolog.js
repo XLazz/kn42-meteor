@@ -59,18 +59,24 @@ Template.driving.helpers({
 	},
 	
   distance: function(){
-		var sum = 0;
-		var distance;
+		var driveTrackId = this._id;
+		var distance = 0;
+		driveTrack = DriveTracks.findOne(driveTrackId);
+		console.log(' driveTrack ', driveTrack);
+		if (driveTrackId.distance) {
+			return driveTrack.distance;
+		}
 		var driveTrackId = this._id;
 		var cursor = Drives.find({driveTrackId: driveTrackId});
 		console.log ('checking distance for 1 ', driveTrackId, cursor.location, cursor.fetch());
 		cursor.forEach(function(item, index, array){
 			var location = item.location;
-			sum = sum + item.location.distance;
-			sum = truncateDecimals(sum, 3);
-			console.log ('checking distance 2 for each ', location, item.location.distance, sum);
+			distance = distance + item.location.distance;
+			distance = truncateDecimals(distance, 3);
+			console.log ('checking distance 2 for each ', location, item.location.distance, distance);
 		});
-		return sum;
+		DriveTracks.update(driveTrackId,{$set:{distance: distance}});
+		return distance;
 	}
 });
 
@@ -81,7 +87,7 @@ Template.driving.events({
 		}
 		var userId = Meteor.userId();
 		DriveTracks.insert({userId: userId, timestamp: moment().valueOf(), created: new Date()});
-		var driveTrack = DriveTracks.findOne({userId:Meteor.userId()},{sort: {timestamp: -1}});
+		var driveTrack = DriveTracks.findOne({userId:Meteor.userId()},{sort: {created: -1}});
 		Session.set('driveTrack', driveTrack);
 		console.log(' click startdriving driveTrack ', driveTrack);
 		Session.set('driving', true);

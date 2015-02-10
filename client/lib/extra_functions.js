@@ -310,7 +310,7 @@ UpdateGeoDB = function(location, uuid, device){
 			interval: Session.get('interval'),
 			fitnessTrackId: Session.get('fitnessTrack')._id,		
 		});		
-		if (!Session.get('fitness').fitnessStart) {	
+		if (!Session.get('fitnessTrack').fitnessStart) {	
 			console.log('adding fitnessStart ');
 			var fitnessTrack = Session.get('fitnessTrack');
 			var fitnessStart = Tracks.findOne({fitnessTrackId:fitnessTrack._id},{sort: {created: -1}});
