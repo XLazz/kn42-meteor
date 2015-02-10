@@ -127,8 +127,12 @@ PollingGeo = function(){
 	// auto-re-run by Cordova every myInterval ms
 	if (Session.get('geoback') == true) {
 		var runGeo = function() {
-			
+
 			if (Meteor.isCordova) {
+				if (!Session.get('geoback')) {
+					console.log('cleaning interval inside runGeo ', Session.get('watchGPS'));
+					Meteor.clearInterval(Session.get('watchGPS'));
+				}
 				console.log('Polling geo 2 cordova inside interval ', myInterval, Session.get('geoback'), Session.get('watchGPS'));
 				UpdateGeoCordova();
 			} else {
@@ -141,6 +145,7 @@ PollingGeo = function(){
 	} else {
 		console.log('Cleaning interval ', myInterval, Session.get('geoback'), Session.get('watchGPS'));		
 		Meteor.clearInterval(Session.get('watchGPS'));
+		Session.set('watchGPS', false);
 	}
 }
 
@@ -261,6 +266,10 @@ UpdateGeo = function (){
 };
 
 UpdateGeoCordova = function(){
+	if (!Session.get('geoback')) {
+		console.log('cleaning interval inside UpdateGeoCordova ', Session.get('watchGPS'));
+		Meteor.clearInterval(Session.get('watchGPS'));
+	}
 	var userId = Meteor.userId();
 	GeolocationFG.get(function(location) {
 		console.log('UpdateGeoCordova ',  location, this);
@@ -282,13 +291,21 @@ UpdateGeoCordova = function(){
 }
 
 UpdateGeoDB = function(location, uuid, device){
+	if (!Session.get('geoback')) {
+		Meteor.clearInterval(Session.get('watchGPS'));
+	}
 	var userId = Meteor.userId();
 	var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
 	
 	console.log('UpdateGeoDB ',  'watchGPS', Session.get('watchGPS'), location, 'fitness', Session.get('fitActivity'), Session.get('fitness'), Session.get('fitstart'), Session.get('fitstop'), Session.get('fitnessTrack'), 'driving', Session.get('driving'), Session.get('driveTrack') );
 
 	if (Session.get('location')) {
-		var distance = calculateDistance(Session.get('location').coords.latitude, Session.get('location').coords.longitude, location.coords.latitude, location.coords.longitude);
+		// if (Session.get('location').speed)
+		if (Session.get('location').coords.speed) {
+			var distance = calculateDistance(Session.get('location').coords.latitude, Session.get('location').coords.longitude, location.coords.latitude, location.coords.longitude);
+		} else {
+			var distance = 0;
+		}
 		console.log('distance ', distance);
 	} else {
 		var distance = 0;
@@ -303,7 +320,7 @@ UpdateGeoDB = function(location, uuid, device){
 		Tracks.insert({
 			location: location,
 			uuid: Meteor.uuid(),
-			device: 'browser',
+			device: device,
 			userId: Meteor.userId(),
 			created: new Date(),
 			activityId: Session.get('fitActivity'),
@@ -330,7 +347,7 @@ UpdateGeoDB = function(location, uuid, device){
 		Drives.insert({
 			location: location,
 			uuid: Meteor.uuid(),
-			device: 'browser',
+			device: device,
 			userId: Meteor.userId(),
 			created: new Date(),
 			interval: Session.get('interval'),

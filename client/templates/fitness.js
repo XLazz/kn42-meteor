@@ -83,23 +83,27 @@ Template.routes.helpers({
 	},
 	
 	track: function(){
-		console.log(' track fitness fitnessTrack ', Session.get('fitnessTrack'));
+//		console.log(' track fitness fitnessTrack ', Session.get('fitnessTrack'));
 		if (!Session.get('fitnessTrack')){
 			var fitnessTrack = FitnessTracks.findOne({userId:Meteor.userId()},{sort:{created: -1}, limit: 5});
 			console.log(' track fitness last ', fitnessTrack);
 			Session.set('fitnessTrack', fitnessTrack);
 		} else {	
 			var track = Tracks.find({userId: Meteor.userId(), fitnessTrackId: Session.get('fitnessTrack')._id }, {
-				sort: {timestamp: -1}, limit:5,
+				sort: {created: -1}, limit:5,
 				transform: function(doc){	
 					var time = doc.location.timestamp;
 					time = moment(time).format("h:mm:ss");
 					doc.time = time;
+					if (!doc.location.coords.speed)
+						doc.location.distance = 0;
+					doc.location.distance = truncateDecimals(doc.location.distance, 3);
+					doc.location.coords.speed = truncateDecimals(doc.location.coords.speed, 2);
 					return doc;
 				}
 			});
 			track.fitnessTrackId = Session.get('fitnessTrack')._id;
-			console.log(' track fitness ', track);
+//			console.log(' track fitness ', track);
 			return track;
 		}
 	},
@@ -172,6 +176,10 @@ Template.routes.events({
 			alert('please select activity first');
 			return;
 		}
+		if (Session.get('watchGPS')) {
+			Meteor.clearInterval(Session.get('watchGPS'));
+			Session.set('watchGPS', false);
+		}
 		var userId = Meteor.userId();
 		FitnessTracks.insert({userId: userId, activityId: Session.get('fitActivity'), timestamp: moment().valueOf(), created: new Date()});
 		var fitnessTrack = FitnessTracks.findOne({userId:Meteor.userId()},{sort: {created: -1}});
@@ -190,6 +198,10 @@ Template.routes.events({
 	"click .stopfit": function (event, template) {
 		if (!Meteor.userId()) {
 			return;
+		}
+		if (Session.get('watchGPS')) {
+			Meteor.clearInterval(Session.get('watchGPS'));
+			Session.set('watchGPS', false);
 		}
 		Session.set('interval', 300000);
 		UpdateGeo();

@@ -21,20 +21,23 @@ Template.driving.helpers({
 	
 	drive: function(){
 		console.log(' drive  driveTrack ', Session.get('driveTrack'));	
-		var driveTrack = Drives.find({driveTrackId: Session.get('driveTrack')._id }, {
+		var drive = Drives.find({driveTrackId: Session.get('driveTrack')._id }, {
 			sort: {created: -1}, limit:5,
 			transform: function(doc){	
 				var time = doc.location.timestamp;
 				time = moment(time).format("h:mm:ss");
 				doc.time = time;
 				console.log(' track drive 1 ', doc);
+				if (!doc.location.coords.speed)
+					doc.location.distance = 0;
 				doc.location.distance = truncateDecimals(doc.location.distance, 2);
+				doc.location.coords.speed = truncateDecimals(doc.location.coords.speed, 2);
 				return doc;
 			}
 		});
 //		driveTrack.driveTrackId = Session.get('driveTrack')._id;
-		console.log(' track drive ', driveTrack);
-		return driveTrack;	
+		console.log(' drive ', drive);
+		return drive;	
 	},
 	userDrives: function(){
 		var userDrives = DriveTracks.find(
@@ -85,6 +88,10 @@ Template.driving.events({
 		if (!Meteor.userId()) {
 			return;
 		}
+		if (Session.get('watchGPS')) {
+			Meteor.clearInterval(Session.get('watchGPS'));
+			Session.set('watchGPS', false);
+		}
 		var userId = Meteor.userId();
 		DriveTracks.insert({userId: userId, timestamp: moment().valueOf(), created: new Date()});
 		var driveTrack = DriveTracks.findOne({userId:Meteor.userId()},{sort: {created: -1}});
@@ -101,7 +108,10 @@ Template.driving.events({
 		if (!Meteor.userId()) {
 			return;
 		}
-
+		if (Session.get('watchGPS')) {
+			Meteor.clearInterval(Session.get('watchGPS'));
+			Session.set('watchGPS', false);
+		}
 		var driveTrack = Session.get('driveTrack');
 		var timestampEnd = moment().valueOf();
 		var driveEnd = Drives.findOne({driveTrackId:driveTrack._id},{sort: {timestamp: -1}});
