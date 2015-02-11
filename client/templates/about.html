@@ -131,10 +131,14 @@
 	<div class="row">
 		<div class="col-md-12 col-xs-12">
 			Privacy settings: <br />
-			and what really needs to be here?<br />
-			Name - yes/no<br />
-			My places - yes/no<br />
-			My fitness (what exactly)<br />
+			{{#if debug}}
+				and what really needs to be here?<br />
+				Name - yes/no<br />
+				My places - yes/no<br />
+				My fitness (what exactly)<br />
+			{{else}}
+				coming soon
+			{{/if}}
 		</div>
 	</div>
 </template>

@@ -92,19 +92,17 @@
 		</div>
 
 		{{#if geoPlace.showbut}}
-			{{#Animate}}		
+			{{> buttons}}
+			{{#unless travel}}
+				{{> venuesSelected}}
+			{{/unless}}
+		{{else}}
+			{{#if geoMerchant.showbut}}
 				{{> buttons}}
-					{{#unless travel}}
-						{{> venuesSelected}}
-					{{/unless}}
-				{{else}}
-					{{#if geoMerchant.showbut}}
-						{{> buttons}}
-						{{#unless travel}}
-							{{> venuesSelected}}
-						{{/unless}}
-					{{/if}}
-			{{/Animate}}		
+				{{#unless travel}}
+					{{> venuesSelected}}
+				{{/unless}}
+			{{/if}}
 		{{/if}}
 		<hr>
 	{{/each}}

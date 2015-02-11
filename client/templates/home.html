@@ -40,12 +40,14 @@
 			{{/if}}	
 		</div>
 
-		<div class="callout-news">
-			<span class="white fa fa-gift"></span> <span class="title-callout">Special offers</span>
-		</div>
-		<div class="container-fluid">		
-			offers are coming
-		</div>
+		{{#if debug}}
+			<div class="callout-news">
+				<span class="white fa fa-gift"></span> <span class="title-callout">Special offers</span>
+			</div>
+			<div class="container-fluid">		
+				offers are coming
+			</div>
+		{{/if}}
 	</div>
 </template>
 
@@ -84,9 +86,9 @@
 					</div>
 				{{else}}
 					<div>
-						{{#if userPlace.name}} {{userPlace.name}} {{else}}
+<!-- 						{{#if userPlace.name}} {{userPlace.name}} {{else}}
 							{{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}<br />
-						{{/if}}
+						{{/if}} -->
 					</div>
 					{{#if checkinFsqr}} 
 						<div style="width: auto; white-space: normal">

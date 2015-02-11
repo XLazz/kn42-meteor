@@ -99,7 +99,7 @@ Template.driving.events({
 		console.log(' click startdriving driveTrack ', driveTrack);
 		Session.set('driving', true);
 		Session.set('geoback', true );
-		Session.set('interval', 10000);
+		Session.set('interval', 30000);
 		PollingGeo();
 //		PollingGeo();		
 		return;

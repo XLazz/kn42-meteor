@@ -94,8 +94,8 @@ Template.showlocations.helpers({
 	latest: function(){
 		var merchantLatest = MerchantsCache.findOne({}, {sort: {updated: -1}});
 		if (merchantLatest) {
-				return merchantLatest.updated;
-			}
+			return merchantLatest.updated;
+		}
 	},
 	
 	geologs: function(){
@@ -131,6 +131,7 @@ Template.showlocations.helpers({
 			{userId: userId}, 
 			{
 				sort: {timestamp: -1},
+				limit: 20,
 				transform: function(doc){		
 					var then = parseInt(doc.timestamp);
 					var now = parseInt(doc.timestampEnd);
@@ -154,7 +155,7 @@ Template.showlocations.helpers({
 		);
 		if (!places)
 			return;
-		console.log('locations helper places ', userId, places.fetch() );
+//		console.log('locations helper places ', userId, places.fetch() );
 		if (!places.count()){
 
 		} 
@@ -175,20 +176,26 @@ Template.showlocations.helpers({
 	
 	geoMerchant: function() {
 		var userId = Meteor.userId();
-		// We use this helper inside the {{#each posts}} loop, so the context
-		// will be a post object. Thus, we can use this.authorId.
-		var place = MerchantsCache.findOne({'place_id': this.place_id});
-		if (!place)
-			return;
-		if (Session.get('userLocation'))
-			if (Session.get('userLocation')._id == this._id)
-				place.showbut = true;
-		if ((!place) && (!Session.get('googleCall'))){
-			console.log('Google call getGPlace in geoMerchant function showlocations ', this.place_id);
-//			getGPlace(this.place_id);
-		} 
-//		console.log('geoMerchant ', this, this.place_id, place);
-		return place;
+//		if (this.place_id) {
+			// We use this helper inside the {{#each posts}} loop, so the context
+			// will be a post object. Thus, we can use this.authorId.
+			var place = MerchantsCache.findOne({'place_id': this.place_id});
+			if (!place) {
+				place = {};
+				place.name = 'unknown';
+			}
+			if (Session.get('userLocation'))
+				if (Session.get('userLocation')._id == this._id) {
+//					console.log('geoMerchant show buts ', Session.get('userLocation')._id , this._id);
+					place.showbut = true;
+				}
+			if ((!place) && (!Session.get('googleCall'))){
+				console.log('Google call getGPlace in geoMerchant function showlocations ', this.place_id);
+	//			getGPlace(this.place_id);
+			} 
+//			console.log('geoMerchant ', this, this.place_id, place, Session.get('userLocation')._id);
+			return place;
+//		} 
 	},	
 	
 	checkinFsqr: function(){
@@ -235,29 +242,17 @@ Template.showlocations.events({
 		var userLocationId = event.currentTarget.id;
 		var userLocation = UserPlaces.findOne(userLocationId);
 
-		console.log('click on div before inside 0 ',userLocationId, userLocation, userLocation.place_id);		
+		console.log('click on div before inside 0 ',userLocationId, userLocation, 'place_id ', userLocation.place_id);		
 		if (userLocation.place_id) {
-			console.log('click on div inside 0 ',userLocationId, userLocation, userLocation.place_id);		
+			console.log('click on div inside 0 with place_id ',userLocationId, userLocation, userLocation.place_id);		
 		} else {
 			var location = userLocation.location;
-			var radius = 50;
+			var radius = 500;
 			var initiator = 'showlocations.events';
 			if (userLocation.foursquareId) {
 				userLocation.fsqrName = CheckinsFsqr.findOne({id: userLocation.foursquareId}).venue.name;
 				name = userLocation.fsqrName.split(" ");
 			}
-/* 			Meteor.call('getGLoc', userId, location, radius, initiator); */
-//			https://maps.googleapis.com/maps/api/place/radarsearch/json?location=48.859294,2.347589&radius=5000&types=food|cafe&keyword=vegetarian&key=AddYourOwnKeyHere
-/* 			var options = {
-				location: userLocation.location.latitude +','+ userLocation.location.longitude,
-				radius: 500,
-				types: 'food',
-				keyword: 'vegetarian',
-				key: 'AIzaSyAQH9WdmrwMKphSHloMai5iYlcS5EsXMQA',
-			}
-			GoogleApi.get('/your/api/path', options, function(err, results) {
-				console.log('GoogleApi results ', options, err, results);
-			}); */
 
 			var location = userLocation.location.latitude +','+ userLocation.location.longitude;
 			var params = {
@@ -266,52 +261,38 @@ Template.showlocations.events({
 				name: name[0],
 				foursquareId: userLocation.foursquareId
 			};
-/* 			var params = {
-				latlng: userLocation.location.coords.latitude +','+ userLocation.location.coords.longitude,
-				radius: 20,
-				sensor: null,
-				types: null,
-				lang: null,
-				name: name[0],
-				rankby: '', 
-				pagetoken: '',
-				foursquareId: userLocation.foursquareId
-			} */
-			console.log('click on div before call inside 1 ',userLocationId, userLocation, userLocation.place_id);		
-/* 			Meteor.call('googleMapsReverse', params, function(err, data){
-				if (err) {
-					console.log('err ', err);
-				}
-				console.log('googleMapsReverse results ', err, data);
-			}); */
+			console.log('click on div before call inside 1 no place_id ',userLocationId, userLocation, name[0]);		
 			Meteor.call('getGLoc', userId, params, initiator, function(err, results){
-			
+				console.log('getGLoc call  ', params, results, initiator, userLocation.place_id);			
+				if (results) 
+					if (results.results[0])
+						if (results.results[0].place_id) {
+							userLocation.place_id = results.results[0].place_id;
+							console.log('getGLoc call  ', params, results.results[0], initiator, userLocation.place_id);		
+							UserPlaces.update(userLocationId, {$set: {place_id: userLocation.place_id, confirmed: true, travel: ''}});	
+						}
+				return userLocation;
 			});
-/* 			Meteor.call('googleMapsPlaces', params, function(err, data){
-				if (err) {
-					console.log('err ', err);
-				}
-				console.log('googleMapsPlaces results ', err, data);
-			}); */
 		}
 
-		console.log('click on div before call 0 ',userLocationId, userLocation, userLocation.place_id);		
-		var place = Places.findOne({place_id: userLocation. userLocationId});
+		console.log('click on div before call 0 ', userLocationId, userLocation, userLocation.place_id);		
+		var place = Places.findOne({place_id: userLocation.userLocationId});
 		if (!place)
 			place = MerchantsCache.findOne({place_id: userLocation.place_id});
 		if (!place){
-			console.log('Google call getGPlace in showlocations events  selectplace ', userLocation.place_id);
+			console.log('Google call getGPlace in showlocations events  selectplace ', userLocation.place_id, userLocation);
 			getGPlace(userLocation.place_id);
 		}
 		
-		console.log('click on div before call 1 ',userLocationId,  userLocation.place_id, place);			
+		console.log('click on div before call 1 ',userLocationId, userLocation.place_id, place, userLocation);			
 		if (userLocation) {
 			Session.set('userLocation', userLocation);
 		} else if (place) {
 			Session.set('userLocation', place);
 		}
 		
-//		Session.get('userLocationId');
+		
+		console.log ('Session userLocation ', Session.get('userLocation'));
 	},	
 
 	'click .cancel': function(event, template) {
@@ -383,7 +364,11 @@ Template.selectPlace.events({
 		console.log('selectPlace click .elsewhere ', userLocation.location, userLocation, radius);
 //		Meteor.call('removeAllPlaces', Meteor.userId());
 		var initiator = 'click elsewhere';
-		var gotPlaces = Meteor.call('getGLoc', userId, userLocation.location, radius, initiator, function(err, results){
+		var params = {
+			location: userLocation.location,
+			radius: radius
+		};
+		var gotPlaces = Meteor.call('getGLoc', userId, params, initiator, function(err, results){
 			console.log('selectPlace helpers getGLoc results ', results);	
 			if (!results)
 				return;

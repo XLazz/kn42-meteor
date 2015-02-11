@@ -176,7 +176,7 @@ GetFsqrChk = function(limit){
 
 GetGoogleLoc = function(userId, coords, radius, name){
 	var response;
-	console.log('GetGoogleLoc coords ', coords);
+	console.log('GetGoogleLoc coords', coords, 'radius ', radius, 'name ', name);
 /* 	if ((!userLocation.location) && (userLocation.timestamp)) {
 		var userLocation = GeoLog.findOne({userId: userId, timestamp: userLocation.timestamp});
 		userLocation = userLocation.location;

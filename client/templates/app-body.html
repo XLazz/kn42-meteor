@@ -63,12 +63,14 @@
 						<span class="title-menu">Fitness</span>
 					</span>
 				</a>
-				<a href="{{pathFor 'temp'}}" class="{{activePage 'temp'}}">
-					<span class="wrapper-menu-item">
-						<span class="icon-question"></span>
-						<span class="title-menu">Music</span>
-					</span>
-				</a>
+				{{#if ifDebug}}
+					<a href="{{pathFor 'temp'}}" class="{{activePage 'temp'}}">
+						<span class="wrapper-menu-item">
+							<span class="icon-question"></span>
+							<span class="title-menu">Music</span>
+						</span>
+					</a>
+				{{/if}}
 			{{/if}}
 			{{#if isAdmin}}
 				{{> Appsetnews}}

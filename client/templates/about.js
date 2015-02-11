@@ -197,6 +197,9 @@ Template.profileDetails.events({
 });
 
 Template.userSettings.helpers({
+	debug: function () {
+		return Session.get('debug');
+	},
 	autoplace: function(){
 		var userId = Meteor.userId();
 		var places = AutoPlaces.find({userId:userId});

@@ -34,6 +34,9 @@ Template.fitness.helpers({
 });
 
 Template.routes.helpers({
+	debug: function () {
+		return Session.get('debug');
+	},
 	ifFindFit: function () {
 		console.log(' findfit ', Session.get('findfit'));
 		if (!FitnessActivities.findOne()) {

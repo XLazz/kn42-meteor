@@ -30,7 +30,9 @@ Template.homeinside.helpers({
 /*   activities: function() {
     return Activities.latest();
   }, */
-  
+	debug: function () {
+		return Session.get('debug');
+	},  
   latestNews: function() {
     return News.latest();
   },
@@ -190,10 +192,10 @@ Template.homelocation.helpers({
 					radius: radius
 				};
 
-				Meteor.call('getGLoc', userId, params, initiator, function(err, results) {
+/* 				Meteor.call('getGLoc', userId, params, initiator, function(err, results) {
 					if (results)
 						Session.set('googleCall', false);	
-				});
+				}) */;
 				Session.set('googleCall', moment().valueOf());
 			}
 				

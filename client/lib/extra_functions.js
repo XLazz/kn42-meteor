@@ -163,6 +163,7 @@ addPlace = function (location){
 		console.error('upsertPlaceId no location.coords ',location);
 		return;
 	}
+	console.log('addPlace ', location);
 
 	//Lets add check for non-significant coords changes in here	
 	// check come here!
@@ -175,7 +176,7 @@ addPlace = function (location){
 	};
 	Meteor.call('getGLoc', userId, params, initiator, function(err,results){
 		var experience;
-		console.log('getGLoc call  ', results);
+		console.log('getGLoc call in addPlace ', results);
 				
 		if (!results)
 			return;
@@ -366,7 +367,7 @@ UpdateGeoDB = function(location, uuid, device){
 	
 	if (!Session.get('fitness') && !Session.get('driving')){
 	
-		console.log(' adding to geolog fitness ', Session.get('fitness'), ' driving ', Session.get('driving'));
+		console.log(' adding to geolog ', Session.get('fitness'), ' driving ', Session.get('driving'));
 		GeoLog.insert({
 			location: location,
 			uuid: uuid,

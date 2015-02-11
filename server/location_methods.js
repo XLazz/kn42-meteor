@@ -4,10 +4,10 @@ Meteor.methods({
 		var myError;
 		// userlocation.coords.latitude
 		if ((!userId) || (!params.location)){
-			console.error('Called getGLoc, but ', userId, params.location, initiator);
+			console.error('Called getGLoc, but ', userId, params.location, initiator, params);
 			return;
 		}
-		console.error('Called getGLoc 2 ', userId, params.location, initiator);
+		console.log('Called getGLoc 2 ', userId, 'location ', params.location, 'name ', params.name, initiator);
 		if (!params.location.coords) {
 			console.error('Called getGLoc, but location.coords ', params.location.coords, params.location, initiator);
 			return;		
@@ -17,7 +17,11 @@ Meteor.methods({
 
 /* 		if (MerchantsCache.findOne({'coords.latitude': coords.latitude,  'coords.longitude': coords.longitude}))
 			return; */
-		var name = '';
+		if (!params.name) {
+			var name = '';
+		} else {
+			var name = params.name;
+		}
 		var response = GetGoogleLoc(userId, coords, params.radius, name);
 
 		console.log('GetGoogleLoc called google ', userId, coords, response.results.length);
@@ -28,17 +32,21 @@ Meteor.methods({
 			console.error('GetGoogleLoc empty call, increase radius?');
 		
 		for (var i = 0; i < response.results.length; i++) {		
-//			console.log('inserting merchants 0 ', response.results[i].name);
+			console.log('inserting merchants 0 ', response.results[i].name);
 			if (!MerchantsCache.findOne({place_id: response.results[i].place_id, 'coords.latitude': coords.latitude,  'coords.longitude': coords.longitude})) { 
 				
 				response.results[i].coords = coords;
 				response.results[i].updated = new Date(),
 //				response.results[i].geoId = userLocation.geoId;
-				console.log('inserting merchants 1 ', response.results[i].name, response.results[i].name);
+				console.log('inserting merchants 1 ', response.results[i].place_id, response.results[i].name);
 				MerchantsCache.upsert(
 					{ 'place_id': response.results[i].place_id	},
 					{	$set: response.results[i]	}
 				);	
+/* 				MerchantsCache.update(
+					{ 'place_id': response.results[i].place_id	},
+					{	$set: {timestamp: moment().valueOf()	}}
+				);	 */
 			}
 		}
 		return response;
