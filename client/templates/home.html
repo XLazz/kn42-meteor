@@ -103,7 +103,9 @@
 							{{/if}}
 						</div>						
 					{{/if}}  -->
-					{{> venuesSelected}}
+					{{#if userPlace.name}}
+						{{> venuesSelected}}
+					{{/if}}
 					<div style="font-size: smaller">
 						{{#if geoPlace.name}}{{geoPlace.vicinity}} {{else}}{{geoMerchant.vicinity}} {{/if}}<br />
 <!-- 						<div>{{> venuesSelected}}</div> -->							

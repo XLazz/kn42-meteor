@@ -39,7 +39,7 @@ CheckedFsqr = function(userPlaceId){
 		}
 	);
 
-	console.log('function checkedFsqr 2 ', userPlace, checkedFsqr);
+//	console.log('function checkedFsqr 2 ', userPlace, checkedFsqr);
 	if (checkedFsqr) {
 		UserPlaces.update(userPlaceId, {$set: {foursquareChk: checkedFsqr.id, foursquareId: checkedFsqr.venue.id}});
 		return checkedFsqr;
@@ -119,9 +119,9 @@ Template.venues.helpers({
 		return Session.get('debug');
 	},	
 	checkedFsqr: function(){
-		console.log('venues checkedFsqr 1 ', this._id, this);
+//		console.log('venues checkedFsqr 1 ', this._id, this);
 		var checkedFsqr = CheckedFsqr(this._id);
-		console.log('venues checkedFsqr 2 ', this._id, checkedFsqr);
+//		console.log('venues checkedFsqr 2 ', this._id, checkedFsqr);
 		return checkedFsqr;
 	},
 
