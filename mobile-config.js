@@ -3,7 +3,7 @@ App.info({
   description: 'Kn42 personal companion',
   author: 'Xlazz Inc',
   email: 'stanp@xlazz.com',
-  website: 'http://xlazz.com',
+  website: 'http://kn42.xlazz.com:3000',
   version: '0.0.3'
 });
 
