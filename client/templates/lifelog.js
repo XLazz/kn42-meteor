@@ -145,6 +145,7 @@ Template.showlocations.helpers({
 					duration = moment.duration(duration).humanize();
 					doc.timespent = duration;
 					doc.timestart = moment(then).format("MM/DD/YY HH:mm");
+					doc.timestart2 = moment(doc.timestamp).format("MM/DD/YY HH:mm");
 /* 					doc.then = moment(then) ;
 					doc.then2 = doc.timestamp; */
 					var count = UserPlaces.find({userId: userId, place_id: doc.place_id}).count();
@@ -163,7 +164,7 @@ Template.showlocations.helpers({
 	},
 
 	geoPlace: function() {
-
+		var userId = Meteor.userId();
 		var place = Places.findOne({'place_id': this.place_id});
 		if (!place)
 			return;
@@ -171,6 +172,18 @@ Template.showlocations.helpers({
 			return;
 		if (Session.get('userLocation')._id == this._id)
 			place.showbut = true;
+		
+		if (Session.get('debug')) {
+			//remove dup places
+			var lastPlace = UserPlaces.findOne({userId: userId, timestamp: {$lt: this.timestamp}}, {limit:1, sort: {timestamp: -1}});
+	//		console.log('lastPlace ', lastPlace.user_history_location_id, this.user_history_location_id, lastPlace.place_id, this.place_id);
+			if (lastPlace) {
+				if ((lastPlace.place_id == this.place_id)&&(!lastPlace.finished)) {
+					console.log('removing dup Place ', this.user_history_location_id, this.place_id);
+					UserPlaces.remove(this._id);
+				}
+			}
+		}
 		return place;
 	},
 	

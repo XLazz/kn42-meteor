@@ -18,11 +18,11 @@ Tracker.autorun(function() {
 			Session.set('FsqrCall', 0);
 		if (moment().valueOf() - Session.get('FsqrCall') > 1000) { 
 			Session.set('FsqrCall', moment().valueOf());
-			Meteor.call('checkinsFsqr', Meteor.userId(), function(err, results){
+/* 			Meteor.call('checkinsFsqr', Meteor.userId(), function(err, results){
 				var timestamp = moment().valueOf();
 				Session.set('FsqrCall', timestamp);
 				return;
-			});
+			}); */
 		}
   }
 });

@@ -1,46 +1,32 @@
 
 <template name="venues">
-	<div class="row">
-		<div class="col-xs-10 col-md-10">
-		{{#if venuesNearby}}
-			<h4>Foursquare venues </h4>
-			{{#each venuesNearby}}
-				<div>
-					{{#if url}}
-						<a href="{{url}}" target=_blank>{{name}}</a>
-					{{else}}
-						{{name}}
-					{{/if}}
-					distance {{location.distance}}
-				</div>
-			{{/each}}
-		{{else}}
-			We cant find any foursquare venues around
-		{{/if}}
+	{{#if checkedFsqr}} 
+		<div style="width: auto; white-space: normal">
+			<i class="fa fa-foursquare"></i> {{checkedFsqr.venue.name}} {{#if ifDebug}}{{checkedFsqr.date}}{{/if}}
 		</div>
+	{{/if}} 
+	<br />
+
 <!-- 		<div style="position: absolute; z-index: 10; top: 10px; right: 10px; margin:10px; font-size: larger">
 			<button class="button updatevenues btn btn-primary" style="position: relative; bottom:0; background-color: rgba(255, 255, 255, 0.16);"><i class="fa fa-foursquare" style="background-color: rgb(200, 196, 255);"></i></button>
 		</div> -->
-	</div>
-
 </template>
 
 <template name="venuesSelected">
-	{{#if venuesSelected}}
-		Foursquare venues <br />
-		{{#each venuesSelected}}
-			<div>
-				{{#if url}}
-					<a href="{{url}}" target=_blank>{{name}}</a>
-				{{else}}
-					{{name}}
-				{{/if}}
-				distance {{location.distance}}
-			</div>
-		{{/each}}
+	{{#if checkedFsqr}} 
+		<div style="width: auto; white-space: normal">
+			<i class="fa fa-foursquare"></i> Checked at {{checkedFsqr.venue.name}} {{#if ifDebug}}{{checkedFsqr.date}}{{/if}} 
+		</div>
 	{{else}}
-		We can't find any foursquare venues around
-	{{/if}}
+		<div style="width: auto; white-space: normal" >
+			{{#if checkinFsqr}} 
+				{{getCheckinsFsqr}}
+				<span class="goFsqr" id="{{checkinFsqr.id}}"><i class="fa fa-foursquare"></i> Checkin at {{checkinFsqr.name}}?</span>
+			{{else}}
+				<span id="checkFsqr"><i class="fa fa-foursquare"></i> no fsqr around. Check? {{findFsqr}} </span>
+			{{/if}}
+		</div>						
+	{{/if}} 
 <!-- 	<button class="button updatevenues btn btn-primary btn-xs btn-modal" style="bottom:0"> Update Venues</button> -->
 </template>
 

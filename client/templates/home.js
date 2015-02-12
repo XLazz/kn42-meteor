@@ -85,7 +85,7 @@ Template.homelocation.helpers({
 						var duration = then - now;
 						duration = moment.duration(duration).humanize();
 						doc.timespent = duration;
-						doc.started = moment(then).format("MM/DD/YY HH:mm");
+						doc.started = moment(doc.timestamp).format("MM/DD/YY HH:mm");
 
 						if (doc.status)
 							doc.place_id = doc.stationary_place_id;
@@ -103,17 +103,18 @@ Template.homelocation.helpers({
 					sort: {timestamp: -1},
 					transform: function(doc){	
 						var then = doc.timestamp;
-						var now = doc.timestampEnd;
-						if (now) 
-							doc.finished = moment(now).format("MM/DD/YY HH:mm");
-						if (!now) {
-							now = moment().valueOf();
+						doc.timestamp = parseInt(then);
+						if (doc.timestampEnd) 
+							doc.finished = moment(doc.timestampEnd).format("MM/DD/YY HH:mm");
+						if (!doc.timestampEnd) {
+							doc.timestampEnd = moment().valueOf();
 							doc.finished = 'in progress';
 						}
-						var duration = then - now;
-						duration = moment.duration(duration).humanize();
-						doc.timespent = duration;
-						doc.started = moment(then).format("MM/DD/YY HH:mm");
+						var timespent = doc.timestampEnd - doc.timestamp;
+						timespent = moment.duration(timespent).humanize();
+						doc.timespent = timespent;
+						doc.started = moment(doc.timestamp).format("MM/DD/YY HH:mm");
+						doc.started2 = moment(doc.timestamp);
 						if (doc.place_id) {
 							var count = UserPlaces.find({userId: userId, place_id: doc.place_id}).count();
 							doc.count = count;
@@ -142,7 +143,7 @@ Template.homelocation.helpers({
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
 		place = UserPlaces.findOne({userId:userId, place_id: this.place_id},{sort: {timestamp: -1}});
-		console.log('userPlace place_id ', this.place_id, ' place ', place);
+		//console.log('userPlace place_id ', this.place_id, ' place ', place);
 		if (!place)
 			return;
 		Session.set('userLocation', place);
@@ -206,31 +207,66 @@ Template.homelocation.helpers({
 				Session.set('userLocation', place);
 			}
 		}
-		console.log('geoMerchant ', this, this.place_id, place);
+//		console.log('geoMerchant ', this, this.place_id, place);
 		return place;
 	},	
 	
-/* 	checkinFsqr: function(){
+	checkedFsqr: function(){
 		if (!this.timestampEnd)
 			this.timestampEnd = moment().valueOf();
 		var timestampFsqr;
 		var nameFsqr;
-		var checkinFsqr = CheckinsFsqr.findOne(
-			{
-			userId:this.userId,	
-			createdAt: { $gt: this.timestamp/1000+300*60, $lt: this.timestampEnd/1000+300*60}	},{	limit: 1, sort: {createdAt: -1},
-			transform: function(doc){
-//				doc.timestamp = doc.timestamp+300*60;
-				doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm");
-				return doc;
+		var checkedFsqr = CheckinsFsqr.findOne({
+				userId:this.userId,	
+				createdAt: { $gt: this.timestamp/1000+300*60, $lt: this.timestampEnd/1000+300*60}	
+			},{	
+				limit: 1, sort: {createdAt: -1},
+				transform: function(doc){
+	//				doc.timestamp = doc.timestamp+300*60;
+					doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm");
+					return doc;
+				}
 			}
-			});
-		if (checkinFsqr) {
-			timestampFsqr = checkinFsqr.createdAt;
-			nameFsqr = checkinFsqr.venue.name;
+		);
+		if (checkedFsqr) {
+			timestampFsqr = checkedFsqr.createdAt;
+			nameFsqr = checkedFsqr.venue.name;
 		}
-		return checkinFsqr;		
-	}, */
+		console.log('checkedFsqr ', this, checkedFsqr);
+		if (checkedFsqr)
+			return checkedFsqr;		
+	},
+	
+	checkinFsqr: function(){
+		var userLocationId = this._id;
+		if (!userLocationId)  
+			return ;
+		var userLocation =  UserPlaces.findOne(userLocationId);
+		if (!userLocation.location)  
+			return ;	
+		if (!userLocation.location.coords)  
+			return ;				
+		console.log('checkinFsqr 1 ', userLocation.location.coords);
+		var coords = userLocation.location.coords;
+//		var userLocation = GeoLog.findOne({userId: userId}, {sort: {created: -1}}).location;
+
+		var radius_search = 0.1;
+		latup = coords.latitude + radius_search;
+		latdown = coords.latitude - radius_search;
+		lngup = coords.longitude + radius_search;
+		lngdown = coords.longitude - radius_search;
+		var checkinFsqr = VenuesCache.findOne({'location.lat': { $gt: latdown, $lt: latup }, 'location.lng': { $gt: lngdown, $lt: lngup }});
+		console.log('checkinFsqr 2 ', this, checkinFsqr);
+		if (checkinFsqr)
+			return checkinFsqr;		
+	},
+	
+	findFsqr: function(){
+		var userLocation = this._id;
+		var venue = loadFsqr(userLocation);
+		console.log(' findFsqr ', venue);
+		return venue;
+	},
 	
 	currentplace: function(){
 		userLocation = Session.get('userLocation');
@@ -305,6 +341,21 @@ Template.homelocation.helpers({
 	}
 });
 
+Template.homelocation.events({
+	'click #checkFsqr': function(event, template) {
+		console.log('clicked checkFsqr ', this._id);
+/* 		Meteor.call('checkinsFsqr',  Meteor.userId(), this._id, function(err,results){
+			console.log('checkinsFsqr call result ', results[0].venue);
+		}); */
+		var query = {};
+/* 		query.radius = 1000;
+		query.what = 'coffee'; */
+		userLocation = this._id;
+		var venue = loadFsqr(userLocation);
+		return venue;
+	},
+});
+
 Template.homeinside.events({
 	'click .goprofile': function(event, template) {
 		Router.go('about');
@@ -328,7 +379,7 @@ Template.selectExperience.helpers({
 		userId = Meteor.userId();
 		var userLocation = Session.get('userLocation');
 		var services = Experiences.findOne({ userId: userId, place_id: userLocation.place_id });
-		console.log('experiences Experiences ', userLocation._id, Session.get('userLocation'), services);
+//		console.log('experiences Experiences ', userLocation._id, Session.get('userLocation'), services);
 		return services;
 		if (services.count()) {
 			console.log('experiences return ', services.fetch());
@@ -488,7 +539,7 @@ Template.claimIt.helpers({
 		if (!userLocation)
 			return;
 		var result = GeoLog.findOne(userLocation.geoId);
-			console.log('claimed userLocation ',userLocation.geoId , userLocation, result );
+//			console.log('claimed userLocation ',userLocation.geoId , userLocation, result );
 		if (result) {		
 			var coords = result.location.coords;
 		} else {

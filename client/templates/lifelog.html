@@ -52,9 +52,9 @@
 						{{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}
 					</div>
 					<div style="font-size: smaller">
-						{{#if checkinFsqr}} <i class="fa fa-foursquare"></i> {{checkinFsqr.venue.name}} {{checkinFsqr.date}}<br />{{/if}} 
+						{{> venues}}
 						{{#if geoPlace.name}}{{geoPlace.vicinity}} {{else}}{{geoMerchant.vicinity}} {{/if}}<br />
-						{{status}} since {{timestart}} {{#if timespent}} for {{timespent}} {{/if}}
+						{{status}} since {{timestart}} {{started}} {{#if timespent}} for {{timespent}} {{/if}}
 <!-- 						<div>{{> venuesSelected}}</div> -->							
 					</div>
 					{{#if ifDebug}} 
@@ -93,15 +93,9 @@
 
 		{{#if geoPlace.showbut}}
 			{{> buttons}}
-			{{#unless travel}}
-				{{> venuesSelected}}
-			{{/unless}}
 		{{else}}
 			{{#if geoMerchant.showbut}}
 				{{> buttons}}
-				{{#unless travel}}
-					{{> venuesSelected}}
-				{{/unless}}
 			{{/if}}
 		{{/if}}
 		<hr>

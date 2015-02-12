@@ -29,6 +29,8 @@ submitCoords = function(userId, geoId, location ){
 	});
 }
 
+
+
 ifStatic = function(userId, currentPlace, currentPlaceAlt, location){
 // Add userplace if user becomes static for some time;
 	if (!userId)
@@ -224,7 +226,9 @@ addPlace = function (location){
 				var userplace = UserPlaces.findOne({userId:userId},{fields:{_id:1}, sort:{timestamp: -1}});				
 				if (!userplace.timestampEnd) {
 					if (userplace._id){
-						UserPlaces.upsert({_id: userplace._id}, {timestampEnd: oldLoc.timestamp});
+						if (!oldLoc.timestamp)
+							oldLoc.timestamp = moment().valueOf();
+						UserPlaces.upsert(userplace._id, {timestampEnd: oldLoc.timestamp});
 						// and submit to server with the timestampEnd
 						location.timestampEnd = oldLoc.timestamp;
 						location.userplaceId = userplace._id;
@@ -391,7 +395,7 @@ findClaimed = function(userId, coords){
 
 //		lat2 = lat2.toString()
 	var claimed = ClaimedPlaces.findOne({'coords.latitude': { $gt: latdown, $lt: latup }, 'coords.longitude': { $gt: lngdown, $lt: lngup }});
-	console.log('check claimed ', latup, latdown, lngup, lngdown, claimed);
+//	console.log('check claimed ', latup, latdown, lngup, lngdown, claimed);
 	return claimed;
 }
 

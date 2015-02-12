@@ -36,17 +36,17 @@ Meteor.methods({
 				} */
 			});
 
-			var ifPlace = UserPlaces.findOne
-				({				
-					$and: [
-						{location_id: item.location_id}, {userId: userId}, {
-							$or: [
-								{userplaceId: item.userplaceId}, {userplaceId: ''}
-							]
-						} 
-					]
-				});
-			if (!ifPlace) {
+			var ifPlace = UserPlaces.findOne({				
+				$and: [
+					{location_id: item.location_id}, {userId: userId}, {
+						$or: [
+							{userplaceId: item.userplaceId}, {userplaceId: ''}
+						]
+					} 
+				]
+			});
+			var lastUserPlace = UserPlaces.findOne({userId:userId},{sort:{timestamp: -1}});
+			if ((!ifPlace) && (lastUserPlace.place_id != item.place_id)) {
 				if (item.finished) 
 					timestampEnd = moment(item.finished).valueOf();
 				timestamp = moment(item.started).valueOf();

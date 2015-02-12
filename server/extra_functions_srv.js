@@ -50,10 +50,14 @@ GetApi = function(userId){
 }
 
 fsqrApi = function(userId){
-	var user_details = Meteor.users.findOne({_id: userId});
-	console.log('fsqrAPI ', userId, user_details);
-	if (!user_details)
-		return;
+	var user_details = Meteor.users.findOne(userId);
+//	console.log('fsqrAPI 1 ', userId, user_details);
+	if (!user_details) {
+		console.log('fsqrAPI 1.5 ', userId, user_details);
+		return user_details;
+	}
+	console.log('fsqrAPI 2 ', userId, user_details.services);
+	console.log('fsqrAPI 3 ', userId, user_details.services.foursquare);
 	if (user_details.services.foursquare) {
 		fsqrToken = user_details.services.foursquare.accessToken;
 		console.log ('token ', fsqrToken);
@@ -140,7 +144,7 @@ getCoords = function(userId) {
 	});
 }
 
-GetFsqrLoc = function(coords, query){
+GetFsqrLoc = function(coords, limit, query){
 	var today = moment().format('YYYYMMDD');
 	
 	try {
@@ -162,7 +166,7 @@ GetFsqrChk = function(limit){
 	var today = moment().format('YYYYMMDD');
 	
 	try {
-		var url = 'https://api.foursquare.com/v2/users/self/checkins?oauth_token=' + fsqrToken + '&v=' + today +'&limit=' + limit;
+		var url = 'https://api.foursquare.com/v2/users/self/checkins?oauth_token=' + fsqrToken + '&v=20150211' + '&limit=' + limit;
 		console.log('GetFsqrChk url', url);
 		var myJSON = Meteor.http.call('GET', url);
 		var response = JSON.parse(myJSON.content);
@@ -172,6 +176,30 @@ GetFsqrChk = function(limit){
 		return false;
 	}
 	console.log('calling fsqr final. never should come here ', response);
+}
+
+CheckInFsqr = function(venueId){
+
+	try {
+		var url = 'https://api.foursquare.com/v2/checkins/add';
+		var myJSON = Meteor.http.call("POST", url, 
+			{ params: 
+				{ 
+				oauth_token: fsqrToken, 
+				venueId: venueId,
+				v: '20150211',
+				m: 'swarm'
+				}
+			}
+		) ;
+		var venues = JSON.parse(myJSON.content);
+		GetFsqrChk(5);
+		return venues;
+	} catch(e){
+		console.error('error calling fsqr ', e, e.response);
+		return false;
+	}
+	console.log('calling CheckInFsqr final. never should come here ', response);
 }
 
 GetGoogleLoc = function(userId, coords, radius, name){

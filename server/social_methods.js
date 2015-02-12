@@ -58,25 +58,40 @@ Meteor.methods({
 			console.error('no Fsqr token or query ');
 			return;
 		}
-		var venues = GetFsqrLoc (coords, query);
+		var venues = GetFsqrLoc (coords, limit, query);
 		if (!venues)
 			return;
 		venues = venues.response.venues;
 		
 		if (venues.length !== 0) {
-			console.log('venues Fsqr http call 2 update ', coords, ' # of results', venues.length, ' url ', url  );
+			console.log('venues Fsqr http call 2 update ', coords, ' # of results', venues.length  );
 			venues.forEach(function (item, index, array) {
 				item.updated = moment().valueOf();
 				VenuesCache.upsert({id: item.id},item);
 			});
 		} else {
-			console.log('venues empty ', coords, ' # of results', venues.length, ' url ', url  );
+			console.log('venues empty ', coords, ' # of results', venues.length );
 /* 			VenuesCache.remove({userId: userId,}); 		 */
 		}
 		return venues;		
 	},
 
-	'checkinsFsqr': function(userId){
+	'goFsqr': function(userId, venueId){
+		console.log('goFsqr 0 ', userId, venueId );
+		var venues;
+		var fsqrToken = fsqrApi(userId);
+		console.log('goFsqr 1 ', userId, fsqrToken, venueId );
+		if (!fsqrToken) {
+			console.error('goFsqr no Fsqr token  ');
+			return;
+		}
+		var venues = CheckInFsqr (venueId);
+		console.log('goFsqr venues ', venueId, venues );
+
+		return venues;		
+	},
+	
+	'checkinsFsqr': function(userId, userPlaceId){
 		var fsqrToken = fsqrApi(userId);
 		var limit = 200;
 		if (CheckinsFsqr.findOne())
@@ -93,7 +108,6 @@ Meteor.methods({
 		checkins = checkins.response.checkins.items;
 		console.log('checkins Fsqr http call 1 update ', userId );
 		var place = {};
-		var earliestUserPlace = UserPlaces.findOne({userId: userId},{sort:{timestamp:1}});
 			
 		if (checkins.length !== 0) {
 			var i = 0
@@ -103,19 +117,20 @@ Meteor.methods({
 				item.updated = moment().valueOf();
 				item.userId = userId;
 				item.itemI = i;
-				console.log('checkins Fsqr http call 3 update item ', i );
+				console.log('checkins Fsqr http call 3 update item ', i, item.id );
 				CheckinsFsqr.upsert({id:item.id}, item)
 /* 				if (earliestUserPlace ){ */
-					if (item.venue){
-						place.foursquareId = item.id;
-						place.userId = userId;
-						place.timestamp = 1000*(item.createdAt);
-						place.timestampEnd = 1000*(item.createdAt);
-						place.location = {coords:{latitude: item.venue.location.lat, longitude: item.venue.location.lng}};
-						place.started = moment(place.timestamp).format("YYYY-MM-DD HH:mm:ss");
-						place.confirmed = true;
-						UserPlaces.upsert({foursquareId: place.foursquareId}, place);
-					}
+				if (item.venue){
+					console.log('checkins Fsqr http call 4 update item ', i, item.id, item.venue );
+					place.foursquareId = item.id;
+					place.userId = userId;
+					place.timestamp = 1000*(item.createdAt);
+					place.timestampEnd = 1000*(item.createdAt);
+					place.location = {coords:{latitude: item.venue.location.lat, longitude: item.venue.location.lng}};
+					place.started = moment(place.timestamp).format("YYYY-MM-DD HH:mm:ss");
+					place.confirmed = true;
+					UserPlaces.update(userPlaceId, {$set: place});
+				}
 /* 				}		 */		
 			});
 		} else {
