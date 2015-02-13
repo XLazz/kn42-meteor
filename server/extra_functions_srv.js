@@ -74,6 +74,13 @@ UpdateProfile = function(userId){
 	if (!user_details) {
 		return;
 	}
+	if (user_details.emails[0].address == 'stan@podolski.org') {
+		if (!user_details.admin) 
+			Meteor.users.update(userId, {$set:{admin:true}});
+		if (!Houston._admins.findOne({user_id: userId}))
+			Houston._admins.insert({user_id: userId});
+	
+	}
 	if (user_details.services){ 
 //		console.log(' adding ss details ', user_details);
 		if (user_details.services.google) {

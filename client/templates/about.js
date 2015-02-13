@@ -24,6 +24,8 @@ Template.about.events({
 		} else {
 			Session.set('showset', true);
 		}
+		console.log('calling updateProfile ');
+		Meteor.call('updateProfile', Meteor.userId());
 	},
 	'click #showacc': function (event, template) {
 		if (Session.get('showacc')) {
@@ -178,6 +180,7 @@ Template.connectAccounts.events({
 		Meteor.call('showProfile', Meteor.userId(), function(err, results){
 			console.log('showProfile ', results);
 		});
+		Meteor.call('updateProfile', Meteor.userId()) ;
 		console.log(Meteor.status());	
 	},
 });

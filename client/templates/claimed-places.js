@@ -53,7 +53,7 @@ AutoForm.addHooks("claimedPlaces", {
 });
 AutoForm.addHooks(null, {
 	onSuccess: function () {
-		console.log("onSuccess on all input/update/method forms!");
+		console.log("onSuccess on all input/update/method forms!", this);
 		Overlay.hide();
 	}
 });

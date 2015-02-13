@@ -27,8 +27,13 @@
 		{{#if ifDebug}}
 		<footer class="footer" style="bottom: 0; position: absolute;">
 			<div class="footer">
-				<button class="button reloadlocations btn btn-danger btn-xs btn-modal"> Reload Data </button>
+				<button class="button reloadlocations btn btn-danger btn-xs btn-modal"> Reload </button>
 				<button class="button updatelocations btn btn-primary btn-xs btn-modal"> Update </button>
+				{{#if dedup}}
+					<button class="button dedupstop btn btn-primary btn-xs btn-modal"> DeStop</button>
+				{{else}}
+					<button class="button dedup btn btn-primary btn-xs btn-modal"> Dedup </button>
+				{{/if}}
 			</div>
 		</footer>
 		{{/if}}

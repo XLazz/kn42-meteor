@@ -1,10 +1,11 @@
 App.info({
+  id: 'com.idwjia7uevfv491fvrh8f',
   name: 'Kn42',
   description: 'Kn42 personal companion',
   author: 'Xlazz Inc',
   email: 'stanp@xlazz.com',
-  website: 'http://kn42.xlazz.com:3000',
-  version: '0.0.3'
+  website: 'http://kn42.xlazz.com',
+  version: '0.0.4'
 });
 
 App.icons({

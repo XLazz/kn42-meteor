@@ -56,9 +56,9 @@
 				<div class="col-xs-12 col-sm-12 col-md-12">
 					<div>date: {{created}}</div>
 					<div>lng: {{location.coords.longitude}} lat: {{location.coords.latitude}}</div>
-					<div>{{location_id}} {{_id}}</div>
-					<div>speed: 
-						{{#if location.coords.speed}} {{location.coords.speed}} {{else}} 0 {{/if}} accuracy: {{location.coords.accuracy}} int: {{interval}} {{fitness}} {{#if confirmed}} confirmed: {{confirmed}} {{/if}} {{#if travel}} {{travel}} {{/if}};
+					<div>location {{location_id}} id {{_id}} place {{place_id}} {{device}}</div>
+					<div>
+						{{#if location.coords.speed}} {{location.coords.speed}}m/s {{/if}} accuracy: {{location.coords.accuracy}} int: {{interval}} {{fitness}} {{driving}} {{#if confirmed}} confirmed: {{confirmed}} {{/if}} {{#if travel}} {{travel}} {{/if}};
 					</div>
 					<div>{{status}} at {{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}</div>
 				</div>

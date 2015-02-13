@@ -9,11 +9,32 @@
     </div>
 
     <div class="description-welcome">
-    You can also run it in a simulator, or in a desktop browser as a convenience (what you're looking at right now).
+    You can also run in a desktop browser as a convenience (what you're looking at right now).
     </div>
 
     <div class="description-welcome">
+		So what Kn42 can do for you:
+		<ul>
+			<li>Create a lifelog, complete with your Foursquare checkins. And it can check you in automatically if you wish so</li>
+			<li>Calculate your daily fitness activity and burnt calories (connection to your Fitbit, Up, Pebble comes soon)</li>
+			<li>Get the driving log and keep it</li>
+		</ul>
+		<br/>
+		And what is coming next
+		<ul>
+			<li>Friends suggestions based on your habits (your fitness activity, your foursquare checkins)</li>
+			<li>Your fitness on the map</li>
+			<li>Fitness with your friends (you can share routes and goals)</li>
+			<li>Please tell us what you would like to see</li>
+		</ul>
+			
     </div>
+		<div>
+			{{#if isUser}}
+				<br/><br/><br/>
+				{{> contactForm}}
+			{{/if}}
+		</div>
   </div>
 
   <div id="container" class="{{menuOpen}} {{overlayOpen}}">
@@ -134,3 +155,53 @@
 		{{> loginButtons}}
 	</a>
 </template>
+
+<template name="contactForm">
+	{{#if ifSubmitted}}
+		Previously contacted on <br/>
+		{{contacted.created}}<br/><br/>
+		You message was: {{contacted.message}}<br/>
+		<button class="btn btn-primary" id="editform">Edit</button>
+	{{else}}
+		{{#if contacted}}
+			Previously contacted on <br/>
+			{{contacted.created}}<br/><br/>
+			{{#autoForm schema="Schemas.Contacts" id="contactedForm" doc=contacted type="update" autosave=true collection="Contacts"}}
+			<fieldset>
+				<legend></legend>
+				{{> afFieldInput name="created" autocomplete="on" type="hidden" value=today}}
+				{{> afQuickField name="message" autocomplete="on" rows=10}}
+				<div>
+					<button type="submit" class="btn btn-primary">Submit</button>
+				</div>
+			</fieldset>
+			{{/autoForm}}
+		{{else}}
+			{{#autoForm schema="Schemas.Contacts" id="contactForm" template="plain" type="insert" collection="Contacts"}}
+			<fieldset>
+				<legend>Contact Us</legend>
+				{{> afFieldInput name="userId" type="hidden" value=thatUser._id}}
+				{{> afFieldInput name="created" type="hidden" value=today}}
+				{{> afQuickField name="name"  value=thatUser.profile.name}}
+				{{> afQuickField name="email" value=email}}
+				{{> afQuickField name="message" rows=10 }}
+				<div>
+					<button type="submit" class="btn btn-primary">Submit</button>
+					<button type="reset" class="btn btn-default">Reset</button>
+				</div>
+			</fieldset>
+			{{/autoForm}}
+		{{/if}}
+	{{/if}}
+
+</template>		
+
+<!-- 						{{#autoForm id="claimedPlaceForm" doc=this type="update" collection="ClaimedPlaces" schema="Schemas.ClaimForm"}}
+							<div class="form-group">
+								{{> afFieldInput name="name" placeholder="Name your place"}}
+							</div>
+							{{> afQuickField name="public"}}
+							<div class="form-group">
+								<button type="submit" class="btn btn-primary">Submit</button>
+							</div>
+						{{/autoForm}} -->

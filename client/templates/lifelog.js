@@ -47,7 +47,10 @@ Template.lifelog.helpers({
 			Session.set('getPlacesNotReady', ! searchHandle.ready());		
 		}	
     return Session.get('getPlacesNotReady');
-  }
+  },
+	ifdedup: function(){
+		return Session.get('dedup');	
+	}
 });
 
 Template.lifelog.events({
@@ -81,6 +84,23 @@ Template.lifelog.events({
 		});
 //		Meteor.call('getLocations','list',function(err,results));
 	},
+	"click .dedup": function (event, template) {
+		if (!Meteor.userId()) {
+			return;
+		}
+		console.log('dedup events ');
+		Session.set('dedup', true);
+		//		Meteor.call('getLocations','list',function(err,results));
+	},	
+	"click .dedupstop": function (event, template) {
+		if (!Meteor.userId()) {
+			return;
+		}
+		console.log('dedup events ');
+		Session.set('dedup', false);
+		//		Meteor.call('getLocations','list',function(err,results));
+	},	
+	
 });
 
 Template.showlocations.helpers({
@@ -173,7 +193,7 @@ Template.showlocations.helpers({
 		if (Session.get('userLocation')._id == this._id)
 			place.showbut = true;
 		
-		if (Session.get('debug')) {
+		if (Session.get('dedup')) {
 			//remove dup places
 			var lastPlace = UserPlaces.findOne({userId: userId, timestamp: {$lt: this.timestamp}}, {limit:1, sort: {timestamp: -1}});
 	//		console.log('lastPlace ', lastPlace.user_history_location_id, this.user_history_location_id, lastPlace.place_id, this.place_id);

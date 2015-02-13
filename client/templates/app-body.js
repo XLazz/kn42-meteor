@@ -232,3 +232,41 @@ Template.appBody.helpers({
 		return Session.get('debug');
 	},
 });
+
+Template.contactForm.helpers({
+  contacted: function() {
+		var userId = Meteor.userId();
+		//userId: userId
+		var contacted = Contacts.findOne({userId:userId});
+		console.log(' contacted ', contacted, userId);
+		return contacted;
+  },
+  contactFormSchema: function() {
+    return Schemas.Contacts;
+  },
+	thatUser: function() {
+		return Meteor.user();
+	},
+	email: function() {
+		return Meteor.user().emails[0].address;
+	},
+	today: function(){
+		return new Date();
+	},
+	ifSubmitted: function(){
+		console.log('checking for previous submission  ', Session.get('contacted'));
+		return Session.get('contacted');
+	}
+});
+
+Template.contactForm.events({
+  'submit form': function(event) {
+		console.log('contactForm was submitted', this);
+		Session.set('contacted', true);
+    event.preventDefault();
+  },
+  'click #editform': function(event) {
+		Session.set('contacted', false);
+    event.preventDefault();
+  },
+});
