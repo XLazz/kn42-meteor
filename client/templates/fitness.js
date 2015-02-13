@@ -278,8 +278,10 @@ Template.showMapFit.helpers({
   fitnessMapOptions: function() {
     // Make sure the maps API has loaded
     if (GoogleMaps.loaded()) {
+			console.log('GoogleMaps not loaded');
       // We can use the `ready` callback to interact with the map API once the map is ready.
       GoogleMaps.ready('fitnessMap', function(map) {
+				console.log('GoogleMaps ready');
         // Add a marker to the map once it's ready
 				var track = Tracks.find({fitnessTrackId:fitTrack},
 					{
@@ -306,6 +308,8 @@ Template.showMapFit.helpers({
         center: new google.maps.LatLng(trackStart.fitStart.coords.latitude, trackStart.fitStart.coords.longitude),
         zoom: 18
       };
-    }
+    } else {
+			console.log('GoogleMaps not yet loaded');
+		}
   }
 });
