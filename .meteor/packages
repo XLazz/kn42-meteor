@@ -69,3 +69,4 @@ http
 standard-app-packages
 chenroth:googlemaps-api
 meteorhacks:async
+dburles:google-maps

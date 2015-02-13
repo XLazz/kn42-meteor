@@ -123,7 +123,18 @@ Template.driving.events({
 		Session.set('interval', 300000);
 		Session.set('geoback', true);
 		return;
-	}
+	},
+	'click .showMap': function (event, template) {
+		if (!Meteor.userId()) {
+			return;
+		}
+		//		var fitActivity = template.find('.fitActivity').id;
+		var drvTrack = $(event.currentTarget).attr('id');
+		console.log('click .showMap ',  drvTrack, $(event.currentTarget));
+		Session.set('drvTrack', drvTrack);
+		Overlay.show('showMapDrv');	
+		return;
+	},
 });
 
 /* Template.autolog.rendered = function() {
@@ -133,3 +144,64 @@ Template.driving.events({
     $item.removeClass('loading');
   });
 } */
+
+Template.showMapDrv.helpers({
+	debug: function () {
+		return Session.get('debug');
+	},
+	track: function () {
+		console.log(' drive  ', Session.get('drvTrack'));
+		var drvTrack = Session.get('drvTrack');
+		var track = Drives.find({driveTrackId:drvTrack},
+			{
+				sort: {created: -1},
+				transform: function(doc){	
+					doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm:ss");
+					doc.location.coords.speed = Math.round(doc.location.coords.speed * 1000 / 60 / 60 * 100) / 100 
+					return doc;
+				}
+			}
+		);		
+		return track;
+	},
+	driveTrack: function(){
+		var drvTrack = Session.get('drvTrack');
+		var track = FitnessTracks.findOne(drvTrack);
+		console.log('drvTrack track ', track);
+		return track;
+	},
+  driveMapOptions: function() {
+    // Make sure the maps API has loaded
+    if (GoogleMaps.loaded()) {
+      // We can use the `ready` callback to interact with the map API once the map is ready.
+      GoogleMaps.ready('driveMap', function(map) {
+        // Add a marker to the map once it's ready
+				var track = Drives.find({driveTrackId:drvTrack},
+				{
+					sort: {created: -1},
+					transform: function(doc){	
+						doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm:ss");
+						doc.location.coords.speed = Math.round(doc.location.coords.speed * 1000 / 60 / 60 * 100) / 100 
+						return doc;
+					}
+				}
+				);
+				track.forEach(function (item, index, array) {
+					//			console.log(' foreach ', item.types );
+					var marker = new google.maps.Marker({
+						position: new google.maps.LatLng(item.location.coords.latitude,item.location.coords.longitude),
+						map: map.instance
+					});	
+				});
+      });
+			var drvTrack = Session.get('drvTrack');
+			var trackStart = DriveTracks.findOne(drvTrack);			
+			console.log('DriveTracks ',trackStart, drvTrack);
+      // Map initialization options
+      return {
+        center: new google.maps.LatLng(trackStart.driveStart.coords.latitude, trackStart.driveStart.coords.longitude),
+        zoom: 18
+      };
+    }
+  }
+});

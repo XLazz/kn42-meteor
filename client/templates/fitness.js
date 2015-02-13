@@ -229,6 +229,17 @@ Template.routes.events({
 		Session.set('fitActivity', fitActivity);
 		return;
 	},
+	'click .showMap': function (event, template) {
+		if (!Meteor.userId()) {
+			return;
+		}
+		//		var fitActivity = template.find('.fitActivity').id;
+		var fitTrack = $(event.currentTarget).attr('id');
+		console.log('click .showMap ',  fitTrack, $(event.currentTarget));
+		Session.set('fitTrack', fitTrack);
+		Overlay.show('showMapFit');	
+		return;
+	},
 });
 
 Template.fitness.rendered = function() {
@@ -238,3 +249,63 @@ Template.fitness.rendered = function() {
     $item.removeClass('loading');
   });
 }
+
+Template.showMapFit.helpers({
+	debug: function () {
+		return Session.get('debug');
+	},
+	track: function () {
+		console.log(' track ', Session.get('fitTrack'));
+		var fitTrack = Session.get('fitTrack');
+		var track = Tracks.find({fitnessTrackId:fitTrack},
+			{
+				sort: {created: -1},
+				transform: function(doc){	
+					doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm:ss");
+					doc.location.coords.speed = Math.round(doc.location.coords.speed * 1000 / 60 / 60 * 100) / 100 
+					return doc;
+				}
+			}
+		);		
+		return track;
+	},
+	fitnessTrack: function(){
+		var fitTrack = Session.get('fitTrack');
+		var track = FitnessTracks.findOne(fitTrack);
+		console.log('fitnessTrack track ', track);
+		return track;
+	},
+  fitnessMapOptions: function() {
+    // Make sure the maps API has loaded
+    if (GoogleMaps.loaded()) {
+      // We can use the `ready` callback to interact with the map API once the map is ready.
+      GoogleMaps.ready('fitnessMap', function(map) {
+        // Add a marker to the map once it's ready
+				var track = Tracks.find({fitnessTrackId:fitTrack},
+					{
+						sort: {created: -1},
+						transform: function(doc){	
+							doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm:ss");
+							doc.location.coords.speed = Math.round(doc.location.coords.speed * 1000 / 60 / 60 * 100) / 100 
+							return doc;
+						}
+					}
+				);
+				track.forEach(function (item, index, array) {
+					//			console.log(' foreach ', item.types );
+					var marker = new google.maps.Marker({
+						position: new google.maps.LatLng(item.location.coords.latitude,item.location.coords.longitude),
+						map: map.instance
+					});	
+				});
+      });
+			var fitTrack = Session.get('fitTrack');
+			var trackStart = FitnessTracks.findOne(fitTrack);			
+      // Map initialization options
+      return {
+        center: new google.maps.LatLng(trackStart.fitStart.coords.latitude, trackStart.fitStart.coords.longitude),
+        zoom: 18
+      };
+    }
+  }
+});

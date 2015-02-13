@@ -25,6 +25,7 @@ chenroth:googlemaps-api@0.9.6
 coffeescript@1.0.5
 cscottnet:googleapis@0.4.7_1
 dburles:collection-helpers@1.0.2
+dburles:google-maps@1.0.8
 dburles:mongo-collection-instances@0.2.6
 ddp@1.0.14
 deps@1.0.6
