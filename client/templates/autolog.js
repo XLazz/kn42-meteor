@@ -202,6 +202,14 @@ Template.showMapDrv.helpers({
         center: new google.maps.LatLng(trackStart.driveStart.coords.latitude, trackStart.driveStart.coords.longitude),
         zoom: 18
       };
-    }
+    } else {
+			console.log('GoogleMaps not yet loaded');
+			GoogleMaps.load();
+			if (GoogleMaps.loaded()) {
+				console.log('GoogleMaps loaded');
+			} else {
+				console.log('GoogleMaps not yet loaded 2');	
+			}
+		}			
   }
 });

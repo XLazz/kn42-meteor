@@ -44,7 +44,9 @@ Meteor.publish(null, function() {
 	return Places.find({},{limit:100});
 	return GooglePlaces.find({});
 });
-
+Meteor.publish('Experiences', function(userId) {
+	return Experiences.find({userId:this.userId});
+});
 Meteor.publish('UserPlaces', function(userId) {
 	return UserPlaces.find({userId:this.userId});
 });
@@ -54,11 +56,17 @@ Meteor.publish('Places', function(userId) {
 Meteor.publish('GooglePlaces', function(userId) {
 	return GooglePlaces.find();
 });
+Meteor.publish('AutoPlaces', function(userId) {
+	return AutoPlaces.find({userId:this.userId});
+});
 Meteor.publish('MerchantsCache', function(userId) {
-	return MerchantsCache.find();
+	return MerchantsCache.find({}, {limit: 100});
+});
+Meteor.publish('VenuesCache', function(userId) {
+	return VenuesCache.find({}, {limit: 100});
 });
 Meteor.publish('Drives', function(userId) {
-	return Drives.find({userId:this.userId});
+	return Drives.find({userId:this.userId},{limit: 100});
 });
 Meteor.publish('DriveTracks', function(userId) {
 	return DriveTracks.find({userId:this.userId});
@@ -68,6 +76,12 @@ Meteor.publish('Friends', function(userId) {
 });
 Meteor.publish('FitnessActivities', function(userId) {
 	return FitnessActivities.find();
+});
+Meteor.publish('FitnessTracks', function(userId) {
+	return FitnessTracks.find({userId:this.userId});
+});
+Meteor.publish('Tracks', function(userId) {
+	return Tracks.find({userId:this.userId},{limit: 100});
 });
 Meteor.publish('downloadPlaces', function(userId, limit) {
   var self = this;
@@ -156,8 +170,12 @@ Meteor.publish("userinfo", function () {
 });
 
 Meteor.publish('CheckinsFsqr', function() {
-  return CheckinsFsqr.find({}, {limit: 20});
+  return CheckinsFsqr.find({userId:this.userId});
 });
+Meteor.publish('Contacts', function(userId) {
+	return Contacts.find({userId:this.userId});
+});
+
 
 People.allow({
   insert: function () {

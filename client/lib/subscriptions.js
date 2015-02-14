@@ -11,12 +11,19 @@ Tracker.autorun(function () {
 		Meteor.subscribe('TracksByUser');
 		Meteor.subscribe('UserPlaces', userId);
 		Meteor.subscribe('GooglePlaces');
-		Meteor.subscribe('Places');
+		Meteor.subscribe('Places', userId);
+		Meteor.subscribe('AutoPlaces',userId);
+		Meteor.subscribe('ClaimedPlaces',userId);
+		Meteor.subscribe('Experiences',userId);
 		Meteor.subscribe('MerchantsCache');
+		Meteor.subscribe('VenuesCache');
 		Meteor.subscribe('Drives', userId);
 		Meteor.subscribe('DriveTracks', userId);
 		Meteor.subscribe('Friends', userId);
 		Meteor.subscribe('FitnessActivities');
+		Meteor.subscribe('FitnessTracks',userId);
+		Meteor.subscribe('Tracks',userId);
+		Meteor.subscribe('Contacts',userId);
 //    Meteor.subscribe("allUserData");
 });
 /* Template.registerHelper("Schemas", Schemas); */

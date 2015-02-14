@@ -38,7 +38,7 @@ aldeed:autoform-bs-button-group-input
 # Packages from the app:
 houston:admin
 insecure
-autopublish
+#autopublish
 zeroasterisk:cordova-geolocation-foreground
 peppelg:bootstrap-3-modal
 mizzao:bootstrap-3
