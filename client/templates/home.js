@@ -65,7 +65,7 @@ Template.homelocation.helpers({
 		if (!Meteor.userId()) {return;};
 		var currentlocation;
 		userId = Meteor.userId();
-		if (!GeoLog.findOne({userId: userId}, {sort: {timestamp: -1}}))
+		if (!GeoLog.findOne({userId: userId}))
 			return;
 		if (!GeoLog.findOne({userId: userId}, {sort: {timestamp: -1}}).status) {
 			console.log('currentlocation moving');
@@ -74,51 +74,34 @@ Template.homelocation.helpers({
 				{
 					sort: {timestamp: -1},
 					transform: function(doc){	
-						var then = doc.timestamp;
-						var now = doc.timestampEnd;
-						if (now) 
-							doc.finished = moment(now).format("MM/DD/YY HH:mm");
-						if (!now) {
-							now = moment().valueOf();
-							doc.finished = 'in progress';
-						}
-						var duration = then - now;
-						duration = moment.duration(duration).humanize();
-						doc.timespent = duration;
+						doc.timespent = moment.duration(parseInt(doc.timestamp) - moment().valueOf()).humanize();
 						doc.started = moment(doc.timestamp).format("MM/DD/YY HH:mm");
-
-						if (doc.status)
-							doc.place_id = doc.stationary_place_id;
+						doc.finished = 'on the move!';
 						console.log('currentlocation ', doc);
 						return doc;
 					}
 				}
 			);
 		} else {
-			// since we are stationary going to user places
+			// since we are stationary - getting user places
 			console.log('currentlocation stationary');
 			currentlocation = UserPlaces.findOne(
 				{userId: userId}, 
 				{
 					sort: {timestamp: -1},
 					transform: function(doc){	
-						var then = doc.timestamp;
-						doc.timestamp = parseInt(then);
-						if (doc.timestampEnd) 
-							doc.finished = moment(doc.timestampEnd).format("MM/DD/YY HH:mm");
 						if (!doc.timestampEnd) {
-							doc.timestampEnd = moment().valueOf();
+							doc.timestampEnd =  moment().valueOf()
 							doc.finished = 'in progress';
 						}
-						var timespent = doc.timestampEnd - doc.timestamp;
-						timespent = moment.duration(timespent).humanize();
-						doc.timespent = timespent;
+						doc.timespent = moment.duration(parseInt(doc.timestampEnd) - parseInt(doc.timestamp)).humanize();
+						doc.temp = doc.timestampEnd - doc.timestamp
 						doc.started = moment(doc.timestamp).format("MM/DD/YY HH:mm");
-						doc.started2 = moment(doc.timestamp);
 						if (doc.place_id) {
 							var count = UserPlaces.find({userId: userId, place_id: doc.place_id}).count();
 							doc.count = count;
 						}
+						console.log('currentlocation ', doc);
 						return doc;
 					}
 				}

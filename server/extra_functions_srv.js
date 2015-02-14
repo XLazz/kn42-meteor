@@ -333,34 +333,18 @@ ifStationary = function(userId, geoId){
 	console.log('old place from GeoLog ', geoLocOld, ' new place ', geoLoc);		
 
 	// if previous stationary place_id from GeoLog is the same as new one, we are stationary
-	if ((geoLocOld.place_id == geoLoc.stationary_place_id) || (geoLocOld.place_id == geoLoc.place_id)) {
+	if ((geoLocOld.place_id == geoLoc.stationary_place_id) || (geoLocOld.geo_place_id == geoLoc.place_id)) {
 		// updating geolog with new stationary status
 		console.log('Same place ', geoLoc.stationary_place_id);
-		current_status = 'stationary';
-		GeoLog.upsert(geoId, {$set: {status: current_status,}});						
+		GeoLog.upsert(geoId, {$set: {status:  'stationary'}});						
 		// and let's check if user has spent enough time to make it userplace
-		var diffstamp = moment().valueOf() - stat_time;
-		var ifStat = GeoLog.findOne({userId: userId, timestamp: {$lt: diffstamp}},{sort:{timestamp: -1}});
-		if (!ifStat)
-			return;		
-		if (!ifStat.stationary_place_id == geoLoc.stationary_place_id)
-			return;		
-		//since user static for enough, let;s add UserPlace
-		console.log('User stationary for ', stat_time, ' in ', geoLoc.stationary_place_id);
-		UserPlaces.insert(
-		{
-			geoId: geoId,
-			userId: userId,
-			place_id: geoLoc.stationary_place_id,
-			started: new Date(),
-			location: geoLoc.location
-		});
 	} else {
 		// if previous stationary place_id is not the same and userplace is not finalised, then finalise it, user is officially on the move
 		console.log('moved to ', geoLoc.stationary_place_id, ' or ', geoLoc.place_id ,' from ', geoLocOld.place_id );
 		current_status = '';
 		var userplace = UserPlaces.findOne({userId:userId, place_id: geoLocOld.stationary_place_id },{sort:{timestamp: -1}});				
 		if (!geoLocOld.timestampEnd) {
+			//if place was not finalized, then add timestampEnd
 			geoLocOld.timestampEnd = moment().valueOf();
 			UserPlaces.upsert(geoLocOld._id, {$set: {timestampEnd: geoLocOld.timestampEnd }});
 			// and submit to server with the timestampEnd
@@ -369,6 +353,27 @@ ifStationary = function(userId, geoId){
 			// Meteor.call('submitPlace', userId, location, experience);
 
 			//					console.log('User has moved from ', lastLoc.stationary_place_id, ' to ', currentPlaceAlt.place_id);
+		} else {
+			// let's check if user is in current place_id for a long time
+			var diffstamp = moment().valueOf() - stat_time;
+			var ifStat = GeoLog.findOne({userId: userId, timestamp: {$lt: diffstamp}},{sort:{timestamp: -1}});
+			if (!ifStat)
+				return;		
+			if (!ifStat.place_id == geoLoc.place_id)
+				return;		
+			//since user static for enough, let;s add UserPlace
+			console.log('User stationary for ', stat_time, ' in ', geoLoc.stationary_place_id);
+			UserPlaces.insert(
+			{
+				geoId: geoId,
+				userId: userId,
+				place_id: geoLoc.stationary_place_id,
+				geo_place_id: geoLoc.place_id,
+				started: new Date(),
+				timestamp:  moment().valueOf(),
+				location: geoLoc.location
+			});	
+				
 		}
 		// updating geolog with new place
 	}

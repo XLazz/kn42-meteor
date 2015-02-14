@@ -90,19 +90,6 @@
 							{{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}<br />
 						{{/if}}
 					</div>
-<!-- 					{{#if checkedFsqr}} 
-						<div style="width: auto; white-space: normal">
-							<i class="fa fa-foursquare"></i> Checked at {{checkedFsqr.venue.name}} {{checkedFsqr.date}}
-						</div>
-					{{else}}
-						<div style="width: auto; white-space: normal" id="checkFsqr">
-							{{#if checkinFsqr}} 
-								<i class="fa fa-foursquare"></i> Check at {{checkinFsqr.name}}?
-							{{else}}
-								<i class="fa fa-foursquare"></i> no fsqr around. Check? {{findFsqr}} 
-							{{/if}}
-						</div>						
-					{{/if}}  -->
 					{{#if status}}
 						{{> venuesSelected}}
 					{{/if}}
@@ -117,6 +104,10 @@
 							finished: {{finished}}
 							{{userPlace.place_id}}
 						</div>
+					{{else}}
+						<div style="font-size:70%">
+							{{#if status}} since {{started}} {{/if}} 
+						</div>						
 					{{/if}}
 				{{/if}}
 			</div>

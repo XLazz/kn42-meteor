@@ -15,31 +15,32 @@ CheckedFsqr = function(userPlaceId){
 				}
 			}
 		);
-//		console.log('function checkedFsqr 1 ', userPlace, checkedFsqr);
+		console.log('function checkedFsqr 1 ', userPlace, checkedFsqr);
 		if (checkedFsqr)
 			return checkedFsqr;				
 	}
 	
 	if (!userPlace.timestampEnd)
 		userPlace.timestampEnd = moment().valueOf();
-	console.log('function checkedFsqr 0.5 ', userPlace.foursquareId);
-	var timestampFsqr;
-	var nameFsqr;
 		
 	var checkedFsqr = CheckinsFsqr.findOne({
 			userId: Meteor.userId(),	
-			createdAt: { $gt: userPlace.timestamp/1000+300*60, $lt: userPlace.timestampEnd/1000+300*60}	
+			createdAt: { $gt: userPlace.timestamp/1000, $lt: userPlace.timestampEnd/1000}	
 		},{	
 			limit: 1, sort: {createdAt: -1},
 			transform: function(doc){
-//				doc.timestamp = doc.timestamp+300*60;
+				var timestamp = moment(userPlace.timestamp).format("MM/DD/YY HH:mm");
+				var timestampEnd = moment(userPlace.timestampEnd).format("MM/DD/YY HH:mm");
 				doc.date = moment(doc.createdAt*1000).format("MM/DD/YY HH:mm");
+				console.log('inside  CheckinsFsqr.findOne ', timestamp, timestampEnd, doc.date, doc);
+//				doc.timestamp = doc.timestamp+300*60;
+				
 				return doc;
 			}
 		}
 	);
 
-//	console.log('function checkedFsqr 2 ', userPlace, checkedFsqr);
+	console.log('function checkedFsqr 2 ', userPlace, checkedFsqr);
 	if (checkedFsqr) {
 		UserPlaces.update(userPlaceId, {$set: {foursquareChk: checkedFsqr.id, foursquareId: checkedFsqr.venue.id}});
 		return checkedFsqr;
@@ -149,8 +150,26 @@ Template.venuesSelected.helpers({
 	},
 	
 	checkedFsqr: function(){
-		console.log('venuesSelected checkedFsqr ', this._id, this);
+		var currentLoc = this;
 		var checkedFsqr = CheckedFsqr(this._id);
+		
+/* 		var mytimestamp = this.timestamp;
+		var timestampEnd = this.timestampEnd;
+		console.log('venuesSelected checkedFsqr 2 ', checkedFsqr, this._id, mytimestamp, timestampEnd, this);
+		var checkedFsqr = CheckinsFsqr.findOne({
+			userId: Meteor.userId(),},{	
+			sort: {createdAt: -1},
+			transform: function(doc){
+				doc.timestamp = moment(mytimestamp).format("MM/DD/YY HH:mm");
+				doc.timestampEnd = moment(timestampEnd).format("MM/DD/YY HH:mm");
+				doc.date = moment(doc.createdAt*1000).format("MM/DD/YY HH:mm");
+				console.log('inside  CheckinsFsqr.findOne 2 ', mytimestamp, doc.timestamp, timestampEnd, doc.timestampEnd, ' doc ', doc.date, doc);
+				//				doc.timestamp = doc.timestamp+300*60;
+				
+				return doc;
+			}
+		}); */
+		
 		return checkedFsqr;
 	},
 
