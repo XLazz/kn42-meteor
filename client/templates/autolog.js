@@ -190,7 +190,8 @@ Template.showMapDrv.helpers({
 					//			console.log(' foreach ', item.types );
 					var marker = new google.maps.Marker({
 						position: new google.maps.LatLng(item.location.coords.latitude,item.location.coords.longitude),
-						map: map.instance
+						map: map.instance,
+						title: 'Speed: ' + item.location.coords.speed
 					});	
 				});
       });
