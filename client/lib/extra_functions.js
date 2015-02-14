@@ -151,7 +151,7 @@ PollingGeo = function(){
 	}
 }
 
-addPlace = function (location){
+addPlace = function (geoId, location){
 	userId =  Meteor.userId();
 	var radius = 30; //stationary and google search radius
 	var results;
@@ -174,15 +174,25 @@ addPlace = function (location){
 	var initiator = 'addPlace function';
 	var params = {
 		location: location,
-		radius: radius
+		radius: radius,
+		geoId: geoId
 	};
+
+/* 	var gps = location.coords.latitude + ',' + location.coords.longitude;
+
+	Meteor.call('googleMapsReverse', userId, gps, initiator, function(err,results){
+		console.log('googleMapsReverse call in addPlace ', results);
+	});
+
+	return; */
+	
 	Meteor.call('getGLoc', userId, params, initiator, function(err,results){
 		var experience;
 		console.log('getGLoc call in addPlace ', results);
 				
 		if (!results)
 			return;
-		currentPlace = results.results[0];
+/* 		currentPlace = results.results[0];
 		currentPlaceAlt = results.results[1];
 
 		var geolog = GeoLog.findOne({timestamp: location.timestamp, userId: userId});
@@ -204,7 +214,7 @@ addPlace = function (location){
 				}
 			}
 		);
-		
+	
 		oldLoc = GeoLog.findOne({userId: userId, timestamp:{$ne: location.timestamp}}, {sort: {timestamp: -1}});
 		if (!oldLoc)
 			return;
@@ -250,7 +260,7 @@ addPlace = function (location){
 		}
 
 		submitCoords(userId, geoId, location );
-	});
+ */	});
 
 }
 
@@ -260,7 +270,8 @@ UpdateGeo = function (){
 	var location = Geolocation.currentLocation();
 	if (!location)
 		return;
-	var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
+	var geoId;
+	// geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
 	console.log('UpdateGeo event ', location, geoId, 'fitActivity:', Session.get('fitActivity'), 'fithnes:', Session.get('fitness'), Session.get('fitstart'), Session.get('fitstop'), 'fitnessTrackId', Session.get('fitnessTrackId') );
 	if (!geoId){
 		var uuid = Meteor.uuid();
@@ -371,17 +382,21 @@ UpdateGeoDB = function(location, uuid, device){
 	
 	if (!Session.get('fitness') && !Session.get('driving')){
 	
-		console.log(' adding to geolog ', Session.get('fitness'), ' driving ', Session.get('driving'));
-		GeoLog.insert({
+		console.log(' adding to geolog ', location);
+		var status;
+		if (location.coords.speed > 1)
+			status = 'moving';
+		var geoId = GeoLog.insert({
 			location: location,
 			uuid: uuid,
 			device: device,
 			userId: userId,
 			created: new Date(),
-			timestamp: location.timestamp,
+			timestamp: moment().valueOf(),
 			interval: Session.get('interval'),
+			status: status
 		});	
-		addPlace(location);
+		addPlace(geoId, location);
 	}
 	
 };

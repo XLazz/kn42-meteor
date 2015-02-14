@@ -7,7 +7,7 @@ Meteor.methods({
 			console.error('Called getGLoc, but ', userId, params.location, initiator, params);
 			return;
 		}
-		console.log('Called getGLoc 2 ', userId, 'location ', params.location, 'name ', params.name, initiator);
+		console.log('Called getGLoc 2 ', userId, 'geoId ', params.geoId, initiator);
 		if (!params.location.coords) {
 			console.error('Called getGLoc, but location.coords ', params.location.coords, params.location, initiator);
 			return;		
@@ -24,7 +24,7 @@ Meteor.methods({
 		}
 		var response = GetGoogleLoc(userId, coords, params.radius, name);
 
-		console.log('GetGoogleLoc called google ', userId, coords, response.results.length);
+//		console.log('GetGoogleLoc called google ', userId, coords, response.results.length);
 		if (!response) 
 			return;
 			
@@ -32,23 +32,26 @@ Meteor.methods({
 			console.error('GetGoogleLoc empty call, increase radius?');
 		
 		for (var i = 0; i < response.results.length; i++) {		
-			console.log('inserting merchants 0 ', response.results[i].name);
-			if (!MerchantsCache.findOne({place_id: response.results[i].place_id, 'coords.latitude': coords.latitude,  'coords.longitude': coords.longitude})) { 
-				
+//			console.log('inserting merchants 0 step ', i, ' response ', response.results[i].name);
+			if (!MerchantsCache.findOne({place_id: response.results[i].place_id, 'coords.latitude': coords.latitude,  'coords.longitude': coords.longitude})) { 			
 				response.results[i].coords = coords;
-				response.results[i].updated = new Date(),
-//				response.results[i].geoId = userLocation.geoId;
+				response.results[i].updated = moment().valueOf(),
 				console.log('inserting merchants 1 ', response.results[i].place_id, response.results[i].name);
 				MerchantsCache.upsert(
 					{ 'place_id': response.results[i].place_id	},
 					{	$set: response.results[i]	}
 				);	
-/* 				MerchantsCache.update(
-					{ 'place_id': response.results[i].place_id	},
-					{	$set: {timestamp: moment().valueOf()	}}
-				);	 */
+			}
+			if (i == 0) {
+//				console.log('upserting GeoLog for geoId ', params.geoId, ' with place_id ', response.results[i].place_id); 
+				GeoLog.upsert(params.geoId, {$set: {place_id: response.results[i].place_id}});
+			}
+			if (i == 1) {
+//				console.log('upserting GeoLog for geoId ', params.geoId, ' with stat place_id ', response.results[i].place_id); 
+				GeoLog.upsert(params.geoId, {$set: {stationary_place_id: response.results[i].place_id}});
 			}
 		}
+		ifStationary (userId, params.geoId);
 		return response;
 	},
 	
@@ -161,11 +164,51 @@ Meteor.methods({
 		return result;
 	},
 
-	googleMapsReverse: function(params) {	
-		var result = GoogleMaps.getReverseGeocode(params);
-		console.log('googleMapsReverse ', params, result);
-		return result;
+	googleMapsReverse: function(userId, gps, initiator) {	
+		var google_server_key = 'AIzaSyAQH9WdmrwMKphSHloMai5iYlcS5EsXMQA';
+		GoogleMaps.config({
+			'google-private-key': google_server_key,
+			'stagger-time': 200,
+			'encode-polylines': true,
+			'secure': false,
+			'proxy': null,
+		});
+		GoogleMaps.distance(
+    "100 East Main Street, Louisville KY, 40202",
+    "1500 Bardstown Rd, Louisville, KY 40205",
+    function (error, data) {
+      console.log('transit', data);
+      if (error) {
+        console.log(error);
+				return;
+      }
+      console.log(data.rows[0].elements[0]);
+      /* expect = {
+        distance: { text: '5.4 km', value: 5447 },
+        duration: { text: '9 mins', value: 552 },
+        status: 'OK'
+      } */
+    },
+    'false',
+    'transit'
+		);
+		var place = GoogleMaps.reverseGeocode(gps, function (error, result) {
+			console.log('result');
+			if (error) {
+				console.error(error);
+				return;
+			}
+//			console.log(result.rows[0].elements[0]);
+			/* expect = {
+				distance: { text: '5.4 km', value: 5447 },
+				duration: { text: '9 mins', value: 552 },
+				status: 'OK'
+			} */
+			return result;
+		});
 	},	
+	
+	
 
 	
 });

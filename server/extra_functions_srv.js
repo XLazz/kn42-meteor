@@ -211,19 +211,19 @@ CheckInFsqr = function(venueId){
 
 GetGoogleLoc = function(userId, coords, radius, name){
 	var response;
-	console.log('GetGoogleLoc coords', coords, 'radius ', radius, 'name ', name);
+	console.log('GetGoogleLoc userId ', userId, 'radius ', radius, 'name ', name);
 /* 	if ((!userLocation.location) && (userLocation.timestamp)) {
 		var userLocation = GeoLog.findOne({userId: userId, timestamp: userLocation.timestamp});
 		userLocation = userLocation.location;
 	} */
-	console.log('calling google 1 ', coords);
+//	console.log('calling google 1 ', coords);
   try {	
 		var location = coords.latitude + ',' + coords.longitude;
 		var radius = radius;
 		var google_server_key = 'AIzaSyAQH9WdmrwMKphSHloMai5iYlcS5EsXMQA';
 		var url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
 		url = url +'?location=' + location + '&key=' + google_server_key + '&radius=' + radius + '&name=' + name;
-		console.log('calling google 0 ', url);
+//		console.log('calling google 0 ', url);
 		var response1 = Meteor.http.call("GET", url);
 /*     var response1 = Meteor.http.call("GET", url,
 									{params: 
@@ -234,7 +234,7 @@ GetGoogleLoc = function(userId, coords, radius, name){
 										}
 									}); */
 		response =  JSON.parse(response1.content);
-		console.log('response calling google ', response.results.length);
+		console.log('response calling google length ', response.results.length);
 //		Meteor._sleepForMs(1000);
 		return response;
   } catch (e) {
@@ -321,6 +321,109 @@ GoogleMaps.getPlaces = function(params){
 	console.log('places response ', response);
 	return response
 }
+
+ifStationary = function(userId, geoId){
+	var stat_time = 200000;
+	var geoLoc = GeoLog.findOne(geoId);
+	if (!geoLoc)
+		return;
+	var geoLocOld = UserPlaces.findOne({userId:userId},{sort: {timestamp: -1}});
+	if (!geoLocOld)
+		return;
+	console.log('old place from GeoLog ', geoLocOld, ' new place ', geoLoc);		
+
+	// if previous stationary place_id from GeoLog is the same as new one, we are stationary
+	if ((geoLocOld.place_id == geoLoc.stationary_place_id) || (geoLocOld.place_id == geoLoc.place_id)) {
+		// updating geolog with new stationary status
+		console.log('Same place ', geoLoc.stationary_place_id);
+		current_status = 'stationary';
+		GeoLog.upsert(geoId, {$set: {status: current_status,}});						
+		// and let's check if user has spent enough time to make it userplace
+		var diffstamp = moment().valueOf() - stat_time;
+		var ifStat = GeoLog.findOne({userId: userId, timestamp: {$lt: diffstamp}},{sort:{timestamp: -1}});
+		if (!ifStat)
+			return;		
+		if (!ifStat.stationary_place_id == geoLoc.stationary_place_id)
+			return;		
+		//since user static for enough, let;s add UserPlace
+		console.log('User stationary for ', stat_time, ' in ', geoLoc.stationary_place_id);
+		UserPlaces.insert(
+		{
+			geoId: geoId,
+			userId: userId,
+			place_id: geoLoc.stationary_place_id,
+			started: new Date(),
+			location: geoLoc.location
+		});
+	} else {
+		// if previous stationary place_id is not the same and userplace is not finalised, then finalise it, user is officially on the move
+		console.log('moved to ', geoLoc.stationary_place_id, ' or ', geoLoc.place_id ,' from ', geoLocOld.place_id );
+		current_status = '';
+		var userplace = UserPlaces.findOne({userId:userId, place_id: geoLocOld.stationary_place_id },{sort:{timestamp: -1}});				
+		if (!geoLocOld.timestampEnd) {
+			geoLocOld.timestampEnd = moment().valueOf();
+			UserPlaces.upsert(geoLocOld._id, {$set: {timestampEnd: geoLocOld.timestampEnd }});
+			// and submit to server with the timestampEnd
+			// location.timestampEnd = oldLoc.timestamp;
+			// location.userplaceId = userplace._id;
+			// Meteor.call('submitPlace', userId, location, experience);
+
+			//					console.log('User has moved from ', lastLoc.stationary_place_id, ' to ', currentPlaceAlt.place_id);
+		}
+		// updating geolog with new place
+	}
+	
+}
+
+ifStatic = function(userId, currentPlace, currentPlaceAlt, location){
+// Add userplace if user becomes static for some time;
+	if (!userId)
+		return;
+	var stat_time = 200000;
+	var timestamp = location.timestamp;
+	var insert_it;
+	var userplaceId;
+	var experience = {};
+	experience.had = '';
+	experience.stars = '';
+	experience.comment = '';
+	var diffstamp = moment().valueOf() - stat_time;
+	var lastLoc = GeoLog.findOne({timestamp: {$lt: diffstamp}, userId: userId},{sort:{timestamp: -1}});
+	if (!lastLoc)
+		return;
+	console.log('lastLoc if user has moved from ', lastLoc.stationary_place_id);
+	var lastPlace = UserPlaces.findOne({userId: userId}, {sort: {started: -1}});
+	if (!lastLoc.stationary_place_id == currentPlaceAlt.place_id)
+		return;
+
+	//since user static for enough, let;s add UserPlace
+	console.log('User stationary for ', stat_time, ' in ', lastLoc.stationary_place_id);
+	currentPlace.timestamp = lastLoc.timestamp;
+	currentPlace.geoId = lastLoc._id
+	
+	if (!lastPlace) {
+		console.log('ifStatic no last place, calling php server ');
+/* 		Meteor.call('getLocations', userId, 'list', function(err,results){
+			if (results) {
+				if (!results.length)
+					insertPlace(userId, lastLoc, currentPlaceAlt);
+				console.log('calling php server for json 2 ', results.length);
+			}
+		}); */
+	} else {
+		if (lastPlace.timestampEnd) {
+			var claimed = findClaimed(userId, lastLoc.location.coords);
+			if (claimed)
+				currentPlaceAlt.place_id = claimed.place_id;		
+			if (lastPlace.place_id !== currentPlaceAlt.place_id)
+				insertPlace(userId, lastLoc, currentPlaceAlt);
+		} 
+	}
+		
+//		alert ('moved');
+	
+}
+
 
 GoogleMaps.asyncPlaces = Async.wrap (GoogleMaps.places);
 

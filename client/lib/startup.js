@@ -20,5 +20,5 @@ Meteor.startup(function () {
     var searchHandle = Meteor.subscribe('downloadPlaces', userId, limit);
     Session.set('getPlacesNotReady', ! searchHandle.ready()); */
   }
-	GoogleMaps.load();
+	GoogleMaps.load({ v: '3', key: 'AIzaSyAQH9WdmrwMKphSHloMai5iYlcS5EsXMQA', libraries: 'geometry,places' });
 });

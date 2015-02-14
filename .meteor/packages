@@ -61,12 +61,13 @@ reywood:publish-composite
 mizzao:user-status
 frozeman:animation-helper
 
-percolate:google-api
-cscottnet:googleapis
+#percolate:google-api
+#cscottnet:googleapis
 oauth2
 google
 http
 standard-app-packages
-chenroth:googlemaps-api
+#chenroth:googlemaps-api
 meteorhacks:async
-dburles:google-maps
+#dburles:google-maps
+servicelocale:googlemaps-api

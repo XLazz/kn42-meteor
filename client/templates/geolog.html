@@ -61,6 +61,9 @@
 						{{#if location.coords.speed}} {{location.coords.speed}}m/s {{/if}} accuracy: {{location.coords.accuracy}} int: {{interval}} {{fitness}} {{driving}} {{#if confirmed}} confirmed: {{confirmed}} {{/if}} {{#if travel}} {{travel}} {{/if}};
 					</div>
 					<div>{{status}} at {{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}</div>
+					<div>
+<!-- 						{{> googleMap [type=map] name=String options=Object}} -->
+					</div>
 				</div>
 			</div>
 			<hr>
