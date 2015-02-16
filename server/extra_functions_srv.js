@@ -364,7 +364,8 @@ ifStationary = function(userId, geoId){
 		if (!geoLocOld.timestampEnd) {
 			//if place was not finalized, then add timestampEnd
 			geoLocOld.timestampEnd = moment().valueOf();
-			UserPlaces.upsert(geoLocOld._id, {$set: {timestampEnd: geoLocOld.timestampEnd }});
+			if (geoLocOld._id)
+				UserPlaces.upsert(geoLocOld._id, {$set: {timestampEnd: geoLocOld.timestampEnd }});
 			// and submit to server with the timestampEnd
 			// location.timestampEnd = oldLoc.timestamp;
 			// location.userplaceId = userplace._id;

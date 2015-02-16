@@ -1,6 +1,7 @@
 App.info({
 //  id: 'com.idwjia7uevfv491fvrh8f',
-  name: 'Kn42-dev',
+  id: 'com.kn42.dev.meteor',
+  name: 'Kn42-dev-met',
   description: 'Kn42 personal companion',
   author: 'Xlazz Inc',
   email: 'stanp@xlazz.com',
@@ -41,14 +42,14 @@ App.launchScreens({
   'android_hdpi_landscape': 'resources/splash/splash-800x480.png',
   'android_xhdpi_portrait': 'resources/splash/splash-720x1280.png',
   'android_xhdpi_landscape': 'resources/splash/splash-1280x720.png' */
-  'android_ldpi_portrait': 'resources/splash/logo750x750.png',
-  'android_ldpi_landscape': 'resources/splash/logo750x750.png',
-  'android_mdpi_portrait': 'resources/splash/logo750x750.png',
-  'android_mdpi_landscape': 'resources/splash/logo750x750.png',
-  'android_hdpi_portrait': 'resources/splash/logo750x750.png',
-  'android_hdpi_landscape': 'resources/splash/logo750x750.png',
-  'android_xhdpi_portrait': 'resources/splash/logo750x750.png',
-  'android_xhdpi_landscape': 'resources/splash/logo750x750.png'
+  'android_ldpi_portrait': 'resources/splash/dolphin-kn42-1000x500.png',
+  'android_ldpi_landscape': 'resources/splash/dolphin-kn42-1000x500.png',
+  'android_mdpi_portrait': 'resources/splash/dolphin-kn42-1000x500.png',
+  'android_mdpi_landscape': 'resources/splash/dolphin-kn42-1000x500.png',
+  'android_hdpi_portrait': 'resources/splash/dolphin-kn42-1000x500.png',
+  'android_hdpi_landscape': 'resources/splash/dolphin-kn42-1000x500.png',
+  'android_xhdpi_portrait': 'resources/splash/dolphin-kn42-1000x500.png',
+  'android_xhdpi_landscape': 'resources/splash/dolphin-kn42-1000x500.png'
 });
 
 App.setPreference('StatusBarOverlaysWebView', 'false');
