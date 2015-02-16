@@ -5,6 +5,16 @@
         <a class="nav-item js-back" href="#"><span class="icon-arrow-left-alt"></span></a>
       {{else}}
         <div class="flleft"><a class="nav-item js-menu" href="#"><span class="fa fa-bars"></span></a></div>
+				{{#if ifNote}}
+					<div class="flnote">
+						<span class="pulse_holder fa fa-dot-circle-o">
+							<div class="pulse_marker">
+								<div class="pulse_rays"></div>
+							</div>
+						</span>
+					</div>
+				
+				{{/if}}
         <div class="flright"><a class="nav-item js-profile flright" href="{{pathFor 'about'}}"><span class="fa fa-ellipsis-v" aria-hidden="true"></span></a></div>
       {{/if}}
     </div>

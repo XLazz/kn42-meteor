@@ -44,8 +44,8 @@ Meteor.publish(null, function() {
 	return Places.find({},{limit:100});
 	return GooglePlaces.find({});
 });
-Meteor.publish('Geolog', function(userId) {
-	return GeoLog.find({userId:this.userId});
+Meteor.publish('GeoLog', function(userId) {
+	return GeoLog.find({userId:this.userId},{sort: {timestamp:-1}, limit:300});
 });
 Meteor.publish('Experiences', function(userId) {
 	return Experiences.find({userId:this.userId});

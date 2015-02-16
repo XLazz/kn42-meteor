@@ -169,10 +169,10 @@ Template.venuesSelected.helpers({
 	ifDebug: function(){
 		return Session.get('debug');
 	},	
-	getVenuesCheckins: function() {
+/* 	getVenuesCheckins: function() {
 		console.log('venuesSelected GetVenuesCheckins ');
 		GetVenuesCheckins();
-	},
+	}, */
 	
 	checkedFsqr: function(){
 		var currentLoc = this;
@@ -296,12 +296,6 @@ Template.venues.events({
 Template.venuesSelected.events({
 	'click .checkFsqr': function(event, template) {
 		console.log('clicked checkFsqr ', this._id);
-/* 		Meteor.call('checkinsFsqr',  Meteor.userId(), this._id, function(err,results){
-			console.log('checkinsFsqr call result ', results[0].venue);
-		}); */
-		var query = {};
-/* 		query.radius = 1000;
-		query.what = 'coffee'; */
 		userLocation = this._id;
 		var venue = loadFsqr(userLocation);
 		return venue;
@@ -309,30 +303,16 @@ Template.venuesSelected.events({
 	'click .otherFsqr': function(event, template) {
 		Session.set('selectFsqr', false);
 		console.log('clicked otherFsqr ', this._id);
-		/* 		Meteor.call('checkinsFsqr',  Meteor.userId(), this._id, function(err,results){
-			console.log('checkinsFsqr call result ', results[0].venue);
-		}); */
-		var query = {};
-		/* 		query.radius = 1000;
-		query.what = 'coffee'; */
-		userLocation = this._id;
-		var venueNum = Session.get('venueNum') + 1;
-		if (!Session.get('venueNum'))
-			var venueNum = 1;		
-		Session.set('venueNum', venueNum);
-		console.log('otherFsqr ', venueNum);
-//		var venue = loadFsqr(userLocation);
 		Overlay.show('selectFsqr');	
 		return venue;
 	},
 	'click .goFsqr': function(event, template) {
+		// we are checking in Fsqr
 		console.log('clicked goFsqr ', this._id, this, $(event.currentTarget).attr("id"));
-/* 		Meteor.call('checkinsFsqr',  Meteor.userId(), this._id, function(err,results){
-			console.log('checkinsFsqr call result ', results[0].venue);
-		}); */
-		
 		var venueId = $(event.currentTarget).attr("id");
 		var venue = goFsqr(venueId);
+		if (venue.meta.code == 200)
+			Session.set('note', true);
 		return venue;
 	},
 });
@@ -362,10 +342,9 @@ Template.selectFsqr.events({
 	'click .cancel': function(event, template) {
 		console.log('selectPlace click .cancel ', this);
 		// Session.set("showCreateDialog", false);
-		var radius = 50;
-		Session.set('radius', radius);
 		Session.set('searching', false);
 		Session.set('changeplace', false);
+		Session.set('radius_search', false);
 		Overlay.hide();
 	},
 	
@@ -385,6 +364,7 @@ Template.selectFsqr.events({
 		var userId = Meteor.userId();
 		console.log('selectFsqr events select ', this.id, this.name );
 		Session.set('selectFsqr', this.id);
+		Session.set('radius_search', false);
 //		Session.set("showCreateDialog", true);
 		Overlay.hide();
 	},

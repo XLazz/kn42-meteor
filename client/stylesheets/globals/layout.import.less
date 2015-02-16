@@ -104,6 +104,10 @@ body {
 	float:right;
 }
 
+.flnote{
+	float:left;
+}
+
 .white {
 	color: white;
 }
@@ -153,3 +157,57 @@ body {
 .geolog{
 	.font-s2;
 }
+
+@-webkit-keyframes pulse 
+  {       
+    0% {-webkit-transform: scale(0); opacity: 0;}
+    8% {-webkit-transform: scale(0); opacity: 0;}
+    15% {-webkit-transform: scale(0.1); opacity: 1;}
+    30% {-webkit-transform: scale(0.5); opacity: 1;}
+    100% {opacity: 0; -webkit-transform: scale(1);}
+  }
+
+  @-moz-keyframes pulse 
+  {       
+    0% {-moz-transform: scale(0); opacity: 0;}
+    8% {-moz-transform: scale(0); opacity: 0;}
+    15% {-moz-transform: scale(0.1); opacity: 1;}
+    30% {-moz-transform: scale(0.5); opacity: 1;}
+    100% {opacity: 0; -moz-transform: scale(1);}
+  }
+  
+  .pulse_holder
+  {
+
+  }
+    
+  .pulse_holder .pulse_marker 
+  {
+		position: absolute;
+		top: 22px;
+		left: 37px;
+  }
+ 
+  .pulse_holder .pulse_rays 
+  {
+    margin: 0 auto;
+    border-radius: 100px;
+    position: absolute;
+    right: -26px;
+    top: -26px;
+    z-index: 10;
+    background-color: transparent;
+    opacity: 0.1;
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(0, 128, 64, 1);
+    -webkit-border-radius: 100px;
+    -moz-border-radius: 100px;
+    -o-border-radius: 100px;
+    -ms-border-radius: 100px;
+    border-radius: 100px;
+    /* Giving Animation Function */
+    -webkit-animation: pulse 2s linear infinite;
+    -moz-animation: pulse 2s linear infinite; 
+    border-image: initial;
+  }

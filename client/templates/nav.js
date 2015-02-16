@@ -15,5 +15,21 @@ Template.nav.helpers({
   // hot code push), but we can't rely on going back in such cases.
   back: function () {
     return this.back && ! history.state.initial;
-  }
+  },
+	ifNote: function(){
+		return Session.get('note');
+	}
+});
+
+Template.nav.events({
+  // Iron Router stores {initial: true} in history state if this is
+  // the first route that we hit in an app. There are a variety of 
+  // unexpected ways that this can happen (for example oauth, or 
+  // hot code push), but we can't rely on going back in such cases.
+	'click .flnote': function(event, template) {
+		console.log('nav click .note ', this);
+		// Session.set("showCreateDialog", false);
+		Session.set('note', false);
+		Overlay.show('notifications');
+	},
 });
