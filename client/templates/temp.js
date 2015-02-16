@@ -41,7 +41,7 @@ Template.test.helpers({
 	},
 	checkinsFsqr: function(){
 		var userId = Meteor.userId();
-		var checkinsFsqr = CheckinsFsqr.find(
+		var checkinsFsqr = VenuesCheckins.find(
 			{userId:userId},
 			{
 				sort: {createdAt: -1}, 

@@ -54,14 +54,21 @@
 					</div>
 				{{else}}
 					<div>
-						{{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}
+						{{#if geoPlace.name}} 
+							{{geoPlace.name}} 
+						{{else}} 
+							{{geoMerchant.name}} 
+							{{#if geoMerchant.unknown}}
+								{{getMerchant}}
+							{{/if}}
+						{{/if}}
 					</div>
 					<div style="font-size: smaller">		
 						{{#if geoPlace.name}}
 							{{> venues}}
 							{{geoPlace.vicinity}} {{else}}{{geoMerchant.vicinity}} 
 						{{/if}}<br />
-						{{status}} since {{timestart}} {{started}} {{#if timespent}} for {{timespent}} {{/if}}
+						{{status}} since {{timestart}} {{#if timespent}} for {{timespent}} {{/if}}
 <!-- 						<div>{{> venuesSelected}}</div> -->							
 					</div>
 					{{#if ifDebug}} 

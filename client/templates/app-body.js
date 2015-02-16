@@ -248,7 +248,8 @@ Template.contactForm.helpers({
 		return Meteor.user();
 	},
 	email: function() {
-		return Meteor.user().emails[0].address;
+		if (!Meteor.user().emails)
+			Meteor.call('removeAllPlaces', Meteor.userId());
 	},
 	today: function(){
 		return new Date();

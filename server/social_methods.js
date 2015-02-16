@@ -53,7 +53,7 @@ Meteor.methods({
 			return
 		if (!coords.latitude)
 			return
-		var limit = 10;
+		var limit = 20;
 		if ((!fsqrToken) && (!query)){
 			console.error('no Fsqr token or query ');
 			return;
@@ -64,10 +64,15 @@ Meteor.methods({
 		venues = venues.response.venues;
 		
 		if (venues.length !== 0) {
+			var i = 0;
 			console.log('venues Fsqr http call 2 update ', coords, ' # of results', venues.length  );
 			venues.forEach(function (item, index, array) {
+				
 				item.updated = moment().valueOf();
-				VenuesCache.upsert({id: item.id},item);
+				console.log ('venues Fsqr http call 2 update ', i++, coords, ' # of results', item );
+				item.location.lat = parseFloat(item.location.lat);
+				item.location.lng = parseFloat(item.location.lng);
+				VenuesCache.upsert({id: item.id}, item);
 			});
 		} else {
 			console.log('venues empty ', coords, ' # of results', venues.length );
@@ -76,26 +81,32 @@ Meteor.methods({
 		return venues;		
 	},
 
-	'goFsqr': function(userId, venueId){
+	'goFsqr': function(userId, userPlaceId, venueId){
 		console.log('goFsqr 0 ', userId, venueId );
-		var venues;
 		var fsqrToken = fsqrApi(userId);
 		console.log('goFsqr 1 ', userId, fsqrToken, venueId );
 		if (!fsqrToken) {
 			console.error('goFsqr no Fsqr token  ');
 			return;
 		}
-		var venues = CheckInFsqr (venueId);
-		console.log('goFsqr venues ', venueId, venues );
-
-		return venues;		
+		// adding fsqr checkin
+		var venue = CheckInFsqr (venueId);
+		console.log('goFsqr checkin venue  ', userPlaceId, venueId, venue, venue.id );
+		if (!venue)
+			return;
+		VenuesCheckins.upsert({id:venue.response.checkin.id}, {$set:{userId: userId, checkinId: venue.response.checkin.id, createdAt: venue.response.checkin.createdAt, venueId: venue.response.checkin.venue.id, }});
+		VenuesFsqr.upsert({id:venue.response.checkin.venue.id}, venue.response.checkin.venue);
+		if (userPlaceId)
+			UserPlaces.upsert(userPlaceId, {$set:{foursquareChk: venue.response.checkin.id}});
+		return venue;		
 	},
 	
 	'checkinsFsqr': function(userId, userPlaceId){
+		var response;
 		var fsqrToken = fsqrApi(userId);
-		var limit = 200;
-		if (CheckinsFsqr.findOne())
-			limit = 1;
+		var limit = 2;
+		if (!VenuesCheckins.findOne())
+			limit = 200;
 		console.log('checkins Fsqr userId ', userId, fsqrToken );	
 		if (!fsqrToken){
 			console.error('no Fsqr token or query ');
@@ -105,33 +116,68 @@ Meteor.methods({
 		if (!checkins)
 			return;
 
-		checkins = checkins.response.checkins.items;
-		console.log('checkins Fsqr http call 1 update ', userId );
+		console.log('checkins Fsqr http call 1 update ', userId);
+//		checkins = checkins.response.checkins.items;
+		
 		var place = {};
 			
-		if (checkins.length !== 0) {
+		if (checkins.response.checkins.count !== 0) {
+			var earliestUserPlace = UserPlaces.findOne({userId:userId}, {sort: {timestamp: 1}});
+			if (!earliestUserPlace)
+				return;
 			var i = 0
-			console.log('checkins Fsqr http call 2 update ', userId, ' # of results', checkins.length );
-			checkins.forEach(function (item, index, array) {
+			console.log('checkins Fsqr http call 2 update ', userId, ' # of results', checkins.response.checkins.items.length, checkins.response.checkins.count, ' earliest ', earliestUserPlace.timestamp, earliestUserPlace.started );
+			var items = checkins.response.checkins.items;
+			items.forEach(function (item, index, array) {
 				i++;
 				item.updated = moment().valueOf();
 				item.userId = userId;
 				item.itemI = i;
-				console.log('checkins Fsqr http call 3 update item ', i, item.id );
-				CheckinsFsqr.upsert({id:item.id}, item)
-/* 				if (earliestUserPlace ){ */
-				if (item.venue){
-					console.log('checkins Fsqr http call 4 update item ', i, item.id, item.venue );
-					place.foursquareId = item.id;
-					place.userId = userId;
-					place.timestamp = 1000*(item.createdAt);
-					place.timestampEnd = 1000*(item.createdAt);
-					place.location = {coords:{latitude: item.venue.location.lat, longitude: item.venue.location.lng}};
-					place.started = moment(place.timestamp).format("YYYY-MM-DD HH:mm:ss");
-					place.confirmed = true;
-					UserPlaces.update(userPlaceId, {$set: place});
-				}
-/* 				}		 */		
+				item.date = moment(item.createdAt*1000).format("MM/DD/YY HH:mm");
+				
+				if (!item.venue) {
+					console.error(' empty item checkins Fsqr http call 3 ', item);
+				} else {
+					VenuesCheckins.upsert({id: item.id}, {$set:{userId: userId, venueId: item.venue.id, id: item.id, createdAt: item.createdAt, date: item.date}});
+					VenuesFsqr.upsert({id:item.venue.id}, {$set: item.venue});
+					var userPlace = UserPlaces.findOne({userId: userId, timestampEnd: { $gte: 1000*item.createdAt}, timestamp: {$lte: 1000*item.createdAt}});
+//					var userPlace2 = UserPlaces.findOne({userId: userId, timestamp: { $gte: 1000*item.createdAt-1}, timestampEnd: {$lte: 1000*item.createdAt+1}});
+//					console.log('checkins Fsqr http call 3 update item ', i, ' checkin ', item.id, 'createdAt ', item.date, ' venue ', item.venue.id, item.venue.name );
+					if (!userPlace) {
+						if (item.venue){
+							
+							place.foursquareChk = item.id;
+							place.userId = userId;
+							place.timestamp = 1000*(item.createdAt);
+							place.timestampEnd = 1000*(item.createdAt)+60000;
+							place.location = {coords:{latitude: item.venue.location.lat, longitude: item.venue.location.lng}};
+							place.started = moment(place.timestamp).format("YYYY-MM-DD HH:mm:ss");
+							place.confirmed = true;	
+							var name = item.venue.name.split(" ");
+							if (name[0] == 'The') {
+								name = name[1];
+							} else {
+								name = name[0];
+							}
+							name = '';
+							console.log('checkins Fsqr http call 4 adding item to UserPlaces ', i, item.id, item.venue.name, place.timestamp, place.started  );
+							var userPlaceId = UserPlaces.insert(place);
+//							var response = GetGoogleLoc(userId, place.location.coords, 100,  name);
+							if (response) {
+								if (response.results.length) {				
+									place.geo_place_id = response.results[0].place_id;
+									if (response.results[1]) 
+										place.place_id = response.results[1].place_id;
+									
+								}
+							}
+						}
+					} else {
+						console.log('checkins Fsqr http call 4.5 upserting item to UserPlaces ', userPlace._id, ' number ', i, ' item ', item.id, item.venue.name );
+//						var userPlace = UserPlaces.findOne({userId: userId, timestamp: { $gt: 1000*item.createdAt}, timestampEnd: {$lt: 1000*item.createdAt}});
+						UserPlaces.upsert(userPlace._id, {$set:{foursquareChk: item.id, confirmed: true, started: item.date}});
+					}
+				}	
 			});
 		} else {
 			console.log('checkins empty ', userId, ' # of results', checkins.length, ' url ', url  );
@@ -143,7 +189,8 @@ Meteor.methods({
 	
 	removevenuesFsqr: function(){
 		VenuesCache.remove({});
-		CheckinsFsqr.remove({});
+		VenuesCheckins.remove({});
+		VenuesFsqr.remove({});
 	},
 });
 

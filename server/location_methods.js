@@ -3,8 +3,8 @@ Meteor.methods({
 	getGLoc: function(userId, params, initiator){
 		var myError;
 		// userlocation.coords.latitude
-		if ((!userId) || (!params.location)){
-			console.error('Called getGLoc, but ', userId, params.location, initiator, params);
+		if ((!userId) || (!params.location) ){
+			console.error('Called getGLoc, but ', userId, params.location, params.geoId, initiator, params);
 			return;
 		}
 		console.log('Called getGLoc 2 ', userId, 'geoId ', params.geoId, initiator);
@@ -42,13 +42,15 @@ Meteor.methods({
 					{	$set: response.results[i]	}
 				);	
 			}
-			if (i == 0) {
-//				console.log('upserting GeoLog for geoId ', params.geoId, ' with place_id ', response.results[i].place_id); 
-				GeoLog.upsert(params.geoId, {$set: {place_id: response.results[i].place_id}});
-			}
-			if (i == 1) {
-//				console.log('upserting GeoLog for geoId ', params.geoId, ' with stat place_id ', response.results[i].place_id); 
-				GeoLog.upsert(params.geoId, {$set: {stationary_place_id: response.results[i].place_id}});
+			if (params.geoId) {
+				if (i == 0) {
+	//				console.log('upserting GeoLog for geoId ', params.geoId, ' with place_id ', response.results[i].place_id); 
+					GeoLog.upsert(params.geoId, {$set: {place_id: response.results[i].place_id}});
+				}
+				if (i == 1) {
+	//				console.log('upserting GeoLog for geoId ', params.geoId, ' with stat place_id ', response.results[i].place_id); 
+					GeoLog.upsert(params.geoId, {$set: {stationary_place_id: response.results[i].place_id}});
+				}
 			}
 		}
 		ifStationary (userId, params.geoId);

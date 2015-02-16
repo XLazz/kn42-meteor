@@ -22,6 +22,7 @@ callback-hook@1.0.2
 check@1.0.4
 coffeescript@1.0.5
 dburles:collection-helpers@1.0.2
+dburles:google-maps@1.0.8
 dburles:mongo-collection-instances@0.2.6
 ddp@1.0.14
 deps@1.0.6

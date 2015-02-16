@@ -1,6 +1,6 @@
 App.info({
-  id: 'com.idwjia7uevfv491fvrh8f',
-  name: 'Kn42',
+//  id: 'com.idwjia7uevfv491fvrh8f',
+  name: 'Kn42-dev',
   description: 'Kn42 personal companion',
   author: 'Xlazz Inc',
   email: 'stanp@xlazz.com',

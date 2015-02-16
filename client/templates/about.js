@@ -95,7 +95,7 @@ Template.connectAccounts.helpers({
 	},
 	checkinsFsqr: function(){
 		var userId = Meteor.userId();
-		var checkinsFsqr = CheckinsFsqr.find({userId:userId});
+		var checkinsFsqr = VenuesCheckins.find({userId:userId});
 		if (checkinsFsqr && checkinsFsqr.count()){
 			checkinsFsqr.count = checkinsFsqr.count();
 		} else {

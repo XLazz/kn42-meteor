@@ -1,22 +1,29 @@
-var userId = Meteor.userId(), limit = 20;
+var userId = Meteor.userId(), limit = 100;
 Meteor.subscribe('placesByGeo', userId, limit);
 Meteor.subscribe('TracksByUser', userId, limit);
-fsqrHandle = Meteor.subscribe('CheckinsFsqr', userId, 100);
+fsqrHandle = Meteor.subscribe('VenuesCheckins', userId, 100);
 Tracker.autorun(function () {
     Meteor.subscribe('userData', userId);
 		Meteor.subscribe("userinfo");
+		Meteor.subscribe('GeoLog',userId);
 		var placesByUserHandle = Meteor.subscribe('placesByUser');
 		Session.set('getPlacesNotReady', ! placesByUserHandle.ready());
 		Meteor.subscribe('autoPlacesByUser');
 		Meteor.subscribe('TracksByUser');
-		Meteor.subscribe('UserPlaces', userId);
+		var subUserPlaces = Meteor.subscribe('UserPlaces', userId);
+		Session.set('subUserPlaces', ! subUserPlaces.ready());
 		Meteor.subscribe('GooglePlaces');
 		Meteor.subscribe('Places', userId);
 		Meteor.subscribe('AutoPlaces',userId);
 		Meteor.subscribe('ClaimedPlaces',userId);
 		Meteor.subscribe('Experiences',userId);
 		Meteor.subscribe('MerchantsCache');
+		
 		Meteor.subscribe('VenuesCache');
+		Meteor.subscribe('VenuesFsqr',userId);
+		Meteor.subscribe('VenuesCheckins', userId);
+		
+		Meteor.subscribe('Contacts',userId);
 		Meteor.subscribe('Drives', userId);
 		Meteor.subscribe('DriveTracks', userId);
 		Meteor.subscribe('Friends', userId);
@@ -24,6 +31,7 @@ Tracker.autorun(function () {
 		Meteor.subscribe('FitnessTracks',userId);
 		Meteor.subscribe('Tracks',userId);
 		Meteor.subscribe('Contacts',userId);
+		
 //    Meteor.subscribe("allUserData");
 });
 /* Template.registerHelper("Schemas", Schemas); */

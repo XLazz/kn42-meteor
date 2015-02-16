@@ -69,9 +69,14 @@ Template.lifelog.events({
 				Session.set('googleCall', false);
 			}, 100);		 */
 		});
+		Meteor.call('removevenuesFsqr', userId, function(err, results) {
+			console.log('Meteor.call event removevenuesFsqr', userLocation.name, results);
+			return results;
+		});
 //		Meteor.call('getLocations', Meteor.userId(), 'list');
 //		Meteor.call('getLocations','list',function(err,results));
 	},
+	
 	"click .updatelocations": function (event, template) {
 		if (!Meteor.userId()) {
 			return;
@@ -134,7 +139,7 @@ Template.showlocations.helpers({
 		
 		var places;
 		var userId = Meteor.userId();
-		console.log('locations helper 1 ', userId );
+//		console.log('locations helper 1 ', userId );
     if (!UserPlaces.findOne({userId: userId})) 
 			return;
 		if (!UserPlaces.findOne({userId: userId})._id)
@@ -210,25 +215,33 @@ Template.showlocations.helpers({
 	geoMerchant: function() {
 		var userId = Meteor.userId();
 //		if (this.place_id) {
-			// We use this helper inside the {{#each posts}} loop, so the context
-			// will be a post object. Thus, we can use this.authorId.
-			var place = MerchantsCache.findOne({'place_id': this.place_id});
-			if (!place) {
-				place = {};
-				place.name = 'unknown';
-			}
-			if (Session.get('userLocation'))
-				if (Session.get('userLocation')._id == this._id) {
+		// We use this helper inside the {{#each posts}} loop, so the context
+		// will be a post object. Thus, we can use this.authorId.
+		var place = MerchantsCache.findOne({'place_id': this.place_id});
+		if (!place) {
+			place = {};
+			place.name = 'unknown';
+			place.unknown = true;
+		}
+		if (Session.get('userLocation')) {
+			if (Session.get('userLocation')._id == this._id) {
 //					console.log('geoMerchant show buts ', Session.get('userLocation')._id , this._id);
-					place.showbut = true;
-				}
-			if ((!place) && (!Session.get('googleCall'))){
-				console.log('Google call getGPlace in geoMerchant function showlocations ', this.place_id);
-	//			getGPlace(this.place_id);
-			} 
-//			console.log('geoMerchant ', this, this.place_id, place, Session.get('userLocation')._id);
-			return place;
+				place.showbut = true;
+			}
+		}
+		return place;
 //		} 
+	},	
+	
+	getMerchant: function() {
+/* 		var userId = Meteor.userId();
+		console.log('Google call getGPlace in geoMerchant function showlocations 0 ', this.place_id, Session.get('googleCall'), moment().valueOf());
+		if ((!Session.get('googleCall')) || (Session.get('googleCall') + 2000 > moment().valueOf())) {
+			console.log('Google call getGPlace in geoMerchant function showlocations ', this.place_id);
+			Session.set('googleCall', false);
+			var place = getGPlace(this.place_id);
+		}
+		return Session.get('googleCall'); */
 	},	
 	
 	checkinFsqr: function(){
@@ -238,9 +251,9 @@ Template.showlocations.helpers({
 		var timestampFsqr;
 		var nameFsqr;
 		if (this.foursquareId) {
-			checkinFsqr = CheckinsFsqr.findOne({id: this.foursquareId});
+			checkinFsqr = VenuesCheckins.findOne({id: this.foursquareId});
 		} else {
-			checkinFsqr = CheckinsFsqr.findOne(
+			checkinFsqr = VenuesCheckins.findOne(
 			{
 				userId:this.userId,	
 				createdAt: { $gt: this.timestamp/1000+300*60, $lt: this.timestampEnd/1000+300*60}	},{	limit: 1, sort: {createdAt: -1}
@@ -283,7 +296,7 @@ Template.showlocations.events({
 			var radius = 500;
 			var initiator = 'showlocations.events';
 			if (userLocation.foursquareId) {
-				userLocation.fsqrName = CheckinsFsqr.findOne({id: userLocation.foursquareId}).venue.name;
+				userLocation.fsqrName = VenuesCheckins.findOne({id: userLocation.foursquareId}).venue.name;
 				name = userLocation.fsqrName.split(" ");
 			}
 

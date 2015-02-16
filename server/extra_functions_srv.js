@@ -26,7 +26,19 @@ GetApi = function(userId){
 		return api_key;
 	}
 	
-	user_details = Meteor.users.findOne({_id: userId}, {_id:0});
+	user_details = Meteor.users.findOne(userId, {_id:0});
+	if (!user_details.emails) {
+		if (user_details.services.google.email) {
+			user_details.emails = [];
+			user_details.emails[0] = {};
+			user_details.emails[0].address = user_details.services.google.email;
+			Meteor.users.upsert(userId, user_details);
+			user_details = Meteor.users.findOne(userId, {_id:0});
+		} else {
+			return;
+		}		
+	}
+	
 	user_email = user_details.emails[0].address;
 	var sukey = '5oOaWrW41o6HJ0yZ';
 	check(arguments, [Match.Any]);
@@ -73,6 +85,11 @@ UpdateProfile = function(userId){
 	var user_email;
 	if (!user_details) {
 		return;
+	}
+	if (!user_details.emails) {
+		user_details.emails = {};
+		user_details.emails[0] = [];
+		user_details.emails[0].address = user_details.services.google.email;
 	}
 	if (user_details.emails[0].address == 'stan@podolski.org') {
 		if (!user_details.admin) 
@@ -155,7 +172,7 @@ GetFsqrLoc = function(coords, limit, query){
 	var today = moment().format('YYYYMMDD');
 	
 	try {
-		var url = 'https://api.foursquare.com/v2/venues/search?ll=' + coords.latitude +',' + coords.longitude + '&oauth_token=' + fsqrToken + '&limit=' + limit + '&v=20141208';
+		var url = 'https://api.foursquare.com/v2/venues/search?ll=' + coords.latitude +',' + coords.longitude + '&oauth_token=' + fsqrToken + '&limit=' + limit + '&v=20150215';
 		if (query)
 			if (query.what)
 				var url = 'https://api.foursquare.com/v2/venues/search?ll=' + coords.latitude +',' + coords.longitude + '&oauth_token=' + fsqrToken + '&v=20141208&query=' + query.what + '&radius=' + query.radius ;
@@ -200,7 +217,8 @@ CheckInFsqr = function(venueId){
 			}
 		) ;
 		var venues = JSON.parse(myJSON.content);
-		GetFsqrChk(5);
+		var limit = 1;
+		GetFsqrChk(limit);
 		return venues;
 	} catch(e){
 		console.error('error calling fsqr ', e, e.response);
@@ -251,7 +269,7 @@ GetGooglePlace = function(place_id){
 		var google_server_key = 'AIzaSyAQH9WdmrwMKphSHloMai5iYlcS5EsXMQA';
 		parameters = 'placeid=' + place_id + '&key=' + google_server_key;
 		var url = 'https://maps.googleapis.com/maps/api/place/details/json?' + parameters;
-		console.log('calling google for place vy place_id ', url);
+//		console.log('calling google for place vy place_id ', url);
 		var response1 = Meteor.http.call("GET", url);
 /*     var response1 = Meteor.http.call("GET", url,
 									{params: 
@@ -330,7 +348,7 @@ ifStationary = function(userId, geoId){
 	var geoLocOld = UserPlaces.findOne({userId:userId},{sort: {timestamp: -1}});
 	if (!geoLocOld)
 		return;
-	console.log('old place from GeoLog ', geoLocOld, ' new place ', geoLoc);		
+	console.log('old place from GeoLog ', geoLocOld._id, ' new place ', geoLoc._id);		
 
 	// if previous stationary place_id from GeoLog is the same as new one, we are stationary
 	if ((geoLocOld.place_id == geoLoc.stationary_place_id) || (geoLocOld.geo_place_id == geoLoc.place_id)) {
@@ -369,7 +387,7 @@ ifStationary = function(userId, geoId){
 				userId: userId,
 				place_id: geoLoc.stationary_place_id,
 				geo_place_id: geoLoc.place_id,
-				started: new Date(),
+				started:  moment().valueOf().format("YYYY-MM-DD HH:mm:ss"),
 				timestamp:  moment().valueOf(),
 				location: geoLoc.location
 			});	

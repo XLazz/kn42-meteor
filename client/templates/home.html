@@ -86,9 +86,17 @@
 					</div>
 				{{else}}
 					<div>
-						{{#if userPlace.name}} {{userPlace.name}} {{else}}
-							{{#if geoPlace.name}} {{geoPlace.name}} {{else}} {{geoMerchant.name}} {{/if}}<br />
+						{{#if userPlace.name}} 
+							{{userPlace.name}} 
+						{{else}}
+							{{#if geoPlace.name}} 
+								{{geoPlace.name}} 
+							{{else}} 
+								{{geoMerchant.name}} 
+							{{/if}}
+							<br />
 						{{/if}}
+
 					</div>
 					{{#if status}}
 						{{> venuesSelected}}
@@ -98,11 +106,12 @@
 <!-- 						<div>{{> venuesSelected}}</div> -->							
 					</div>
 					{{#if ifDebug}} 
-						<div style="font-size:50%">
-							{{status}} {{#if status}} since {{started}} {{started2}} {{timestamp}} {{#if timespent}} for {{timespent}} {{/if}} {{/if}} 
+						<div style="font-size:60%">
+							{{status}} {{#if status}} since {{started}} {{#if timespent}} for {{timespent}} {{/if}} {{/if}} 
 							<br />
 							finished: {{finished}}
-							{{userPlace.place_id}}
+							<br/>
+							place_id: {{userPlace.place_id}}
 						</div>
 					{{else}}
 						<div style="font-size:70%">

@@ -1,11 +1,19 @@
 Meteor.methods({
 
 	updateProfile: function(userId){
-		console.log('calling UpdateProfile', userId);
-		if (!userId) 
+		var user_details = Meteor.users.findOne(userId);
+		var user_email;
+		if (!user_details) {
 			return;
-		console.log('calling UpdateProfile');
-		return UpdateProfile(userId);
+		}
+		if (!user_details.emails) {
+			console.log('no standard email, getting it from services ');
+			user_details.emails = {};
+			user_details.emails[0] = [];
+			user_details.emails[0].address = user_details.services.google.email;
+			Meteor.users.upsert(userId, {$set: user_details});
+			//		Meteor.users.upsert(userId, {$set: user_details});
+		}
 	},
 
 	'getLocations':function(userId, list){
@@ -205,6 +213,8 @@ Meteor.methods({
 		MerchantsCache.remove({});
 		Places.remove({});	
 		UserPlaces.remove({userId: userId});
+/* 		VenuesFsqr.remove();
+		VenuesCheckins.remove(); */
 		return UserLocations.remove({userId: userId});
 	},	
 	

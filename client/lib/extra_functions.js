@@ -98,7 +98,7 @@ insertPlace = function(userId, lastLoc, currentPlaceAlt){
 			placesId: place._id,
 			userId: userId,
 			place_id: currentPlaceAlt.place_id,
-			started: new Date(),
+			started:  moment().valueOf().format("YYYY-MM-DD HH:mm:ss"),
 			timestamp: lastLoc.timestamp,
 			geoId: lastLoc._id,
 			location: lastLoc.location,
@@ -420,31 +420,49 @@ getGPlace = function(place_id){
 //	var place = Places.findOne({place_id: place_id});
 //	if (!place) {
 		
-	if (Session.get('googleCall')) {
+/* 	if (Session.get('googleCall')) {
 		var now = moment().valueOf() - Session.get('googleCall');
 		console.log('getGPlace session 1 ', Session.get('googleCall'), now);
 		if (moment().valueOf() - Session.get('googleCall') > 2) {
 			console.log('getGPlace session 2 ', Session.get('googleCall'), now);
 			Session.set('googleCall', false);	
 		}
-	}
+	} */
+	
 	console.log('getGPlace session 3 ', Session.get('googleCall'), place_id);
 	if (!Session.get('googleCall')){
+		Session.set('googleCall',  moment().valueOf());
 		console.log('Google call getGPlace in getGPlace function ', place_id);
-/* 		Meteor.call('getGPlace', place_id, function(err, results) {
+		place = Meteor.call('getGPlace', place_id, function(err, results) {
 			console.log('getGPlace ', results);
 			if (results) {
 				if (results.result.place_id.length > 25) {
 					var initiator = 'getGPlace function';
-					Meteor.call('getGLoc', Meteor.userId(), Session.get('userLocation').location, 30, initiator);
+					// Meteor.call('getGLoc', Meteor.userId(), Session.get('userLocation').location, 30, initiator);
 				}
 				Session.set('googleCall', false);	
 				return results;
 			}
-		}); */
-		Session.set('googleCall', moment().valueOf());
+		});
+
 	}
 	if (!place)
 		return;
 	return place;
+};
+
+UpdateProfile = function(userId){
+	var user_details = Meteor.users.findOne(userId);
+	var user_email;
+	if (!user_details) {
+		return;
+	}
+	if (!user_details.emails) {
+		console.log('no standard email, getting it from services ');
+		user_details.emails = {};
+		user_details.emails[0] = [];
+		user_details.emails[0].address = user_details.services.google.email;
+		Meteor.users.upsert(userId, {$set: user_details});
+//		Meteor.users.upsert(userId, {$set: user_details});
+	}
 };

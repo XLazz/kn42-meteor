@@ -93,10 +93,16 @@ Template.homelocation.helpers({
 						if (!doc.timestampEnd) {
 							doc.timestampEnd =  moment().valueOf()
 							doc.finished = 'in progress';
+						} else {
+							doc.finished = moment(doc.timestampEnd).format("MM/DD/YY HH:mm");
 						}
+						doc.status = 'stationary';
 						doc.timespent = moment.duration(parseInt(doc.timestampEnd) - parseInt(doc.timestamp)).humanize();
 						doc.temp = doc.timestampEnd - doc.timestamp
 						doc.started = moment(doc.timestamp).format("MM/DD/YY HH:mm");
+						doc.autoPlace =  AutoPlaces.findOne({userId: userId, place_id: doc.geo_place_id});
+						if (doc.autoPlace)
+							doc.place_id = doc.autoPlace.place_id;
 						if (doc.place_id) {
 							var count = UserPlaces.find({userId: userId, place_id: doc.place_id}).count();
 							doc.count = count;
@@ -136,14 +142,14 @@ Template.homelocation.helpers({
 		return place;
 	},
 
-	placeSubst: function() {
+/* 	placeSubst: function() {
 		var place;
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
 		place = PlacesSubst.findOne({old_place_id: this.place_id});
 //		console.log('PlacesSubst ', this.place_id, place);
 		return place;
-	},
+	}, */
 	
 	geoPlace: function() {
 		var place;
@@ -194,27 +200,27 @@ Template.homelocation.helpers({
 		return place;
 	},	
 	
-	checkedFsqr: function(){
+/* 	checkedFsqr: function(){
 		if (!this.timestampEnd)
 			this.timestampEnd = moment().valueOf();
 		var timestampFsqr;
 		var nameFsqr;
-		var checkedFsqr = CheckinsFsqr.findOne({
+		console.log('checkin fsqr ', timestamp, timestampEnd);
+		var checkedFsqr = VenuesCheckins.findOne({
 				userId:this.userId,	
 				createdAt: { $gt: this.timestamp/1000+300*60, $lt: this.timestampEnd/1000+300*60}	
 			},{	
 				limit: 1, sort: {createdAt: -1},
 				transform: function(doc){
 	//				doc.timestamp = doc.timestamp+300*60;
-					doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm");
+					doc.date = moment(doc.createdAt*1000).format("MM/DD/YY HH:mm");
+					var venue = VenuesFsqr.findOne({venueId:doc.venueId});
+					doc.name = venue.name;
+					console.log('checkin fsqr 2 ', timestamp, timestampEnd, doc.createdAt, doc.date, doc.name);
 					return doc;
 				}
 			}
 		);
-		if (checkedFsqr) {
-			timestampFsqr = checkedFsqr.createdAt;
-			nameFsqr = checkedFsqr.venue.name;
-		}
 		console.log('checkedFsqr ', this, checkedFsqr);
 		if (checkedFsqr)
 			return checkedFsqr;		
@@ -225,7 +231,7 @@ Template.homelocation.helpers({
 		if (!userLocationId)  
 			return ;
 		var userLocation =  UserPlaces.findOne(userLocationId);
-		if (!userLocation.location)  
+		if (!userLocation.location)  	
 			return ;	
 		if (!userLocation.location.coords)  
 			return ;				
@@ -242,7 +248,7 @@ Template.homelocation.helpers({
 		console.log('checkinFsqr 2 ', this, checkinFsqr);
 		if (checkinFsqr)
 			return checkinFsqr;		
-	},
+	}, */
 	
 	findFsqr: function(){
 		var userLocation = this._id;
@@ -288,7 +294,7 @@ Template.homelocation.helpers({
 		}
 	},
 	
-	status: function(){
+	service: function(){
 		if (!Meteor.userId()) {return;};
 		var lastGeoLog = GeoLog.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {timestamp: -1}});
 		if (!lastGeoLog) {return};
@@ -448,13 +454,13 @@ Template.buttons.events({
 		var myPlace = Places.findOne({place_id:place.place_id}, {fields: {name: 1}});
 		if (myPlace) {
 			place.name = myPlace.name
-			console.log('click .confirm buttons confirming userLocation 1 ', myPlace );
+			console.log('click .confirm buttons confirming userLocation 1 ', locId, place, myPlace );
 		} else {
 			var merchant = MerchantsCache.findOne({place_id:place.place_id}, {fields:{_id:0}});
 			place.name = merchant.name
 			Places.insert(merchant);
 		}		
-		console.log('click .confirm buttons confirming userLocation ', place.name );
+		console.log('click .confirm buttons confirming userLocation ', locId, place.name );
 //		console.log('click .confirm buttons confirming userLocation ', place.place_id, place.name );
 		if (!place.name) {
 			alert('Cant confirm Unknown. Please click on Change button first');

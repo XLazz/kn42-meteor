@@ -39,10 +39,13 @@ Meteor.publish(null, function() {
   }); */
 	return People.find();
 	return Services.find();
-	return Geolog.find({userId:this.userId},{limit:100});
+	return GeoLog.find({userId:this.userId},{sort: {timestamp:-1}, limit:300});
 	
 	return Places.find({},{limit:100});
 	return GooglePlaces.find({});
+});
+Meteor.publish('Geolog', function(userId) {
+	return GeoLog.find({userId:this.userId});
 });
 Meteor.publish('Experiences', function(userId) {
 	return Experiences.find({userId:this.userId});
@@ -65,6 +68,12 @@ Meteor.publish('MerchantsCache', function(userId) {
 Meteor.publish('VenuesCache', function(userId) {
 	return VenuesCache.find({}, {limit: 100});
 });
+Meteor.publish('VenuesFsqr', function(userId) {
+	return VenuesFsqr.find();
+});
+Meteor.publish('VenuesCheckins', function() {
+  return VenuesCheckins.find({userId:this.userId});
+});
 Meteor.publish('Drives', function(userId) {
 	return Drives.find({userId:this.userId},{limit: 100});
 });
@@ -83,6 +92,7 @@ Meteor.publish('FitnessTracks', function(userId) {
 Meteor.publish('Tracks', function(userId) {
 	return Tracks.find({userId:this.userId},{limit: 100});
 });
+
 Meteor.publish('downloadPlaces', function(userId, limit) {
   var self = this;
 	var api_key = GetApi(userId);
@@ -116,7 +126,7 @@ Meteor.publish('downloadPlaces', function(userId, limit) {
 				if (!item.userplaceId){
 					var random = Random.id();
 					_id = random;
-					console.log('inserting item for user 2 ', userId, _id, item.userplaceId, random, Random.id());
+//					console.log('inserting item for user 2 ', userId, _id, item.userplaceId, random, Random.id());
 				} else {
 					_id = item.userplaceId;
 					
@@ -130,27 +140,18 @@ Meteor.publish('downloadPlaces', function(userId, limit) {
 					location: location,
 					place_id: item.place_id,
 					started: item.started,
-					finished: item.finished,
-					timestamp: item.timestamp,
-					timestampEnd: item.timestampEnd,
+//					finished: item.finished,
+					timestamp: parseInt(item.timestamp),
+					timestampEnd: parseInt(item.timestampEnd),
 					confirmed: item.confirmed,
 					travel: item.travel, 
 					fitness: item.fitness,
 				};
 				console.log('inserting item for user ', userId, _id, item.user_history_location_id);
-				UserPlaces.upsert(_id, doc);
+				if (item.timestampEnd)
+					UserPlaces.upsert(_id, doc);
 				Meteor.call('getGPlace', item.place_id, function(err, results){
 					console.log('getGPlace results.result.place_id.length ');
-	/* 				if (results) { 
-						console.log('getGPlace results.result.place_id.length ', results.result.place_id.length);
-						if (results.result.place_id.length > 25) {
-							var userLocation = {};
-							userLocation.location = {};
-							userLocation.location.coords = item;
-							var radius = 30;
-							Meteor.call('getGLoc', userId, userLocation, radius);
-						}
-					} */
 					return;
 				});				
 			}
@@ -167,10 +168,6 @@ Meteor.publish('downloadPlaces', function(userId, limit) {
 
 Meteor.publish("userinfo", function () {
 	return Meteor.users.find({_id: this.userId}, {fields: {profile: 1, services: 1, admin: 1}});
-});
-
-Meteor.publish('CheckinsFsqr', function() {
-  return CheckinsFsqr.find({userId:this.userId});
 });
 Meteor.publish('Contacts', function(userId) {
 	return Contacts.find({userId:this.userId});
@@ -253,9 +250,9 @@ Meteor.publishComposite('placesByUser', function(userId, limit) {
 					}
 				}
 			},{
-				find: function(geolog){return checkinFsqr = CheckinsFsqr.find({userId:geolog.userId},{limit: 1})}
+				find: function(geolog){return checkinFsqr = VenuesCheckins.find({userId:geolog.userId},{limit: 1})}
 			}
-/* 			CheckinsFsqr.find(
+/* 			VenuesCheckins.find(
 			{userId:userId},
 			{
 				sort: {createdAt: -1}, 
@@ -306,7 +303,7 @@ Meteor.publishComposite('placesByGeo', function(userId, limit) {
 				}
 			},{
 				find: function(geolog){
-					return checkinFsqr = CheckinsFsqr.find({userId:geolog.userId},{limit: 1})
+					return checkinFsqr = VenuesCheckins.find({userId:geolog.userId},{limit: 1})
 				},
 			}
 		]

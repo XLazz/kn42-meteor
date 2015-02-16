@@ -2,10 +2,9 @@
 <template name="venues">
 	{{#if checkedFsqr}} 
 		<div style="width: auto; white-space: normal">
-			<i class="fa fa-foursquare"></i> {{checkedFsqr.venue.name}} {{#if ifDebug}}{{checkedFsqr.date}}{{/if}}
+			<i class="fa fa-foursquare"></i> {{checkedFsqr.name}} {{#if ifDebug}}{{checkedFsqr.date}}{{/if}}
 		</div>
 	{{/if}} 
-	<br />
 
 <!-- 		<div style="position: absolute; z-index: 10; top: 10px; right: 10px; margin:10px; font-size: larger">
 			<button class="button updatevenues btn btn-primary" style="position: relative; bottom:0; background-color: rgba(255, 255, 255, 0.16);"><i class="fa fa-foursquare" style="background-color: rgb(200, 196, 255);"></i></button>
@@ -15,18 +14,67 @@
 <template name="venuesSelected">
 	{{#if checkedFsqr}} 
 		<div style="width: auto; white-space: normal; font-size: 70%;">
-			<i class="fa fa-foursquare"></i> Checked at {{checkedFsqr.venue.name}} {{#if ifDebug}}{{checkedFsqr.date}}{{/if}} 
+			<i class="fa fa-foursquare"></i> Checked at {{checkedFsqr.name}} {{#if ifDebug}}{{checkedFsqr.createdDate}}{{/if}} 
 		</div>
 	{{else}}
 		<div style="width: auto; white-space: normal" >
 			{{#if checkinFsqr}} 
-				{{getCheckinsFsqr}}
-				<span class="goFsqr" id="{{checkinFsqr.id}}"><i class="fa fa-foursquare"></i> Checkin at {{checkinFsqr.name}}?</span>
+				{{getVenuesCheckins}}
+				<span c>
+					<div><i class="fa fa-foursquare checkFsqr" ></i> Checkin at {{checkinFsqr.name}}</div> 
+					<div>
+						<button class="button btn btn-primary btn-small btn-modal goFsqr" id="{{checkinFsqr.id}}"> Yes </button>
+						<button class="button btn btn-secondary btn-small btn-modal otherFsqr" id="{{checkinFsqr.id}}"> Other </button>
+					</div>
+				</span>
 			{{else}}
-				<span id="checkFsqr"><i class="fa fa-foursquare"></i> no fsqr around. Check? {{findFsqr}} </span>
+				<div class="updatevenues checkFsqr" id=""><i class="fa fa-foursquare"></i> no fsqr around. Check? {{findFsqr}} </div>
+
 			{{/if}}
 		</div>						
 	{{/if}} 
 <!-- 	<button class="button updatevenues btn btn-primary btn-xs btn-modal" style="bottom:0"> Update Venues</button> -->
+</template>
+
+<template name="selectFsqr">
+	<div class="topdiv">
+		Checkin Foursquare venues at radius {{radius}}
+	</div>
+	<div class="content-scrollable">
+		<div class="container-fluid">
+			{{#if venues}}
+				<br /><br />
+				{{#each venues}}
+					<div class="separator">
+					</div>
+					<div class="row setlocations" id="{{place_id}}">
+						<div class="col-xs-6 col-sm-6 col-md-6">{{#if name}}{{name}}{{/if}}</div>
+						<div class="col-xs-3 col-sm-3 col-md-3">{{#if name}}{{distance}}km{{/if}}</div>
+						<div class="col-xs-3 col-sm-3 col-md-3">
+							<img src="" />
+<!-- 							<img src="{{categories.0.icon.prefix}}bg_32{{categories.0.icon.suffix}}" /> -->
+						</div>
+					</div>	
+				{{/each}}
+				<div class="row elsewhere" id="{{place_id}}">
+					<div class="col-xs-8 col-sm-8 col-md-8">Elsewhere</div>
+					<div class="col-xs-4 col-sm-4 col-md-4">
+						<form class="form-inline" >
+							<div class="form-group">
+	<!-- 							<input type="button" class="button elsewhere btn btn-primary" id="0" value="Set" /> -->
+								<img class="setlocations3" id="icon-{{place_id}}" style="width:40px" src="img/app/rss_icon.png" />
+								<input type="hidden" id="place-0" value="else">
+							</div>
+						</form>	
+					</div>
+				</div>
+				<br />
+			{{else}}
+				{{> searching}}
+			{{/if}}		
+			<hr>
+		</div>
+	</div>
+	<input type="button" class="button cancel btn btn-danger btn-down" value="Cancel" />
 </template>
 
