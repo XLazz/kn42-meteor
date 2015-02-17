@@ -38,9 +38,12 @@ Meteor.publish(null, function() {
     }
   }); */
 	return People.find();
-	return Services.find();
+//	return Services.find();
 	return GeoLog.find({userId:this.userId},{sort: {timestamp:-1}, limit:200});
 	return GooglePlaces.find({});
+});
+Meteor.publish('PlaceServices', function(userId) {
+	return PlaceServices.find();
 });
 Meteor.publish('GeoLog', function(userId) {
 	return GeoLog.find({userId:this.userId},{sort: {timestamp:-1}, limit:300});
@@ -52,7 +55,7 @@ Meteor.publish('UserPlaces', function(userId) {
 	return UserPlaces.find({userId:this.userId});
 });
 Meteor.publish('Places', function(userId) {
-	return Places.find({}, {fields:{_id:1, 'address': 1, updated: 1, place_id: 1, name:1, icon:1, vicinity:1, coords:1}, sort: {updated: -1}, limit: 100});
+	return Places.find({}, {fields:{_id:1, 'address': 1, updated: 1, place_id: 1, name:1, icon:1, vicinity:1, coords:1, types:1}, sort: {updated: -1}, limit: 200});
 });
 Meteor.publish('GooglePlaces', function(userId) {
 	return GooglePlaces.find();
@@ -148,10 +151,18 @@ Meteor.publish('downloadPlaces', function(userId, limit) {
 				console.log('inserting item for user ', userId, _id, item.user_history_location_id);
 				if (item.timestampEnd)
 					UserPlaces.upsert(_id, doc);
-				Meteor.call('getGPlace', item.place_id, function(err, results){
-					console.log('getGPlace results.result.place_id.length ');
-					return;
-				});				
+				if (item.place_id) {
+					Meteor.call('getGPlace', item.place_id, function(err, results){
+						console.log('getGPlace in publications ', item.place_id);
+						return;
+					});			
+				} else {
+/* 					var radius = 50;
+					var name = '';
+					//		response = GetGoogleLoc(userId,  userPlaces.fetch()[0].location.coords, radius, name);
+					//		console.log('userPlaces  ', response);
+					var response = GetGoogleLoc(userId, item.location.coords, radius, name);	 */
+				}
 			}
       
     });

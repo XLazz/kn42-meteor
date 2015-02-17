@@ -17,6 +17,7 @@ Tracker.autorun(function () {
 		
 //		Meteor.subscribe('GooglePlaces');
 		Meteor.subscribe('Places', userId);
+		Meteor.subscribe('PlaceServices');
 		Meteor.subscribe('AutoPlaces',userId);
 		Meteor.subscribe('ClaimedPlaces',userId);
 		Meteor.subscribe('Experiences',userId);

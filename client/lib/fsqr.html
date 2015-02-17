@@ -13,11 +13,11 @@
 
 <template name="venuesSelected">
 	{{#if checkedFsqr}} 
-		<div style="width: auto; white-space: normal; font-size: 70%;">
+		<div style="width: auto; white-space: normal; font-size: 85%;">
 			<i class="fa fa-foursquare"></i> Checked at {{checkedFsqr.name}} {{#if ifDebug}}{{checkedFsqr.createdDate}}{{/if}} 
 		</div>
 	{{else}}
-		<div style="width: auto; white-space: normal" >
+		<div style="width: auto; white-space: normal; font-size: 85%;" >
 			{{#if checkinFsqr}} 
 				<span>
 					<div><i class="fa fa-foursquare checkFsqr" ></i> Checkin at {{checkinFsqr.name}}</div> 

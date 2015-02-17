@@ -17,6 +17,35 @@ Meteor.methods({
 		}
 	},
 
+	updatePlaces: function(userId){
+		var userPlaces = UserPlaces.find({userId: userId, place_id: {$exists: false}}, {limit: 200, sort:{timestamp: -1}});
+		if (!userPlaces) 
+			return;
+		console.log();
+		console.log('userPlaces with empty place_id ', userId, ' these many ',  userPlaces.count());
+		userPlaces = userPlaces.fetch();
+		var radius = 50;
+		var name = '';
+//		response = GetGoogleLoc(userId,  userPlaces.fetch()[0].location.coords, radius, name);
+//		console.log('userPlaces  ', response);
+		userPlaces.forEach(function (item, index, array) {
+			var response = GetGoogleLoc(userId, item.location.coords, radius, name);
+			
+			if (response.results)
+				if (response.results[1]) {
+					console.log('userPlaces  ', item._id, item.started, response.results[1].name, response.results[1].place_id);
+					UserPlaces.upsert(item._id, {$set: {place_id: response.results[1].place_id}});
+					Places.upsert({place_id: response.results[1].place_id},{$set: response.results[1]});
+				} else {
+					console.log('userPlaces  ', item._id, item.started, response.results[0].name, response.results[0].place_id);
+					UserPlaces.upsert(item._id, {$set: {place_id: response.results[0].place_id}});
+					Places.upsert({place_id: response.results[0].place_id},{$set: response.results[0]});
+				}
+		});
+			//		Meteor.users.upsert(userId, {$set: user_details});
+		
+	},
+	
 	'getLocations':function(userId, list){
 		if (!userId) {
 			return;
@@ -32,18 +61,8 @@ Meteor.methods({
 		var userLocations = JSON.parse(myJSON.content).user_locations;
 		console.log('calling php server for json 3. num of els ', userLocations.length);
 		userLocations.forEach(function (item, index, array) {
-			Meteor.call('getGPlace', item.place_id, function(err, results){
-/* 				if (results) { 
-					console.log('getGPlace results.result.place_id.length ', results.result.place_id.length);
-					if (results.result.place_id.length > 25) {
-						var userLocation = {};
-						userLocation.location = {};
-						userLocation.location.coords = item;
-						var radius = 30;
-						Meteor.call('getGLoc', userId, userLocation, radius);
-					}
-				} */
-			});
+/* 			Meteor.call('getGPlace', item.place_id, function(err, results){
+			}); */
 
 			var ifPlace = UserPlaces.findOne({				
 				$and: [
@@ -104,6 +123,7 @@ Meteor.methods({
 		});
 
 		UserLocations._ensureIndex( { user_history_location_id: 1 }, { unique: true, dropDups: true } );
+		PlaceServices._ensureIndex( { types: 1 }, { unique: true, dropDups: true } );
 //		UserPlaces._ensureIndex( { user_history_location_id: 1 }, { unique: true, dropDups: true } );
 		return userLocations;
 	},

@@ -233,16 +233,6 @@ Template.showlocations.helpers({
 //		} 
 	},	
 	
-	getMerchant: function() {
-/* 		var userId = Meteor.userId();
-		console.log('Google call getGPlace in geoMerchant function showlocations 0 ', this.place_id, Session.get('googleCall'), moment().valueOf());
-		if ((!Session.get('googleCall')) || (Session.get('googleCall') + 2000 > moment().valueOf())) {
-			console.log('Google call getGPlace in geoMerchant function showlocations ', this.place_id);
-			Session.set('googleCall', false);
-			var place = getGPlace(this.place_id);
-		}
-		return Session.get('googleCall'); */
-	},	
 	
 	checkinFsqr: function(){
 		if (!this.timestampEnd)
@@ -272,9 +262,27 @@ Template.showlocations.helpers({
 	'showExp': function(){
 		return Session.get('showExp');
 	},
-	
 	updated: function() {
 //		Meteor.setInterval(Meteor.call('getLocations','list'), 1000000);	
+	},
+	updatePlaces: function() {
+		if (Session.get('updatePlaces'))
+			return;
+		var emptyPlaces = UserPlaces.find({userId: Meteor.userId(), place_id:''});
+		if (emptyPlaces)
+			Session.set('updatePlaces', true);
+		var initiator = 'unknown lifelog';
+		Meteor.call('updatePlaces', Meteor.userId(), initiator, function(err, results) {
+			console.log('updatePlaces call  ', Meteor.userId(), this.location, results);
+			Meteor.setTimeout(function(){
+        Session.set('updatePlaces', false);
+			}, 5000);
+
+			return results;
+		});
+	},
+	ifUpdating:function() {
+		return Session.get('updatePlaces');
 	}
 });
 

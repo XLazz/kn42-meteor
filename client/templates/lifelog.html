@@ -59,7 +59,11 @@
 						{{else}} 
 							{{geoMerchant.name}} 
 							{{#if geoMerchant.unknown}}
-								{{getMerchant}}
+								{{#if ifUpdating}}
+									wait... updating
+								{{else}}
+									{{updatePlaces}}
+								{{/if}}
 							{{/if}}
 						{{/if}}
 					</div>

@@ -3,7 +3,7 @@ Houston.add_collection(Meteor.users);
 Houston.add_collection(Houston._admins);
 
 Houston.add_collection(GeoLog);
-Houston.add_collection(Services);
+Houston.add_collection(PlaceServices);
 Houston.add_collection(UserPlaces);
 Houston.add_collection(MerchantsCache);
 

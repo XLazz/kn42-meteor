@@ -252,7 +252,7 @@ GetGoogleLoc = function(userId, coords, radius, name){
 										}
 									}); */
 		response =  JSON.parse(response1.content);
-		console.log('response calling google length ', response.results.length);
+//		console.log('response calling google length ', response.results.length);
 //		Meteor._sleepForMs(1000);
 		return response;
   } catch (e) {

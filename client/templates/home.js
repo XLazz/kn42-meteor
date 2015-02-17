@@ -2,7 +2,7 @@ var FEATURED_COUNT = 4;
 var i = 0;
 
 findExperiences = function(){
-	var services = Services.findOne({
+	var services = PlaceServices.findOne({
 		place_id: Session.get('currentPlace')
 	});
 	if (services) {
@@ -379,7 +379,7 @@ Template.selectExperience.helpers({
 			console.log('experiences return ', services.fetch());
 			return services.fetch();
 		}
-		var services = Services.find({place_id: userLocation.place_id});
+		var services = PlaceServices.find({place_id: userLocation.place_id});
 		console.log('experiences Services ',userLocation.place_id, services.fetch());
 		if (services.count()) {
 			return services;
@@ -575,16 +575,17 @@ Template.claimIt.events({
 		var myTypes = Places.find({},{fields:{types:1}});
 		console.log(' types ', myTypes.fetch());
 		myTypes.forEach(function (item, index, array) {
-			console.log(' foreach ', item.types );
-			item.types.forEach(function (item2, index, array) {
+			if (item.types[0]) {
+//				console.log(' foreach 1 ', item.types );
+				item.types.forEach(function (item2, index, array) {
 
-				var myId = Services.findOne({type:item2});
-				console.log(' foreach ', item2, myId );
-				if (!myId) {
-					console.log(' inserting ', item2 );
-					Services.insert({type:item2});
-				}
-			});
+					var myId = PlaceServices.findOne({type:item2});
+					console.log(' foreach 2 ', item2, myId );
+					if (!myId) {
+						PlaceServices.insert({type:item2});
+					}
+				});
+			}
 		});
 		Overlay.show('claimPlace');	
 	},	

@@ -5,7 +5,7 @@ Template.claimPlace.helpers({
       {label: "2014", value: 2014},
       {label: "2015", value: 2015}
     ]; */
-    return Services.find({},{sort:{type:1}}).map(function (c) {
+    return PlaceServices.find({},{sort:{type:1}}).map(function (c) {
       return {label: c.type, value: c._id};
     });
   },

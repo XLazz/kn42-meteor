@@ -92,7 +92,7 @@ Meteor.methods({
 		}
 		// adding fsqr checkin
 		var venue = CheckInFsqr (venueId);
-		console.log('goFsqr checkin venue  ', userPlaceId, venueId, venue, venue.id );
+		console.log('goFsqr checkin venue  ', userPlaceId, venueId, venue, venue.response.checkin.id );
 		if (!venue)
 			return;
 		VenuesCheckins.upsert({id:venue.response.checkin.id}, {$set:{userId: userId, checkinId: venue.response.checkin.id, createdAt: venue.response.checkin.createdAt, venueId: venue.response.checkin.venue.id, }});
