@@ -101,7 +101,8 @@ Template.routes.helpers({
 					doc.time = time;
 					if (!doc.location.coords.speed)
 						doc.location.distance = 0;
-					doc.calories = calculateCalories(activity, doc.location.distance, doc.location.speed);
+					doc.calories = calculateCalories(activity, parseFloat(doc.location.distance), parseFloat(doc.location.speed));
+					console.log('checking calories', doc.calories);
 					doc.location.distance = truncateDecimals(doc.location.distance, 3);
 					doc.location.coords.speed = truncateDecimals(doc.location.coords.speed, 2);
 					return doc;
@@ -159,14 +160,20 @@ Template.routes.helpers({
 		var calories = 0;
 		fitnessTrack = FitnessTracks.findOne(fitnessTrackId);
 		console.log('calories fitnessTrack ', fitnessTrack);
-		if (fitnessTrack.calories) {
-			return fitnessTrack.calories;
+		if (isNaN(fitnessTrack.calories)) {
+			fitnessTrack.calories = 0;
+		} else {
+			if (fitnessTrack.calories) {
+				return fitnessTrack.calories;
+			}
 		}
 		var cursor = Tracks.find({fitnessTrackId: fitnessTrackId});
 		console.log ('checking distance for 1 ', fitnessTrackId, cursor.location, cursor.fetch());
 		cursor.forEach(function(item, index, array){
 			var location = item.location;
-			calories = calories + item.calories;
+			if (isNaN(item.calories)) 
+				item.calories = 0;
+			calories = calories + parseFloat(item.calories);
 //			distance = truncateDecimals(distance, 3);
 			console.log ('checking calories 2 for each ', location, item.calories, calories);
 		});
@@ -306,6 +313,25 @@ Template.showMapFit.helpers({
 				return doc;
 			}
 		});
+	var tracks = Tracks.find({fitnessTrackId:Session.get('fitTrack')},{sort: {'created': 1}});
+		tracks.forEach(function (item, index, array) {
+			//			console.log(' foreach ', item.types );
+			//					console.log ('updating track oldLocation 0 ',item._id, ' oldLocation ', oldLocation, ' item ', item);
+			if (isNaN(item.calories))
+			item.calories = 0;
+			if ((!item.calories) && (oldLocation))  {
+				var timediff = (parseInt(item.location.timestamp) - parseInt(oldLocation.location.timestamp))/1000;
+				var avgspeed = parseFloat(item.location.distance)/timediff;
+				var calories = calculateCalories (activity, parseFloat(item.distance), avgspeed);
+				console.log ('updating track ',item._id, ' with cals ', calories, ' avgspeed ', avgspeed, item.location.distance, ' timediff ', timediff);
+				Tracks.update(item._id, {$set:{calories: calories, avgspeed: avgspeed}});
+			}
+			
+			//					console.log ('updating track oldLocation 1 ',item._id, ' oldLocation ', oldLocation, ' item ', item);
+			oldLocation = item;
+			//					console.log ('updating track oldLocation 2 ',item._id, ' oldLocation ', oldLocation, ' item ', item);
+			//					console.log ('adding marker ', marker);
+		});
 //		console.log('fitnessTrack track ', track);
 		return track;
 	},
@@ -339,24 +365,9 @@ Template.showMapFit.helpers({
 						map: map.instance,
 						title: 'Speed: ' + item.location.coords.speed 
 					});	
-//					console.log ('adding marker ', marker);
+					console.log ('adding marker ', marker);
 				});
-				track.forEach(function (item, index, array) {
-					//			console.log(' foreach ', item.types );
-					//					console.log ('updating track oldLocation 0 ',item._id, ' oldLocation ', oldLocation, ' item ', item);
-					if ((!item.calories) && (oldLocation)) {
-						var timediff = (parseInt(item.location.timestamp) - parseInt(oldLocation.location.timestamp))/1000;
-						var avgspeed = parseFloat(item.location.distance)/timediff;
-						var calories = calculateCalories (activity, item.distance, avgspeed);
-						console.log ('updating track ',item._id, ' with cals ', calories, ' avgspeed ', avgspeed, item.location.distance, ' timediff ', timediff);
-						Tracks.update(item._id, {$set:{calories: calories, avgspeed: avgspeed}});
-					}
-					
-					//					console.log ('updating track oldLocation 1 ',item._id, ' oldLocation ', oldLocation, ' item ', item);
-					oldLocation = item;
-					//					console.log ('updating track oldLocation 2 ',item._id, ' oldLocation ', oldLocation, ' item ', item);
-					//					console.log ('adding marker ', marker);
-				});
+
       });
 			var fitTrack = Session.get('fitTrack');
 			var trackStart = FitnessTracks.findOne(fitTrack);			
