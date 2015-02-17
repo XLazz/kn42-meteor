@@ -4,9 +4,15 @@ App.info({
   name: 'Kn42-dev-met',
   description: 'Kn42 personal companion',
   author: 'Xlazz Inc',
+<<<<<<< HEAD
 	email: 'info@xlazz.com',
 	website: 'http://kn42.xlazz.com',
 	version: '0.0.6'
+=======
+  email: 'info@xlazz.com',
+  website: 'http://kn42.xlazz.com',
+  version: '0.0.6',
+>>>>>>> 4ab24067714fa16370c89006eda1706ee39d8946
 });
 
 App.icons({
