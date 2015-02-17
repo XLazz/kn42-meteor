@@ -3,9 +3,9 @@ App.info({
   name: 'Kn42',
   description: 'Kn42 personal companion',
   author: 'Xlazz Inc',
-  email: 'stanp@xlazz.com',
+  email: 'info@xlazz.com',
   website: 'http://kn42.xlazz.com',
-  version: '0.0.4'
+  version: '0.0.6',
 });
 
 App.icons({
@@ -53,4 +53,4 @@ App.launchScreens({
 
 App.setPreference('StatusBarOverlaysWebView', 'false');
 App.setPreference('StatusBarBackgroundColor', '#000000');
-
+App.setPreference('android-minSdkVersion', '14');
