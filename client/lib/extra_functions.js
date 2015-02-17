@@ -10,9 +10,47 @@ calculateDistance = function(lat1, lon1, lat2, lon2) {
   return d;
 };
 
+calculateCalories = function(activity, distance, speed){
+/* 	
+	http://certification.acsm.org/metabolic-calcs
+	Metabolic Equations for Gross VO2 in Metric Units
+
+	Walking
+	VO2 (mL . kg-1 . min-1) = (0.1 . S) + (1.8 . S . G) + 3.5 mL. kg-1.min-1
+
+	Running
+	VO2 (mL . kg-1 . min-1) = (0.2 . S) + (0.9 . S . G) + 3.5 mL. kg-1.min-1
+	
+	Leg Cycling
+	VO2 (mL . kg-1 . min-1) = 1.8(work rate) / (BM) + 3.5 mL. kg-1.min-1+ 3.5 mL. kg-1.min-1
+	
+	Arm Cycling
+	VO2 (mL . kg-1 . min-1) = 3(work rate) / (BM) + 3.5 mL. kg-1.min-1
+	
+	Stepping
+	VO2 (mL . kg-1 . min-1) = (0.2 . f) + (1.33 . 1.8 . H . f) + 3.5 mL. kg-1.min-1
+	
+	VO2 is gross oxygen consumption in mL.kg-1.min-1
+	S is speed in m.min-1
+	BM is body mass (kg)
+	G is the percent grade expressed as a fraction - not used for now
+	Work rate (kg.m.min-1)
+	f is the stepping frequency in minutes
+	H is step height in meters
+*/
+	var calories;
+	var weight = 70;
+	var grade = 0; // assuming everything flat
+	if (activity == 'walking') 
+		calories = 5 * ((0.1 * speed) + (1.8 * speed * grade) + 3.5) * weight;
+	if (activity == 'running') 
+		calories = 5 * ((0.2 * speed) + (0.9 * speed * grade) + 3.5) * weight;
+	return calories;
+};
+
 Number.prototype.toRad = function() {
   return this * Math.PI / 180
-}
+};
 
 truncateDecimals = function (number, digits) {
     var multiplier = Math.pow(10, digits),
@@ -310,6 +348,8 @@ UpdateGeoDB = function(location, uuid, device){
 	if (!Session.get('geoback')) {
 		Meteor.clearInterval(Session.get('watchGPS'));
 	}
+	var distance;
+	var avgspeed;
 	var userId = Meteor.userId();
 	var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
 	
@@ -318,15 +358,20 @@ UpdateGeoDB = function(location, uuid, device){
 	if (Session.get('location')) {
 		// if (Session.get('location').speed)
 		if (Session.get('location').coords.speed) {
-			var distance = calculateDistance(Session.get('location').coords.latitude, Session.get('location').coords.longitude, location.coords.latitude, location.coords.longitude);
+			distance = calculateDistance(Session.get('location').coords.latitude, Session.get('location').coords.longitude, location.coords.latitude, location.coords.longitude);
+			timediff = location.timestamp - Session.get('location').timestamp;
+			var avgspeed = distance / timediff;
 		} else {
-			var distance = 0;
+			distance = 0;
+			avgspeed = 0;
 		}
 		console.log('distance ', distance);
 	} else {
-		var distance = 0;
+		distance = 0;
+		avgspeed = 0;
 	}
 	location.distance = distance;
+	location.avgspeed = avgspeed;
 	Session.set('location', location);	
 	
 	if (Session.get('fitness')){

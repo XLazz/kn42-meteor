@@ -62,7 +62,7 @@
 				{{/if}}
 				{{#unless fitActivity}}
 					<div class="alert alert-info kninfo" role="alert">
-						With start button we change the gps request frequency to 30 sec, stop submitting it to the server and add a special flag 'fitness' in geolog collection
+						With start button we change the gps request frequency to 10 sec, and stop finding the place.
 					</div>			
 				{{/unless}}
 				
@@ -101,7 +101,8 @@
 							<i class="fa fa-bicycle"></i>
 						</div>
 						<div class="col-xs-10 col-sm-10 col-md-10 showMap" id="{{_id}}">
-							<span class="label label-primary">{{date}} {{trackActivity.activity}} </span><span class="label label-primary">{{duration}} {{distance}} km</span>
+							<span class="label label-primary">{{date}} {{trackActivity.activity}} {{duration}}</span><br/>
+							<span class="label label-primary"> {{distance}}km {{calories}}cal</span>
 						</div>
 					</div>
 				{{/if}}
@@ -121,16 +122,16 @@
 			</div>
 			<div class="separator">
 			</div>
-			{{#each track}}
+<!-- 			{{#each track}}
 				<div class="row setlocations" id="">
 					<div class="col-xs-12 col-sm-12 col-md-12" style="font-size:70%"> 
 						Track {{date}} {{location.coords.latitude}},{{location.coords.longitude}} {{location.coords.speed}}km/h {{distance}}m
 					</div>
 				</div>	
-			{{/each}}
+			{{/each}} -->
 			<div class="row setlocations" id="">
-				<div class="col-xs-12 col-sm-12 col-md-12" style="font-size:70%"> 
-					Track total: {{fitnessTrack.distance}}km
+				<div class="col-xs-12 col-sm-12 col-md-12" > 
+					Route: {{fitnessTrack.distance}}km in {{fitnessTrack.timespent}}, {{fitnessTrack.calories}}cal
 				</div>
 			</div>	
 		</div>

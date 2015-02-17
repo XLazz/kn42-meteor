@@ -19,7 +19,7 @@ CheckedFsqr = function(userPlaceId){
 				}
 			}
 		);
-		console.log('function checkedFsqr 1 ', userPlace, checkedFsqr);
+//		console.log('function checkedFsqr 1 ', userPlace, checkedFsqr);
 		if (checkedFsqr)
 			return checkedFsqr;				
 	}
@@ -82,7 +82,7 @@ CheckinFsqr = function(userLocationId, radius_search){
 			transform: function(doc){	
 				doc.distance = calculateDistance(doc.location.lat, doc.location.lng, coords.latitude, coords.longitude);
 				doc.distance = Math.round(doc.distance * 100) / 100;
-				console.log('checkinFsqr inside ', doc.distance, doc);
+//				console.log('checkinFsqr inside ', doc.distance, doc);
 				return doc;
 			},
 			sort: {distance: -1}

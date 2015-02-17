@@ -40,7 +40,7 @@ Template.routes.helpers({
 	ifFindFit: function () {
 		console.log(' findfit ', Session.get('findfit'));
 		if (!FitnessActivities.findOne()) {
-			var activities = ['jogging','walking','bicycling'];
+			var activities = ['running','walking','bicycling'];
 			console.log('FitnessActivities empty ',  activities);
 			activities.forEach(function (item, index, array) {
 			console.log('FitnessActivities empty, adding item',  item);			
@@ -55,7 +55,7 @@ Template.routes.helpers({
 		return Session.get('findfit');
 	},
 	ifFitness: function () {
-		console.log(' findfit ', Session.get('findfit'));
+//		console.log(' findfit ', Session.get('findfit'));
 		return Session.get('fitness');
 	},
 	fitActivity: function(){
@@ -92,6 +92,7 @@ Template.routes.helpers({
 			console.log(' track fitness last ', fitnessTrack);
 			Session.set('fitnessTrack', fitnessTrack);
 		} else {	
+			var activity = FitnessActivities.findOne({activityId: Session.get('fitnessTrack').activityId});
 			var track = Tracks.find({userId: Meteor.userId(), fitnessTrackId: Session.get('fitnessTrack')._id }, {
 				sort: {created: -1}, limit:5,
 				transform: function(doc){	
@@ -100,11 +101,13 @@ Template.routes.helpers({
 					doc.time = time;
 					if (!doc.location.coords.speed)
 						doc.location.distance = 0;
+					doc.calories = calculateCalories(activity, doc.location.distance, doc.location.speed);
 					doc.location.distance = truncateDecimals(doc.location.distance, 3);
 					doc.location.coords.speed = truncateDecimals(doc.location.coords.speed, 2);
 					return doc;
 				}
 			});
+			Session.set('lastTrack', track);
 			track.fitnessTrackId = Session.get('fitnessTrack')._id;
 //			console.log(' track fitness ', track);
 			return track;
@@ -133,8 +136,9 @@ Template.routes.helpers({
   distance: function(){
 		var fitnessTrackId = this._id;
 		var distance = 0;
+		var calories = 0;
 		fitnessTrack = FitnessTracks.findOne(fitnessTrackId);
-		console.log(' fitnessTrack ', fitnessTrack);
+		console.log('distance fitnessTrack ', fitnessTrack);
 		if (fitnessTrack.distance) {
 			return fitnessTrack.distance;
 		}
@@ -144,10 +148,30 @@ Template.routes.helpers({
 			var location = item.location;
 			distance = distance + item.location.distance;
 			distance = truncateDecimals(distance, 3);
-			console.log ('checking distance 2 for each ', location, item.location.distance, distance);
+//			console.log ('checking distance 2 for each ', location, item.location.distance, distance);
 		});
 		FitnessTracks.update(fitnessTrackId,{$set:{distance: distance}});
-		return distance;
+		return fitnessTrack.distance;
+	},
+  calories: function(){
+		var fitnessTrackId = this._id;
+		var distance = 0;
+		var calories = 0;
+		fitnessTrack = FitnessTracks.findOne(fitnessTrackId);
+		console.log('calories fitnessTrack ', fitnessTrack);
+		if (fitnessTrack.calories) {
+			return fitnessTrack.calories;
+		}
+		var cursor = Tracks.find({fitnessTrackId: fitnessTrackId});
+		console.log ('checking distance for 1 ', fitnessTrackId, cursor.location, cursor.fetch());
+		cursor.forEach(function(item, index, array){
+			var location = item.location;
+			calories = calories + item.calories;
+//			distance = truncateDecimals(distance, 3);
+			console.log ('checking calories 2 for each ', location, item.calories, calories);
+		});
+		FitnessTracks.update(fitnessTrackId,{$set:{calories: calories}});
+		return fitnessTrack.calories;
 	},
 	trackActivity: function(){
 		var activity = FitnessActivities.findOne(this.activityId);
@@ -271,8 +295,18 @@ Template.showMapFit.helpers({
 	},
 	fitnessTrack: function(){
 		var fitTrack = Session.get('fitTrack');
-		var track = FitnessTracks.findOne(fitTrack);
-		console.log('fitnessTrack track ', track);
+		var track = FitnessTracks.findOne(fitTrack,{
+			transform: function(doc){
+				// console.log('timespent 1 ', doc);
+				// console.log('timespent 2 ', doc.timestampEnd);
+				// console.log('timespent 3 ', doc.timestamp);
+				doc.timespent = doc.timestampEnd - doc.timestamp;
+				// console.log('timespent 4 ', doc.timespent);
+				doc.timespent = moment.duration(doc.timespent).humanize();
+				return doc;
+			}
+		});
+//		console.log('fitnessTrack track ', track);
 		return track;
 	},
   fitnessMapOptions: function() {
@@ -283,9 +317,9 @@ Template.showMapFit.helpers({
       GoogleMaps.ready('fitnessMap', function(map) {
 				console.log('GoogleMaps ready');
         // Add a marker to the map once it's ready
-				var track = Tracks.find({fitnessTrackId:fitTrack},
+				var track = Tracks.find({fitnessTrackId:Session.get('fitTrack')},
 					{
-						sort: {created: -1},
+						sort: {'created': 1},
 						transform: function(doc){	
 							doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm:ss");
 							doc.location.coords.speed = Math.round(doc.location.coords.speed * 1000 / 60 / 60 * 100) / 100 
@@ -293,13 +327,35 @@ Template.showMapFit.helpers({
 						}
 					}
 				);
+				var mytrack = track.fetch();
+				console.log ('track ', mytrack);
+				console.log ('track ', mytrack[0].activityId);
+				var activity = FitnessActivities.findOne({_id: mytrack[0].activityId});
+				activity = activity.activity;
+				var oldLocation;
 				track.forEach(function (item, index, array) {
-					//			console.log(' foreach ', item.types );
 					var marker = new google.maps.Marker({
 						position: new google.maps.LatLng(item.location.coords.latitude,item.location.coords.longitude),
 						map: map.instance,
-						title: 'Speed: ' + item.location.coords.speed
+						title: 'Speed: ' + item.location.coords.speed 
 					});	
+//					console.log ('adding marker ', marker);
+				});
+				track.forEach(function (item, index, array) {
+					//			console.log(' foreach ', item.types );
+					//					console.log ('updating track oldLocation 0 ',item._id, ' oldLocation ', oldLocation, ' item ', item);
+					if ((!item.calories) && (oldLocation)) {
+						var timediff = (parseInt(item.location.timestamp) - parseInt(oldLocation.location.timestamp))/1000;
+						var avgspeed = parseFloat(item.location.distance)/timediff;
+						var calories = calculateCalories (activity, item.distance, avgspeed);
+						console.log ('updating track ',item._id, ' with cals ', calories, ' avgspeed ', avgspeed, item.location.distance, ' timediff ', timediff);
+						Tracks.update(item._id, {$set:{calories: calories, avgspeed: avgspeed}});
+					}
+					
+					//					console.log ('updating track oldLocation 1 ',item._id, ' oldLocation ', oldLocation, ' item ', item);
+					oldLocation = item;
+					//					console.log ('updating track oldLocation 2 ',item._id, ' oldLocation ', oldLocation, ' item ', item);
+					//					console.log ('adding marker ', marker);
 				});
       });
 			var fitTrack = Session.get('fitTrack');
@@ -310,7 +366,7 @@ Template.showMapFit.helpers({
         zoom: 18
       };
     } else {
-			GoogleMaps.load();
+//			GoogleMaps.load();
 //			GoogleMaps.load({ v: '3', key: 'AIzaSyAQH9WdmrwMKphSHloMai5iYlcS5EsXMQA' });
 			console.log('GoogleMaps not yet loaded');
 		}

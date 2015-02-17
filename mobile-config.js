@@ -1,12 +1,12 @@
 App.info({
 //  id: 'com.idwjia7uevfv491fvrh8f',
-  id: 'com.kn42.dev.meteor',
+  id: 'com.kn42.dev.local',
   name: 'Kn42-dev-met',
   description: 'Kn42 personal companion',
   author: 'Xlazz Inc',
-  email: 'stanp@xlazz.com',
-  website: 'http://kn42.xlazz.com',
-  version: '0.0.4'
+	email: 'info@xlazz.com',
+	website: 'http://kn42.xlazz.com',
+	version: '0.0.6'
 });
 
 App.icons({
@@ -54,4 +54,4 @@ App.launchScreens({
 
 App.setPreference('StatusBarOverlaysWebView', 'false');
 App.setPreference('StatusBarBackgroundColor', '#000000');
-
+App.setPreference('android-minSdkVersion', '14');
