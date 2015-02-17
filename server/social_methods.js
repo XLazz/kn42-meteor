@@ -67,12 +67,13 @@ Meteor.methods({
 			var i = 0;
 			console.log('venues Fsqr http call 2 update ', coords, ' # of results', venues.length  );
 			venues.forEach(function (item, index, array) {
-				
-				item.updated = moment().valueOf();
-				console.log ('venues Fsqr http call 2 update ', i++, coords, ' # of results', item );
-				item.location.lat = parseFloat(item.location.lat);
-				item.location.lng = parseFloat(item.location.lng);
-				VenuesCache.upsert({id: item.id}, item);
+				if (item.stats.usersCount > 10) {
+					item.updated = moment().valueOf();
+					console.log ('venues Fsqr http call 2 update ', i++, coords, ' # of results', item );
+					item.location.lat = parseFloat(item.location.lat);
+					item.location.lng = parseFloat(item.location.lng);
+					VenuesCache.upsert({id: item.id}, {$set: {'id': item.id, 'name':item.name, 'location':item.location, 'updated': item.updated, 'stats': item.stats }});
+				}
 			});
 		} else {
 			console.log('venues empty ', coords, ' # of results', venues.length );
@@ -139,7 +140,7 @@ Meteor.methods({
 					console.error(' empty item checkins Fsqr http call 3 ', item);
 				} else {
 					VenuesCheckins.upsert({id: item.id}, {$set:{userId: userId, venueId: item.venue.id, id: item.id, createdAt: item.createdAt, date: item.date}});
-					VenuesFsqr.upsert({id:item.venue.id}, {$set: item.venue});
+					VenuesFsqr.upsert({id:item.venue.id}, {$set: {'venue.id': item.venue.id, 'venue.name':item.venue.name, 'venue.contact': item.venue.contact, 'venue.location':item.venue.location }});
 					var userPlace = UserPlaces.findOne({userId: userId, timestampEnd: { $gte: 1000*item.createdAt}, timestamp: {$lte: 1000*item.createdAt}});
 //					var userPlace2 = UserPlaces.findOne({userId: userId, timestamp: { $gte: 1000*item.createdAt-1}, timestampEnd: {$lte: 1000*item.createdAt+1}});
 //					console.log('checkins Fsqr http call 3 update item ', i, ' checkin ', item.id, 'createdAt ', item.date, ' venue ', item.venue.id, item.venue.name );

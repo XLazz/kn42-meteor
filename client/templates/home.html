@@ -99,7 +99,9 @@
 
 					</div>
 					{{#if status}}
-						{{> venuesSelected}}
+						{{#if ifUser.services.foursquare}}
+							{{> venuesSelected}}
+						{{/if}}
 					{{/if}}
 					<div style="font-size: smaller">
 						{{#if geoPlace.name}}{{geoPlace.vicinity}} {{else}}{{geoMerchant.vicinity}} {{/if}}<br />

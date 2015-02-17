@@ -7,11 +7,12 @@ Meteor.methods({
 			return;
 		}
 		if (!user_details.emails) {
-			console.log('no standard email, getting it from services ');
-			user_details.emails = {};
-			user_details.emails[0] = [];
-			user_details.emails[0].address = user_details.services.google.email;
-			Meteor.users.upsert(userId, {$set: user_details});
+			console.log('no standard email, getting it from services for ', userId);
+			var update = {};
+			update.emails = [];
+			update.emails[0] = {};
+			update.emails[0].address = user_details.services.google.email;
+			Meteor.users.upsert({_id:userId}, {$set: update});
 			//		Meteor.users.upsert(userId, {$set: user_details});
 		}
 	},
@@ -152,7 +153,7 @@ Meteor.methods({
 					lat: userLocation.latitude,
 					lng: userLocation.longitude,
 					user_history_location_id: userLocation.user_history_location_id,
-					updated: new Date(),
+					updated: moment().valueOf()
 				}}
 			);
 		}

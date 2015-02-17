@@ -55,6 +55,11 @@ Template.homeinside.helpers({
 });
 
 Template.homelocation.helpers({
+	ifUser: function(){
+		var user = Meteor.user();
+		console.log(' user ', user);
+		return user;
+	},
 	ifDebug: function(){
 		return Session.get('debug');
 	},	

@@ -39,9 +39,7 @@ Meteor.publish(null, function() {
   }); */
 	return People.find();
 	return Services.find();
-	return GeoLog.find({userId:this.userId},{sort: {timestamp:-1}, limit:300});
-	
-	return Places.find({},{limit:100});
+	return GeoLog.find({userId:this.userId},{sort: {timestamp:-1}, limit:200});
 	return GooglePlaces.find({});
 });
 Meteor.publish('GeoLog', function(userId) {
@@ -54,7 +52,7 @@ Meteor.publish('UserPlaces', function(userId) {
 	return UserPlaces.find({userId:this.userId});
 });
 Meteor.publish('Places', function(userId) {
-	return Places.find();
+	return Places.find({}, {fields:{_id:1, 'address': 1, updated: 1, place_id: 1, name:1, icon:1, vicinity:1, coords:1}, sort: {updated: -1}, limit: 100});
 });
 Meteor.publish('GooglePlaces', function(userId) {
 	return GooglePlaces.find();
@@ -63,10 +61,10 @@ Meteor.publish('AutoPlaces', function(userId) {
 	return AutoPlaces.find({userId:this.userId});
 });
 Meteor.publish('MerchantsCache', function(userId) {
-	return MerchantsCache.find({}, {limit: 100});
+	return MerchantsCache.find({}, {fields:{_id:1, 'address': 1, updated: 1, place_id: 1, name:1, icon:1, vicinity:1, coords:1}, sort: {updated: -1}, limit: 100});
 });
-Meteor.publish('VenuesCache', function(userId) {
-	return VenuesCache.find({}, {limit: 100});
+Meteor.publish('VenuesCache', function(userId, limit) {
+	return VenuesCache.find({}, {sort: {updated: -1},limit: limit});
 });
 Meteor.publish('VenuesFsqr', function(userId) {
 	return VenuesFsqr.find();
@@ -75,7 +73,7 @@ Meteor.publish('VenuesCheckins', function() {
   return VenuesCheckins.find({userId:this.userId});
 });
 Meteor.publish('Drives', function(userId) {
-	return Drives.find({userId:this.userId},{limit: 100});
+	return Drives.find({userId:this.userId},{limit: 200});
 });
 Meteor.publish('DriveTracks', function(userId) {
 	return DriveTracks.find({userId:this.userId});

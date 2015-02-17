@@ -1,12 +1,12 @@
 App.info({
 //  id: 'com.idwjia7uevfv491fvrh8f',
   id: 'com.kn42.dev.local',
-  name: 'Kn42-dev-met',
+  name: 'Kn42-dev-loc',
   description: 'Kn42 personal companion',
   author: 'Xlazz Inc',
-  email: 'info@xlazz.com',
-  website: 'http://kn42.xlazz.com',
-  version: '0.0.6',
+	email: 'info@xlazz.com',
+	website: 'http://kn42.xlazz.com',
+	version: '0.0.7'
 });
 
 App.icons({

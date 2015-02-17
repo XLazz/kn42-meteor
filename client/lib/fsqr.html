@@ -25,10 +25,13 @@
 						<button class="button btn btn-primary btn-small btn-modal goFsqr" id="{{checkinFsqr.id}}"> Yes </button>
 						<button class="button btn btn-secondary btn-small btn-modal otherFsqr" id="{{checkinFsqr.id}}"> Other </button>
 					</div>
-				</span>
+				</span>			
 			{{else}}
-				<div class="updatevenues checkFsqr" id=""><i class="fa fa-foursquare"></i> no fsqr around. Check? {{findFsqr}} </div>
-
+				<div class="updatevenues checkFsqr" id=""><i class="fa fa-foursquare"></i> {{findFsqr.name}}</div>
+				<div>
+					<button class="button btn btn-primary btn-small btn-modal goFsqr" id="{{findFsqr.id}}"> Yes </button>
+					<button class="button btn btn-secondary btn-small btn-modal otherFsqr" id="{{findFsqr.id}}"> Other </button>
+				</div>
 			{{/if}}
 		</div>						
 	{{/if}} 

@@ -86,7 +86,6 @@ Meteor.methods({
 			{
 				place_id: response.result.place_id,
 				name: response.result.name,
-				place_id_addr: response.result.place_id,
 				geometry: response.result.geometry,
 				icon: response.result.icon,
 				scope: response.result.scope,
@@ -102,7 +101,6 @@ Meteor.methods({
 			{
 				place_id: response.result.place_id,
 				name: response.result.name,
-				place_id_addr: response.result.place_id,
 				geometry: response.result.geometry,
 				icon: response.result.icon,
 				scope: response.result.scope,

@@ -6,20 +6,23 @@ Tracker.autorun(function () {
     Meteor.subscribe('userData', userId);
 		Meteor.subscribe("userinfo");
 		Meteor.subscribe('GeoLog',userId);
-		var placesByUserHandle = Meteor.subscribe('placesByUser');
-		Session.set('getPlacesNotReady', ! placesByUserHandle.ready());
+		
 		Meteor.subscribe('autoPlacesByUser');
 		Meteor.subscribe('TracksByUser');
 		var subUserPlaces = Meteor.subscribe('UserPlaces', userId);
 		Session.set('subUserPlaces', ! subUserPlaces.ready());
-		Meteor.subscribe('GooglePlaces');
+		var placesByUserHandle = Meteor.subscribe('placesByUser');
+		Session.set('getPlacesNotReady', ! placesByUserHandle.ready());
+		Meteor.subscribe('placesByGeo');
+		
+//		Meteor.subscribe('GooglePlaces');
 		Meteor.subscribe('Places', userId);
 		Meteor.subscribe('AutoPlaces',userId);
 		Meteor.subscribe('ClaimedPlaces',userId);
 		Meteor.subscribe('Experiences',userId);
 		Meteor.subscribe('MerchantsCache');
 		
-		Meteor.subscribe('VenuesCache');
+		Meteor.subscribe('VenuesCache',20);
 		Meteor.subscribe('VenuesFsqr',userId);
 		Meteor.subscribe('VenuesCheckins', userId);
 		

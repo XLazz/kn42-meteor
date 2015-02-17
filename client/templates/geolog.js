@@ -45,16 +45,16 @@ Template.coords.helpers({
 		var place = MerchantsCache.findOne({'place_id': this.place_id});
 		if (!place) {
 			var radius = 50;
-//			console.log('getGLoc calling ', userId, this)
+			console.log('getGLoc calling ', userId, this)
 			var params = {
 				location: this.location,
 				radius: radius
 			};
 			var initiator = 'geoMerchant';
-			Meteor.call('getGLoc', userId, params, initiator, function(err, results) {
+/* 			Meteor.call('getGLoc', userId, params, initiator, function(err, results) {
 				console.log('getGLoc call in geoMerchant ', userId, this.location, results);
 				return results;
-			});
+			}); */
 		}
 //		console.log('geoMerchant ', this.place_id);
 		return place;
