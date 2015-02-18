@@ -57,3 +57,40 @@ AutoForm.addHooks(null, {
 		Overlay.hide();
 	}
 });
+
+Template.showMapClaim.helpers({
+	debug: function () {
+		return Session.get('debug');
+	},
+  claimedMapOptions: function() {
+    // Make sure the maps API has loaded
+		var claimedId = Session.get('claimedId');
+		var claimed = ClaimedPlaces.findOne(claimedId);
+    if (GoogleMaps.loaded()) {
+			console.log('GoogleMaps not loaded');
+      // We can use the `ready` callback to interact with the map API once the map is ready.
+      GoogleMaps.ready('claimedMap', function(map) {
+				console.log('GoogleMaps ready');
+        // Add a marker to the map once it's ready
+
+				var marker = new google.maps.Marker({
+					position: new google.maps.LatLng(claimed.coords.latitude,claimed.coords.longitude),
+					map: map.instance,
+					title: 'Name: ' + claimed.name 
+				});	
+				console.log ('adding marker ', marker);
+
+
+      });
+      // Map initialization options
+      return {
+        center: new google.maps.LatLng(claimed.coords.latitude, claimed.coords.longitude),
+        zoom: 18
+      };
+    } else {
+//			GoogleMaps.load();
+//			GoogleMaps.load({ v: '3', key: 'AIzaSyAQH9WdmrwMKphSHloMai5iYlcS5EsXMQA' });
+			console.log('GoogleMaps not yet loaded');
+		}
+  }
+});

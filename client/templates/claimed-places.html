@@ -6,7 +6,7 @@
 			<div class="row">
 				<div class="col-xs-12 col-sm-12 col-md-12">
 					<div style="height: 240px">
-	Map comes here
+						{{> showMapClaim}}
 					</div>
 				</div>
 			</div>					
@@ -31,5 +31,11 @@
 
 
 		</div>
+	</div>
+</template>
+
+<template name="showMapClaim">
+	<div class="map-container">
+		{{> googleMap name="claimedMap" options=claimedMapOptions}}
 	</div>
 </template>
