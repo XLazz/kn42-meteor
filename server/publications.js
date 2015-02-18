@@ -232,6 +232,17 @@ Meteor.publishComposite('TracksByUser', function(userId, limit) {
 	}
 });
 
+Meteor.publishComposite('fsqrByChk', function(foursquareChk) {
+	return {
+		find: function() { return VenuesCheckins.find({id: foursquareChk}, {limit: 1}) },
+		children: [
+			{
+				find: function(cursor){return VenuesFsqr.find({id: cursor.venueId },{ limit: 1 })}
+			}
+		]
+	}
+});
+
 Meteor.publishComposite('placesByUser', function(userId, limit) {
 	return {
 		find: function() { return UserPlaces.find({userId: userId}, {sort: {timestamp: -1}, limit: limit}) },
@@ -243,7 +254,7 @@ Meteor.publishComposite('placesByUser', function(userId, limit) {
 			},{
 				find: function(geolog){return MerchantsCache.find({place_id: geolog.place_id },{ limit: 1 })}
 			},{
-				find: function(geolog){return VenuesCache.find({place_id: geolog.place_id },{ limit: 1 })}
+				find: function(geolog){return VenuesCheckins.find({id: geolog.foursquareChk },{ limit: 1 })}
 			},{
 				find: function(geolog){return GeoLog.find({timestamp: geolog.timestamp },{ limit: 1 })}
 			},{
@@ -258,20 +269,7 @@ Meteor.publishComposite('placesByUser', function(userId, limit) {
 						return ClaimedPlaces.find({'coords.latitude': { $gt: latdown, $lt: latup }, 'coords.longitude': { $gt: lngdown, $lt: lngup }});
 					}
 				}
-			},{
-				find: function(geolog){return checkinFsqr = VenuesCheckins.find({userId:geolog.userId},{limit: 1})}
 			}
-/* 			VenuesCheckins.find(
-			{userId:userId},
-			{
-				sort: {createdAt: -1}, 
-				limit: 20,
-				transform: function(doc){
-					doc.date =  moment.unix(doc.createdAt).format("MM/DD/YY hh:mm"); 
-					// console.log('checkinsFsqr -1 ', doc.createdAt, doc.date, doc.id );
-					return doc;
-				}
-			} */
 		]
 	}
 });
@@ -312,8 +310,15 @@ Meteor.publishComposite('placesByGeo', function(userId, limit) {
 				}
 			},{
 				find: function(geolog){
-					return checkinFsqr = VenuesCheckins.find({userId:geolog.userId},{limit: 1})
+					return VenuesCheckins.find({id:geolog.foursquareChk},{limit: 1})
 				},
+				children: [
+					{
+						find: function(cursor) {
+							return 	VenuesFsqr.find({id:geolog.venueId},{limit: 1})
+						}
+					}
+				]
 			}
 		]
 	}

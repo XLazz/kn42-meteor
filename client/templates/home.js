@@ -400,7 +400,7 @@ Template.selectExperience.helpers({
 	
 	currentPlace: function() {
 		var userLocation = Session.get('userLocation');
-		console.log('experiences userLocation ', userLocation.place_id, userLocation);
+		console.log('experiences userLocation ', moment().format("MM/DD/YY HH:mm:ss"), userLocation.place_id, userLocation);
 		return userLocation;
 	},
 });

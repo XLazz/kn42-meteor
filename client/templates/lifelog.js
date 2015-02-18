@@ -10,7 +10,7 @@
 
 Template.lifelog.helpers({
 	ifDebug: function(){
-		console.log('ifDebug ', Session.get('debug'));
+		console.log('ifDebug ', Session.get('debug'), moment().format("MM/DD HH:mm:ss.SSS"));
 		if (Session.get('debug')) {
 			return 'checked';
 		}	else {
@@ -31,9 +31,9 @@ Template.lifelog.helpers({
   searching: function() {
 		var userId = Meteor.userId();
     if (UserPlaces.findOne({userId: userId})) {
-			console.log('searching UserPlaces 1 ', UserPlaces.findOne({userId: userId}));
+			console.log('searching UserPlaces 1 ', moment().format("MM/DD HH:mm:ss.SSS"), UserPlaces.findOne({userId: userId}) );
 			if (UserPlaces.findOne({userId: userId})._id) {
-				console.log('searching UserPlaces 2 ', UserPlaces.findOne({userId: userId}));
+				console.log('searching UserPlaces 2 ', moment().format("MM/DD HH:mm:ss.SSS"), UserPlaces.findOne({userId: userId}));
 				return;
 			}
 		}
@@ -140,15 +140,16 @@ Template.showlocations.helpers({
 		var places;
 		var userId = Meteor.userId();
 //		console.log('locations helper 1 ', userId );
-    if (!UserPlaces.findOne({userId: userId})) 
+		var ifplaces = UserPlaces.findOne({userId: userId});
+    if (!ifplaces) 
 			return;
-		if (!UserPlaces.findOne({userId: userId})._id)
+		if (!ifplaces._id)
 			return;
 			
 		Session.set('query', false);
 		Session.set('searching', false);
 
-		console.log('locations helper 2 ',UserPlaces.findOne({userId: userId}));
+//		console.log('locations helper 2 ',UserPlaces.findOne({userId: userId}));
 		if (!Session.get('radius')) {
 			Session.set('radius', 50);
 		}
@@ -156,7 +157,7 @@ Template.showlocations.helpers({
 			{userId: userId}, 
 			{
 				sort: {timestamp: -1},
-				limit: 20,
+				limit: 5,
 				transform: function(doc){		
 					var then = parseInt(doc.timestamp);
 					var now = parseInt(doc.timestampEnd);
@@ -171,24 +172,18 @@ Template.showlocations.helpers({
 					doc.timespent = duration;
 					doc.timestart = moment(then).format("MM/DD/YY HH:mm");
 					doc.timestart2 = moment(doc.timestamp).format("MM/DD/YY HH:mm");
-/* 					doc.then = moment(then) ;
-					doc.then2 = doc.timestamp; */
-					var count = UserPlaces.find({userId: userId, place_id: doc.place_id}).count();
-					doc.count = count;
+/* 					var count = UserPlaces.find({userId: userId, place_id: doc.place_id}).count();
+					doc.count = count; */
 					return doc;
 				}
 			}
 		);
-		if (!places)
-			return;
-//		console.log('locations helper places ', userId, places.fetch() );
-		if (!places.count()){
-
-		} 
+		console.log('locations helper places ', moment().format("MM/DD HH:mm:ss.SSS"), userId, places.count(), places);
 		return places;
 	},
 
 	geoPlace: function() {
+//		console.log('geoPlace helper ', this);
 		var userId = Meteor.userId();
 		var place = Places.findOne({'place_id': this.place_id});
 		if (!place)
@@ -233,8 +228,20 @@ Template.showlocations.helpers({
 //		} 
 	},	
 	
+	ifUpdatePlace: function() {
+		if (Session.get('ifUpdatePlace'))
+			return;
+		Session.set('ifUpdatePlace', true);
+		Meteor.setTimeout(function(){
+			Meteor.call('getGPlace', this.place_id, function(err, results){
+				console.log('getGPlace in lifelog ', results);
+				Session.set('ifUpdatePlace', false);
+				return;
+			});		
+		}, 2000);
+	},
 	
-	checkinFsqr: function(){
+/* 	checkinFsqr: function(){
 		if (!this.timestampEnd)
 			this.timestampEnd = moment().valueOf();
 		var checkinFsqr;
@@ -255,9 +262,8 @@ Template.showlocations.helpers({
 			nameFsqr = checkinFsqr.venue.name;
 		}
 			
-/* 		console.log('locations helper checkinFsqr ', this.userId, nameFsqr, this.timestamp/1000+300*60, this.timestamp/1000, timestampFsqr, this.timestampEnd/1000+300*60, checkinFsqr  ); */
 		return checkinFsqr;		
-	},
+	}, */
 	
 	'showExp': function(){
 		return Session.get('showExp');
@@ -273,7 +279,7 @@ Template.showlocations.helpers({
 			Session.set('updatePlaces', true);
 		var initiator = 'unknown lifelog';
 		Meteor.call('updatePlaces', Meteor.userId(), initiator, function(err, results) {
-			console.log('updatePlaces call  ', Meteor.userId(), this.location, results);
+			console.log('updatePlaces call  ', Meteor.userId(), this.location, this, results);
 			Meteor.setTimeout(function(){
         Session.set('updatePlaces', false);
 			}, 5000);

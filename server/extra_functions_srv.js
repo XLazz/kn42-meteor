@@ -388,7 +388,7 @@ ifStationary = function(userId, geoId){
 				userId: userId,
 				place_id: geoLoc.stationary_place_id,
 				geo_place_id: geoLoc.place_id,
-				started:  moment().format("YYYY-MM-DD HH:mm:ss"),
+				started:  moment().format("YYYY-MM-DD HH:mm:ss.SSS"),
 				timestamp:  moment().valueOf(),
 				location: geoLoc.location
 			});	

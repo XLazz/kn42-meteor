@@ -1,30 +1,33 @@
-ifChecked = function(foursquareChk){
 
+
+ifChecked = function(foursquareChk){
+	Meteor.subscribe('fsqrByChk', foursquareChk);
 	var checkedFsqr = VenuesCheckins.findOne({
-		id: foursquareChk
+			id: foursquareChk
 		},{	
-		limit: 1, sort: {createdAt: -1},
-		transform: function(doc){
-			//				doc.timestamp = doc.timestamp+300*60;
-			doc.createdDate = moment(doc.createdAt*1000).format("MM/DD/YY HH:mm");	
-			console.log('ifChecked inside ', doc);
-			return doc;
+			limit: 1, sort: {createdAt: -1},
+			transform: function(doc){
+				//				doc.timestamp = doc.timestamp+300*60;
+				doc.createdDate = moment(doc.createdAt*1000).format("MM/DD/YY HH:mm");	
+				doc.name = VenuesFsqr.findOne({id: doc.venueId}).name;
+//				console.log('ifChecked inside ', doc);
+				return doc;
+			}
 		}
-	}
 	);
-	var venueFsqr = ifCheckedName(checkedFsqr.venueId);
-	console.log('ifChecked  1 ', checkedFsqr, venueFsqr);
+
+//	console.log('ifChecked  1 ', checkedFsqr);
 	return checkedFsqr;		
 }
 
-ifCheckedName = function(venueId){
-	var venueFsqr = VenuesFsqr.findOne({id: venueId});
+ifCheckedName = function(){
+	var venueFsqr = VenuesFsqr.findOne({id: this.venueId}, {fields: {id: 1, name: 1}});
 	if (venueFsqr)
 		return venueFsqr;	
 }
-
+/* 
 CheckedFsqr = function(userPlaceId){
-	var userPlace =  UserPlaces.findOne(userPlaceId);
+	var userPlace.foursquareChk =  fsqrByChk.findOne(userPlaceId);
 	console.log('function checkedFsqr 1 ', userPlace);
 	if (!userPlace)  
 		return ;
@@ -79,11 +82,12 @@ CheckedFsqr = function(userPlaceId){
 		return checkedFsqr;
 	}
 }
+ */
 
-CheckinFsqr = function(userLocationId, radius_search){
+CheckinFsqr = function(userLocationId, limit, radius_search ){
 	if (!userLocationId)  
 		return ;
-	var userLocation =  UserPlaces.findOne(userLocationId);
+	var userLocation =  UserPlaces.findOne(userLocationId, {fields: {location: 1}});
 	if (!userLocation)  
 		return ;
 	if (!userLocation.location)  
@@ -112,10 +116,11 @@ CheckinFsqr = function(userLocationId, radius_search){
 //				console.log('checkinFsqr inside ', doc.distance, doc);
 				return doc;
 			},
-			sort: {'stats.checkinsCount': -1}
+			sort: {'stats.checkinsCount': -1},
+			limit: limit
 		}	
 	);
-	console.log('checkinFsqr 2 ', userLocationId, checkinFsqr.fetch(), latdown, latup, lngdown, lngup);
+//	console.log('checkinFsqr 2 ', userLocationId, checkinFsqr.fetch(), latdown, latup, lngdown, lngup);
 	if (checkinFsqr.fetch()) {
 		checkinFsqr = checkinFsqr.fetch();
 		checkinFsqr.radius_search = radius_search;
@@ -150,8 +155,8 @@ loadFsqr = function(userLocationId){
 	var coords = userLocation.location.coords;
 //		var userLocation = GeoLog.findOne({userId: userId}, {sort: {created: -1}}).location;
 	var query = {};
-
-	var venues = Meteor.call('venuesFsqr', Meteor.userId(), coords, query, function(err, results) {
+	var venues = 'coming soon';
+/* 	var venues = Meteor.call('venuesFsqr', Meteor.userId(), coords, query, function(err, results) {
 		console.log('Meteor.call venuesFsqr', results, err);
 		if (results)
 			Session.set('venueFsqr', results[0]);
@@ -160,18 +165,17 @@ loadFsqr = function(userLocationId){
 			}, 5000);
 			
 		return results;
-	});
+	}); */
 	console.log('loadFsqr end ', venues);
 	return venues;
 }
 
-goFsqr = function(venueId){
+goFsqr = function(venueId, userPlaceId){
 //			if (userLocation)
 //				Session.set('userLocation', userLocation);
-	var userPlaceId = this._id;
 	console.log('goFsqr 0 ', venueId);
 	var venues = Meteor.call('goFsqr', Meteor.userId(), userPlaceId, venueId, function(err, results) {
-		console.log('Meteor.call goFsqr', venueId, results);
+		console.log('Meteor.call goFsqr', userPlaceId, venueId, results);
 		if (results) {
 			UserPlaces.upsert(userPlaceId, {$set:{foursquareChk: results.response.checkin.id}});
 			Session.set('selectFsqr', false);
@@ -185,23 +189,26 @@ Template.venues.helpers({
 		return Session.get('debug');
 	},	
 	checkedFsqr: function(){
-		// var checkedFsqr = ifChecked(this.foursquareChk);
+		console.log('venues checkedFsqr 1 ', this._id, this.foursquareChk, this)
+		var checkedFsqr = ifChecked(this.foursquareChk);
 		// if (checkedFsqr)
 			// return checkedFsqr;
 //		console.log('venues checkedFsqr 1 ', this._id, this);
-		checkedFsqr = CheckedFsqr(this._id);
+/* 		checkedFsqr = CheckedFsqr(this._id);
 		if (checkedFsqr)
 			if (checkedFsqr.venueId) {
 				Session.set('venueId', checkedFsqr.venueId);
 				return checkedFsqr;
-			}
-		console.log('venues checkedFsqr 2 ', this._id, checkedFsqr, this);	
+			} */
+//		console.log('venues checkedFsqr 2 ', this._id, this.foursquareChk, checkedFsqr, this);	
+		return checkedFsqr;
 	},
+	
 	checkedName:function(){
 		return ifCheckedName(Session.get('venueId'));	
 	},
 
-	checkinFsqr: function(){
+/* 	checkinFsqr: function(){
 		var checkinFsqr = CheckinFsqr(this._id);
 		if (checkinFsqr)
 			return checkinFsqr;
@@ -220,7 +227,7 @@ Template.venues.helpers({
 		var venue = loadFsqr(userLocationId);
 		console.log(' findFsqr ', venue);
 		return venue;
-	},
+	}, */
 	
 });
 
@@ -236,10 +243,18 @@ Template.venuesSelected.helpers({
 		return Session.get('fsqrSpinner');
 	},
 	checkedFsqr: function(){
-		var currentLoc = this;
-		var checkedFsqr = CheckedFsqr(this._id);
-		console.log('checkedFsqr 1 ', checkedFsqr, this._id, this);
-		Session.set('venueFsqr', false);
+//		console.log('venues checkedFsqr 1 ', this._id, this.foursquareChk, this)
+		var checkedFsqr = ifChecked(this.foursquareChk);
+		// if (checkedFsqr)
+		// return checkedFsqr;
+		//		console.log('venues checkedFsqr 1 ', this._id, this);
+		/* 		checkedFsqr = CheckedFsqr(this._id);
+			if (checkedFsqr)
+			if (checkedFsqr.venueId) {
+			Session.set('venueId', checkedFsqr.venueId);
+			return checkedFsqr;
+		} */
+		console.log('venues checkedFsqr 2 ', moment().format("MM/DD HH:mm:ss.SSS"), this._id, this.foursquareChk, checkedFsqr, this);	
 		return checkedFsqr;
 	},
 	checkinFsqr: function(){
@@ -249,8 +264,9 @@ Template.venuesSelected.helpers({
 			return venue;
 		}
 		var userLocationId = this._id;
-		var checkinFsqr = CheckinFsqr(userLocationId);
-		console.log('checkinFsqr 3 ', checkinFsqr[0], checkinFsqr);
+		var limit = 1;
+		var checkinFsqr = CheckinFsqr(userLocationId, limit);
+//		console.log('checkinFsqr 3 ', checkinFsqr[0], checkinFsqr);
 		if (checkinFsqr)
 			if (checkinFsqr[0])
 				return checkinFsqr[0];
@@ -260,8 +276,9 @@ Template.venuesSelected.helpers({
 		var venue;
 		var venue = loadFsqr(userLocationId);
 		console.log(' findFsqr for  userLocationId ', userLocationId, ' venue ', venue);
+//		return 'updating';
 	},
-	venuesSelected: function(){
+/* 	venuesSelected: function(){
 		var userId = Meteor.userId();
 		if (!userId) {return} ;
 		if (!Meteor.user().profile.foursquareId)
@@ -269,8 +286,8 @@ Template.venuesSelected.helpers({
 		var venues;
 		var callFsqr;
 		var query = {}
-/* 		query.radius = 1000;
-		query.what = 'coffee'; */
+		// query.radius = 1000;
+		// query.what = 'coffee';
 		var userLocation = Session.get('userLocation');
 		if (!userLocation)
 			return;
@@ -299,11 +316,11 @@ Template.venuesSelected.helpers({
 		if (!Session.get('fsqrStamp')) {
 			console.log('venuesNearby 6 calling fsqr ', coords, query.what, callFsqr, timediff);	
 			Session.set('fsqrStamp', moment().valueOf());
-/* 			var venues = Meteor.call('venuesFsqr', userId, coords, query, function(err, results) {
-				console.log('Meteor.call venuesFsqr', results);
-//				Session.set('fsqrStamp', false);
-				return results;
-			}); */
+			// var venues = Meteor.call('venuesFsqr', userId, coords, query, function(err, results) {
+				// console.log('Meteor.call venuesFsqr', results);
+				Session.set('fsqrStamp', false);
+				// return results;
+			// });
 			console.log('Meteor.call outside venuesFsqr', venues);
 		}		
 		console.log('Meteor.call event after venuesFsqr', userLocation.place_id, venues);
@@ -311,7 +328,7 @@ Template.venuesSelected.helpers({
 			return	
 		return venues;
 		
-	},
+	}, */
 });
 
 
@@ -369,10 +386,10 @@ Template.venuesSelected.events({
 	},
 	'click .goFsqr': function(event, template) {
 		// we are checking in Fsqr
-		
+		var userPlaceId = this._id;
 		var venueId = $(event.currentTarget).attr("id");
-		var venue = goFsqr(venueId);
-		console.log('clicked goFsqr ', this._id, this, $(event.currentTarget).attr("id"), ' submitted venue ', venue);
+		var venue = goFsqr(venueId, userPlaceId);
+		console.log('clicked goFsqr ',  this,	' submitted userPlaceId, venue ', userPlaceId, venue);
 		return venue;
 	},
 });
@@ -393,7 +410,8 @@ Template.selectFsqr.helpers({
 	venues: function(){
 		userId = Meteor.userId();
 		var userLocation = UserPlaces.findOne({userId: userId},{sort: {timestamp: -1}});
-		var venues = CheckinFsqr(userLocation._id);
+		var limit = 30;
+		var venues = CheckinFsqr(userLocation._id, 30);
 		return venues;
 	},
 });

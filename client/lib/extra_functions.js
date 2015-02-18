@@ -136,7 +136,7 @@ insertPlace = function(userId, lastLoc, currentPlaceAlt){
 			placesId: place._id,
 			userId: userId,
 			place_id: currentPlaceAlt.place_id,
-			started:  moment().valueOf().format("YYYY-MM-DD HH:mm:ss"),
+			started:  moment().valueOf().format("YYYY-MM-DD HH:mm:ss.SSS"),
 			timestamp: lastLoc.timestamp,
 			geoId: lastLoc._id,
 			location: lastLoc.location,

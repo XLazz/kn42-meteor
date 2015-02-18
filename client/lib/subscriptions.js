@@ -27,6 +27,7 @@ Tracker.autorun(function () {
 		Meteor.subscribe('VenuesFsqr',userId);
 		Meteor.subscribe('VenuesCheckins', userId);
 		
+		
 		Meteor.subscribe('Contacts',userId);
 		Meteor.subscribe('Drives', userId);
 		Meteor.subscribe('DriveTracks', userId);

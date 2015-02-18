@@ -3,12 +3,10 @@
 	{{#if checkedFsqr}} 
 		<div style="width: auto; white-space: normal" id="{{checkedFsqr.venueId}}">
 			<i class="fa fa-foursquare"></i> 
-			{{#if checkedFsqr.venueId}} 
-				{{checkedName.name}} {{checkedFsqr.name}} 
-				{{#if ifDebug}}
-					{{checkedFsqr.date}}
-				{{/if}} 
-			{{/if}}
+			{{checkedFsqr.name}} 
+			{{#if ifDebug}}
+				{{checkedFsqr.date}}
+			{{/if}} 
 		</div>
 	{{/if}} 
 
@@ -33,10 +31,13 @@
 					</div>
 				</span>			
 			{{else}}
-				<div class="updatevenues checkFsqr" id=""><i class="fa fa-foursquare"></i> {{findFsqr.name}}</div>
+				<div class="updatevenues checkFsqr" id="">
+					<i class="fa fa-foursquare"></i>
+					{{findFsqr}}
+				</div>
 				<div>
-					<button class="button btn btn-primary btn-small btn-modal goFsqr" id="{{findFsqr.id}}"> Yes </button>
-					<button class="button btn btn-secondary btn-small btn-modal otherFsqr" id="{{findFsqr.id}}"> Other </button>
+					<button class="button btn btn-primary btn-small btn-modal goFsqr" id=""> Yes </button>
+					<button class="button btn btn-secondary btn-small btn-modal otherFsqr" id=""> Other </button>
 				</div>
 			{{/if}}
 		</div>						
