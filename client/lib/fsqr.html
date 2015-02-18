@@ -1,8 +1,14 @@
 
 <template name="venues">
 	{{#if checkedFsqr}} 
-		<div style="width: auto; white-space: normal">
-			<i class="fa fa-foursquare"></i> {{checkedFsqr.name}} {{#if ifDebug}}{{checkedFsqr.date}}{{/if}}
+		<div style="width: auto; white-space: normal" id="{{checkedFsqr.venueId}}">
+			<i class="fa fa-foursquare"></i> 
+			{{#if checkedFsqr.venueId}} 
+				{{checkedName.name}} {{checkedFsqr.name}} 
+				{{#if ifDebug}}
+					{{checkedFsqr.date}}
+				{{/if}} 
+			{{/if}}
 		</div>
 	{{/if}} 
 

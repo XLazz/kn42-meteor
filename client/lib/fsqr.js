@@ -1,5 +1,31 @@
+ifChecked = function(foursquareChk){
+
+	var checkedFsqr = VenuesCheckins.findOne({
+		id: foursquareChk
+		},{	
+		limit: 1, sort: {createdAt: -1},
+		transform: function(doc){
+			//				doc.timestamp = doc.timestamp+300*60;
+			doc.createdDate = moment(doc.createdAt*1000).format("MM/DD/YY HH:mm");	
+			console.log('ifChecked inside ', doc);
+			return doc;
+		}
+	}
+	);
+	var venueFsqr = ifCheckedName(checkedFsqr.venueId);
+	console.log('ifChecked  1 ', checkedFsqr, venueFsqr);
+	return checkedFsqr;		
+}
+
+ifCheckedName = function(venueId){
+	var venueFsqr = VenuesFsqr.findOne({id: venueId});
+	if (venueFsqr)
+		return venueFsqr;	
+}
+
 CheckedFsqr = function(userPlaceId){
 	var userPlace =  UserPlaces.findOne(userPlaceId);
+	console.log('function checkedFsqr 1 ', userPlace);
 	if (!userPlace)  
 		return ;
 	
@@ -11,11 +37,12 @@ CheckedFsqr = function(userPlaceId){
 				transform: function(doc){
 	//				doc.timestamp = doc.timestamp+300*60;
 					doc.createdDate = moment(doc.createdAt*1000).format("MM/DD/YY HH:mm");
-//					console.log('checkedFsqr inside ', doc);
+					console.log('checkedFsqr inside ', doc);
 					var venueFsqr = VenuesFsqr.findOne({id: doc.venueId});
-					if (venueFsqr)
+					if (venueFsqr) {
 						doc.name = venueFsqr.name;
-					return doc;
+						return doc;
+					}
 				}
 			}
 		);
@@ -158,10 +185,20 @@ Template.venues.helpers({
 		return Session.get('debug');
 	},	
 	checkedFsqr: function(){
+		// var checkedFsqr = ifChecked(this.foursquareChk);
+		// if (checkedFsqr)
+			// return checkedFsqr;
 //		console.log('venues checkedFsqr 1 ', this._id, this);
-		var checkedFsqr = CheckedFsqr(this._id);
-//		console.log('venues checkedFsqr 2 ', this._id, checkedFsqr);
-		return checkedFsqr;
+		checkedFsqr = CheckedFsqr(this._id);
+		if (checkedFsqr)
+			if (checkedFsqr.venueId) {
+				Session.set('venueId', checkedFsqr.venueId);
+				return checkedFsqr;
+			}
+		console.log('venues checkedFsqr 2 ', this._id, checkedFsqr, this);	
+	},
+	checkedName:function(){
+		return ifCheckedName(Session.get('venueId'));	
 	},
 
 	checkinFsqr: function(){
