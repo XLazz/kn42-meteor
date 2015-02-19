@@ -1,3 +1,4 @@
+meteor build ../build --server=kn42.meteor.com
 cd ../build/android/
 jarsigner -verbose -sigalg MD5withRSA -digestalg SHA1 unaligned.apk Kn42
 rm production.apk
