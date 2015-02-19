@@ -80,7 +80,6 @@ Template.showMapClaim.helpers({
 				});	
 				console.log ('adding marker ', marker);
 
-
       });
       // Map initialization options
       return {

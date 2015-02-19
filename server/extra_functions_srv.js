@@ -341,13 +341,35 @@ GoogleMaps.getPlaces = function(params){
 }
 
 ifStationary = function(userId, geoId){
-	var stat_time = 200000;
+	var stat_time = 1000000;
+	var diffstamp = moment().valueOf() - stat_time;
 	var geoLoc = GeoLog.findOne(geoId);
 	if (!geoLoc)
 		return;
 	var geoLocOld = UserPlaces.findOne({userId:userId},{sort: {timestamp: -1}});
-	if (!geoLocOld)
-		return;
+	if (!geoLocOld) {
+		// if UserPlaces empty yet
+		geoLocOld = GeoLog.findOne({userId: userId, timestamp: {$lt: diffstamp}},{sort:{timestamp: -1}});
+		if (!geoLocOld) {
+			console.log('ifStationary no geolog and no userplace, exiting ', userId, geoId);
+			return;
+		}
+		if ((geoLocOld.place_id == geoLoc.place_id) || (geoLocOld.stationary_place_id == geoLoc.stationary_place_id)) {
+			console.log('User stationary for ', stat_time, ' in ', geoLoc.stationary_place_id);
+			UserPlaces.insert(
+			{
+				geoId: geoId,
+				userId: userId,
+				place_id: geoLoc.stationary_place_id,
+				geo_place_id: geoLoc.place_id,
+				started:  moment().format("YYYY-MM-DD HH:mm:ss.SSS"),
+				timestamp:  moment().valueOf(),
+				location: geoLoc.location
+			});			
+		}
+	}
+	
+	// Found old place in UserPlaces
 	console.log('old place from GeoLog ', geoLocOld._id, ' new place ', geoLoc._id);		
 
 	// if previous stationary place_id from GeoLog is the same as new one, we are stationary
@@ -366,15 +388,10 @@ ifStationary = function(userId, geoId){
 			geoLocOld.timestampEnd = moment().valueOf();
 			if (geoLocOld._id)
 				UserPlaces.upsert(geoLocOld._id, {$set: {timestampEnd: geoLocOld.timestampEnd }});
-			// and submit to server with the timestampEnd
-			// location.timestampEnd = oldLoc.timestamp;
-			// location.userplaceId = userplace._id;
-			// Meteor.call('submitPlace', userId, location, experience);
-
 			//					console.log('User has moved from ', lastLoc.stationary_place_id, ' to ', currentPlaceAlt.place_id);
 		} else {
 			// let's check if user is in current place_id for a long time
-			var diffstamp = moment().valueOf() - stat_time;
+			
 			var ifStat = GeoLog.findOne({userId: userId, timestamp: {$lt: diffstamp}},{sort:{timestamp: -1}});
 			if (!ifStat)
 				return;		

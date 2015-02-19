@@ -274,9 +274,8 @@
 	{{> venuesSelected}}
 </template>
 
-<template name="_no_exp2">
-</template>
-
-<template name="common_kn">
-
+<template name="showMapLoc">
+	<div class="map-container">
+		{{> googleMap name="locationMap" options=locationMapOptions}}
+	</div>
 </template>
