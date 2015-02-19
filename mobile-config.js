@@ -1,7 +1,13 @@
 App.info({
+<<<<<<< HEAD
   id: 'com.idwjia7uevfv491fvrh8f',
 //  id: 'com.kn42.dev.local',
   name: 'Kn42',
+=======
+//  id: 'com.idwjia7uevfv491fvrh8f',
+  id: 'com.kn42.dev.met',
+  name: 'Kn42-dev-met',
+>>>>>>> origin/v013-map
   description: 'Kn42 personal companion',
   author: 'Xlazz Inc',
 	email: 'info@xlazz.com',

@@ -1,4 +1,60 @@
+checkDistance = function(fitnessTrackId){
+	var distance = 0;
+	var calories = 0;
+	fitnessTrack = FitnessTracks.findOne(fitnessTrackId);
+//	console.log('distance fitnessTrack ', fitnessTrack);
+	if (fitnessTrack.distance) {
+		return fitnessTrack.distance;
+	}
+	var cursor = Tracks.find({fitnessTrackId: fitnessTrackId});
+//	console.log ('checking distance for 1 ', fitnessTrackId, cursor.location, cursor.fetch());
+	cursor.forEach(function(item, index, array){
+		var location = item.location;
+		distance = distance + item.location.distance;
+		distance = truncateDecimals(distance, 3);
+//			console.log ('checking distance 2 for each ', location, item.location.distance, distance);
+	});
+	FitnessTracks.update(fitnessTrackId,{$set:{distance: distance}});
+	return fitnessTrack.distance;
+}
 
+checkCalories = function(fitnessTrackId){
+	var distance = 0;
+	var calories = 0;
+	fitnessTrack = FitnessTracks.findOne(fitnessTrackId);
+//	console.log('calories fitnessTrack ', fitnessTrack);
+	if (fitnessTrack.calories > 0)
+		return fitnessTrack.calories;
+
+	var track = Tracks.find({fitnessTrackId: fitnessTrackId}, {sort:{ 'location.timestamp': 1}});
+//	console.log ('checking distance for 1 ', fitnessTrackId, track.fetch());
+	track = track.fetch();
+	var oldLoc;
+	var totCalories = 0;
+	var totDistance = 0;
+	track.forEach(function(item, index, array){
+		if (oldLoc)  {
+//			console.log(item.location);
+//			console.log(oldLoc.location);
+			var distance = calculateDistance(item.location.coords.latitude, item.location.coords.longitude, oldLoc.location.coords.latitude, oldLoc.location.coords.longitude);
+			totDistance = totDistance + distance;
+			var timediff = (item.location.timestamp - oldLoc.location.timestamp);
+			if (!distance) 
+				distance = 0;
+			var calories = calculateCalories(item.activityId, distance, timediff);
+//			console.log('checking calories inside ', item.activityId, distance, timediff, calories);
+			totCalories =  totCalories + parseFloat(calories);
+		}
+		oldLoc = item;
+//			distance = truncateDecimals(distance, 3);
+//		console.log ('checking calories 2 for each ', item.location, totDistance, totCalories);
+	});
+//	console.log ('upserting calories  ', fitnessTrackId, totDistance, totCalories);
+	totCalories = Math.round(totCalories);
+	totDistance = Math.round(totDistance * 100) / 100;
+	FitnessTracks.update(fitnessTrackId,{$set:{calories: totCalories, distance: totDistance}});
+	return calories;
+ }
 
 Template.fitness.helpers({
 
@@ -101,10 +157,9 @@ Template.routes.helpers({
 					doc.time = time;
 					if (!doc.location.coords.speed)
 						doc.location.distance = 0;
-					doc.calories = calculateCalories(activity, parseFloat(doc.location.distance), parseFloat(doc.location.speed));
-					console.log('checking calories', doc.calories);
-					doc.location.distance = truncateDecimals(doc.location.distance, 3);
-					doc.location.coords.speed = truncateDecimals(doc.location.coords.speed, 2);
+					console.log('checking calories', doc.calories, doc.location.distance, doc.location.speed, doc);
+//					doc.location.distance = truncateDecimals(doc.location.distance, 3);
+//					doc.location.coords.speed = truncateDecimals(doc.location.coords.speed, 2);
 					return doc;
 				}
 			});
@@ -117,13 +172,16 @@ Template.routes.helpers({
 	userTracks: function(){
 		var userTracks = FitnessTracks.find(
 			{userId: Meteor.userId()},{
-				sort:{created: -1},
+				sort:{timestamp: -1},
 				transform: function(doc){
 					doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm");
 					doc.duration = moment.duration(doc.timestampEnd - doc.timestamp).humanize();
 					doc.dur_sec = doc.timestampEnd - doc.timestamp;
-					if (doc.dur_sec > 60000)
+					if (doc.dur_sec > 60000) {
 						doc.show = true;
+						if ((!doc.calories) || (doc.calories == 0))
+							checkCalories(doc._id);
+					}
 					return doc;
 				}
 			}
@@ -132,53 +190,9 @@ Template.routes.helpers({
 	},
 	fitnessTrack: function(){
 		var fitnessTrack = FitnessTracks.findOne({fitnessTrackId: this._id});
+		if ((!fitnessTrack.calories) || (fitnessTrack.calories == 0))
+			checkCalories(fitnessTrackId);
 		return fitnessTrack;
-	},
-  distance: function(){
-		var fitnessTrackId = this._id;
-		var distance = 0;
-		var calories = 0;
-		fitnessTrack = FitnessTracks.findOne(fitnessTrackId);
-		console.log('distance fitnessTrack ', fitnessTrack);
-		if (fitnessTrack.distance) {
-			return fitnessTrack.distance;
-		}
-		var cursor = Tracks.find({fitnessTrackId: fitnessTrackId});
-		console.log ('checking distance for 1 ', fitnessTrackId, cursor.location, cursor.fetch());
-		cursor.forEach(function(item, index, array){
-			var location = item.location;
-			distance = distance + item.location.distance;
-			distance = truncateDecimals(distance, 3);
-//			console.log ('checking distance 2 for each ', location, item.location.distance, distance);
-		});
-		FitnessTracks.update(fitnessTrackId,{$set:{distance: distance}});
-		return fitnessTrack.distance;
-	},
-  calories: function(){
-		var fitnessTrackId = this._id;
-		var distance = 0;
-		var calories = 0;
-		fitnessTrack = FitnessTracks.findOne(fitnessTrackId);
-		console.log('calories fitnessTrack ', fitnessTrack);
-		if (isNaN(fitnessTrack.calories)) {
-			fitnessTrack.calories = 0;
-		} else {
-			if (fitnessTrack.calories) {
-				return fitnessTrack.calories;
-			}
-		}
-		var cursor = Tracks.find({fitnessTrackId: fitnessTrackId});
-		console.log ('checking distance for 1 ', fitnessTrackId, cursor.location, cursor.fetch());
-		cursor.forEach(function(item, index, array){
-			var location = item.location;
-			if (isNaN(item.calories)) 
-				item.calories = 0;
-			calories = calories + parseFloat(item.calories);
-//			distance = truncateDecimals(distance, 3);
-			console.log ('checking calories 2 for each ', location, item.calories, calories);
-		});
-		FitnessTracks.update(fitnessTrackId,{$set:{calories: calories}});
-		return fitnessTrack.calories;
 	},
 	trackActivity: function(){
 		var activity = FitnessActivities.findOne(this.activityId);
@@ -310,29 +324,12 @@ Template.showMapFit.helpers({
 				doc.timespent = doc.timestampEnd - doc.timestamp;
 				// console.log('timespent 4 ', doc.timespent);
 				doc.timespent = moment.duration(doc.timespent).humanize();
+				if ((!doc.calories) || (!doc.calories == 0))
+					checkCalories(doc._id);
+				doc.distance = truncateDecimals(doc.distance, 3);
 				return doc;
 			}
 		});
-	var tracks = Tracks.find({fitnessTrackId:Session.get('fitTrack')},{sort: {'created': 1}});
-		tracks.forEach(function (item, index, array) {
-			//			console.log(' foreach ', item.types );
-			//					console.log ('updating track oldLocation 0 ',item._id, ' oldLocation ', oldLocation, ' item ', item);
-			if (isNaN(item.calories))
-			item.calories = 0;
-			if ((!item.calories) && (oldLocation))  {
-				var timediff = (parseInt(item.location.timestamp) - parseInt(oldLocation.location.timestamp))/1000;
-				var avgspeed = parseFloat(item.location.distance)/timediff;
-				var calories = calculateCalories (activity, parseFloat(item.distance), avgspeed);
-				console.log ('updating track ',item._id, ' with cals ', calories, ' avgspeed ', avgspeed, item.location.distance, ' timediff ', timediff);
-				Tracks.update(item._id, {$set:{calories: calories, avgspeed: avgspeed}});
-			}
-			
-			//					console.log ('updating track oldLocation 1 ',item._id, ' oldLocation ', oldLocation, ' item ', item);
-			oldLocation = item;
-			//					console.log ('updating track oldLocation 2 ',item._id, ' oldLocation ', oldLocation, ' item ', item);
-			//					console.log ('adding marker ', marker);
-		});
-//		console.log('fitnessTrack track ', track);
 		return track;
 	},
   fitnessMapOptions: function() {
@@ -354,8 +351,8 @@ Template.showMapFit.helpers({
 					}
 				);
 				var mytrack = track.fetch();
-				console.log ('track ', mytrack);
-				console.log ('track ', mytrack[0].activityId);
+//				console.log ('track ', mytrack);
+//				console.log ('track ', mytrack[0].activityId);
 				var activity = FitnessActivities.findOne({_id: mytrack[0].activityId});
 				activity = activity.activity;
 				var oldLocation;
@@ -365,7 +362,7 @@ Template.showMapFit.helpers({
 						map: map.instance,
 						title: 'Speed: ' + item.location.coords.speed 
 					});	
-					console.log ('adding marker ', marker);
+//					console.log ('adding marker ', marker);
 				});
 
       });

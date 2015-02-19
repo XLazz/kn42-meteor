@@ -10,7 +10,14 @@ calculateDistance = function(lat1, lon1, lat2, lon2) {
   return d;
 };
 
-calculateCalories = function(activity, distance, speed){
+
+calculateCalories = function(activity, distance, timediff){
+	activity = FitnessActivities.findOne(activity).activity;
+	if (timediff == 0) {
+		var calories = 0;
+		return calories;	
+	}
+		
 /* 	
 	http://certification.acsm.org/metabolic-calcs
 	Metabolic Equations for Gross VO2 in Metric Units
@@ -40,11 +47,14 @@ calculateCalories = function(activity, distance, speed){
 */
 	var calories;
 	var weight = 70;
+	timediff = timediff / 1000 / 60; // from ms to min
+	var speed = distance / timediff;
+	console.log(' speed ', speed, timediff, distance);
 	var grade = 0; // assuming everything flat
 	if (activity == 'walking') 
-		calories = 5 * ((0.1 * speed) + (1.8 * speed * grade) + 3.5) * weight;
+		calories = 0.005* ((0.1 * speed) + (1.8 * speed * grade) + 3.5) * weight * timediff;
 	if (activity == 'running') 
-		calories = 5 * ((0.2 * speed) + (0.9 * speed * grade) + 3.5) * weight;
+		calories = 0.005 * ((0.2 * speed) + (0.9 * speed * grade) + 3.5) * weight * timediff;
 	return calories;
 };
 
@@ -429,8 +439,8 @@ UpdateGeoDB = function(location, uuid, device){
 	
 		console.log(' adding to geolog ', location);
 		var status;
-		if (location.coords.speed > 1)
-			status = 'moving';
+/* 		if (location.coords.speed > 1)
+			status = 'moving'; */
 		var geoId = GeoLog.insert({
 			location: location,
 			uuid: uuid,
