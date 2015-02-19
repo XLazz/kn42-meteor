@@ -72,16 +72,16 @@
 						{{/if}}
 					</div>
 					<div style="font-size: smaller">		
+						{{#if foursquareChk}}
+							{{> venues}}
+						{{/if}}
 						{{#if geoPlace.name}}
-							{{#if geoPlace.foursquareChk}}
-								{{> venues}}
-							{{/if}}
 							{{geoPlace.vicinity}} 
 						{{else}}
 							{{geoMerchant.vicinity}} 
 						{{/if}}<br />
 						{{status}} since {{timestart}} {{#if timespent}} for {{timespent}} {{/if}}
-						<div>{{> venuesSelected}}</div>							
+<!-- 						<div>{{> venuesSelected}}</div>			 -->				
 					</div>
 					{{#if ifDebug}} 
 						<div style="font-size:50%">
