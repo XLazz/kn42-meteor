@@ -341,7 +341,7 @@ GoogleMaps.getPlaces = function(params){
 }
 
 ifStationary = function(userId, geoId){
-	var stat_time = 1000000;
+	var stat_time = 200000;
 	var diffstamp = moment().valueOf() - stat_time;
 	var geoLoc = GeoLog.findOne(geoId);
 	if (!geoLoc)
@@ -413,7 +413,6 @@ ifStationary = function(userId, geoId){
 		}
 		// updating geolog with new place
 	}
-	
 }
 
 ifStatic = function(userId, currentPlace, currentPlaceAlt, location){
@@ -460,9 +459,7 @@ ifStatic = function(userId, currentPlace, currentPlaceAlt, location){
 				insertPlace(userId, lastLoc, currentPlaceAlt);
 		} 
 	}
-		
 //		alert ('moved');
-	
 }
 
 
