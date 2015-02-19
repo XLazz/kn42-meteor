@@ -459,9 +459,7 @@ ifStatic = function(userId, currentPlace, currentPlaceAlt, location){
 				insertPlace(userId, lastLoc, currentPlaceAlt);
 		} 
 	}
-		
 //		alert ('moved');
-	
 }
 
 
