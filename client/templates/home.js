@@ -57,7 +57,7 @@ Template.homeinside.helpers({
 Template.homelocation.helpers({
 	ifUser: function(){
 		var user = Meteor.user();
-		console.log(' user ', user);
+		console.log(' user ', moment().format("MM/DD HH:mm:ss.SSS"), user);
 		return user;
 	},
 	ifDebug: function(){
@@ -67,83 +67,97 @@ Template.homelocation.helpers({
 		return Session.get('claimed');
 	},
 	currentlocation: function(){
+		console.log('currentlocation 1 ', moment().format("MM/DD HH:mm:ss.SSS"));
 		if (!Meteor.userId()) {return;};
 		var currentlocation;
+		var place;
 		userId = Meteor.userId();
-		if (!GeoLog.findOne({userId: userId}))
-			return;
-		if (!GeoLog.findOne({userId: userId}, {sort: {timestamp: -1}}).status) {
-			console.log('currentlocation moving');
-			currentlocation = GeoLog.findOne(
-				{userId: userId}, 
-				{
-					sort: {timestamp: -1},
-					transform: function(doc){	
-						doc.timespent = moment.duration(parseInt(doc.timestamp) - moment().valueOf()).humanize();
-						doc.started = moment(doc.timestamp).format("MM/DD/YY HH:mm");
-						doc.finished = 'on the move!';
-						console.log('currentlocation ', doc);
-						return doc;
+		currentlocation = GeoLog.findOne(	
+			{userId: userId}, 
+			{ 
+				sort: {timestamp: -1},
+				transform: function(doc){
+					if (doc.status == 'stationary') {
+						var userPlace = UserPlaces.findOne({userId:userId, sort: {timestamp: -1}});
+						console.log('currentlocation 2 ', moment().format("MM/DD HH:mm:ss.SSS"), doc.place_id, userPlace, doc.status, doc);
+						if (userPlace) 
+							doc.place_id = userPlace.place_id;
+					} 
+					var place = Places.findOne({place_id: doc.place_id});	
+					console.log('currentlocation 2.5 ', moment().format("MM/DD HH:mm:ss.SSS"), doc.place_id, place, doc.status, doc);
+
+					if (place) {
+						doc.name = place.name;
+						doc.vicinity = place.vicinity;
 					}
+					return doc;
 				}
-			);
+			}	
+		);
+		console.log(' test ', Places.findOne({place_id: "ChIJA_ev5EC-D4gRmIcFl-eUI9U"}));
+		if (!currentlocation)
+			return;
+		if (!currentlocation.status) {
+			currentlocation.timespent = moment.duration(parseInt(currentlocation.timestamp) - moment().valueOf()).humanize();
+			currentlocation.started = moment(currentlocation.timestamp).format("MM/DD/YY HH:mm");
+			currentlocation.finished = 'on the move!';
+			console.log('currentlocation 3 on the move ', moment().format("MM/DD HH:mm:ss.SSS"));
 		} else {
 			// since we are stationary - getting user places
-			console.log('currentlocation stationary');
-			currentlocation = UserPlaces.findOne(
-				{userId: userId}, 
-				{
-					sort: {timestamp: -1},
-					transform: function(doc){	
-						if (!doc.timestampEnd) {
-							doc.timestampEnd =  moment().valueOf()
-							doc.finished = 'in progress';
-						} else {
-							doc.finished = moment(doc.timestampEnd).format("MM/DD/YY HH:mm");
-						}
-						doc.status = 'stationary';
-						doc.timespent = moment.duration(parseInt(doc.timestampEnd) - parseInt(doc.timestamp)).humanize();
-						doc.temp = doc.timestampEnd - doc.timestamp
-						doc.started = moment(doc.timestamp).format("MM/DD/YY HH:mm");
-						doc.autoPlace =  AutoPlaces.findOne({userId: userId, place_id: doc.geo_place_id});
-						if (doc.autoPlace)
-							doc.place_id = doc.autoPlace.place_id;
-						if (doc.place_id) {
-							var count = UserPlaces.find({userId: userId, place_id: doc.place_id}).count();
-							doc.count = count;
-						}
-						console.log('currentlocation ', doc);
-						return doc;
-					}
-				}
-			);
+			if (!currentlocation.timestampEnd) {
+				currentlocation.timestampEnd =  moment().valueOf()
+				currentlocation.finished = 'in progress';
+			} else {
+				currentlocation.finished = moment(doc.timestampEnd).format("MM/DD/YY HH:mm");
+			}
+			currentlocation.status = 'stationary';
+			currentlocation.timespent = moment.duration(parseInt(currentlocation.timestampEnd) - parseInt(currentlocation.timestamp)).humanize();
+			currentlocation.started = moment(currentlocation.timestamp).format("MM/DD/YY HH:mm");
+/* 			currentlocation.autoPlace =  AutoPlaces.findOne({userId: userId, place_id: doc.geo_place_id});
+			if (doc.autoPlace)
+				doc.place_id = doc.autoPlace.place_id; */
 		}
-//		console.log('currentlocation ', this, this.place_id);
+		console.log('currentlocation 5 ', moment().format("MM/DD HH:mm:ss.SSS"), currentlocation.status, currentlocation);
+		if (currentlocation.status == 'stationary') {
+
+			var place = Places.findOne({place_id: currentlocation.stationary_place_id});
+			console.log('currentlocation 5a ', moment().format("MM/DD HH:mm:ss.SSS"), currentlocation.stationary_place_id, place, currentlocation.status, currentlocation);
+		} else {
+			var place = Places.findOne({place_id: currentlocation.place_id});	
+			console.log('currentlocation 5b ', moment().format("MM/DD HH:mm:ss.SSS"), currentlocation.place_id, place, currentlocation.status, currentlocation);
+		}
+		if (place) {
+			currentlocation.name = place.name;
+			currentlocation.vicinity = place.vicinity;
+		}
+		console.log('currentlocation 6 ', moment().format("MM/DD HH:mm:ss.SSS"), currentlocation.status, currentlocation);
 		return currentlocation;
 	},
 	
 	userPlace: function() {
 		userId = Meteor.userId();
-//		console.log('userPlace 0 ', this, this.status);
-/* 		if (!this.status) {
-//			console.log('userPlace 0.5 ', this, this.status);
-			return;
-		}
-		if (this.status !== 'stationary') {
-//			console.log('userPlace 1 ', this, this.status);
-			return;
-		} */
+		console.log('userPlace 0 ', moment().format("MM/DD HH:mm:ss.SSS"), this, this.place_id);
 		var place;
+		if (!Session.get('userLocation')) {
+			place = this
+			var count = UserPlaces.find({userId:userId, place_id: this.place_id}).count();
+			place.count = count;
+			Session.set('userLocation', place);
+			console.log('userPlace 0.5 ', moment().format("MM/DD HH:mm:ss.SSS"), this, this.place_id);
+			return place;
+		}
+		place = Session.get('userLocation');
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
-		place = UserPlaces.findOne({userId:userId, place_id: this.place_id},{sort: {timestamp: -1}});
+/* 		place = UserPlaces.findOne({userId:userId, place_id: this.place_id},{sort: {timestamp: -1}});
 		//console.log('userPlace place_id ', this.place_id, ' place ', place);
 		if (!place)
 			return;
-		Session.set('userLocation', place);
+		console.log('userPlace 2 ', moment().format("MM/DD HH:mm:ss.SSS"), this, this.place_id, place);
 		var count = UserPlaces.find({userId:userId, place_id: this.place_id}).count();
 		place.count = count;
-	//	console.log('userPlace 2 ', this, this.place_id, place, count);
+		Session.set('userLocation', place); */
+		console.log('userPlace 3 ', moment().format("MM/DD HH:mm:ss.SSS"), this, this.place_id, place, count);
 		return place;
 	},
 
@@ -157,16 +171,24 @@ Template.homelocation.helpers({
 	}, */
 	
 	geoPlace: function() {
+		console.log('geoPlace 1 ', moment().format("MM/DD HH:mm:ss.SSS"), this.place_id, this);
 		var place;
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
 		place = Places.findOne({place_id: this.place_id});
-		if (!place)
-			return;
+		if (!place) {
+			var place = MerchantsCache.findOne({'place_id': this.place_id});
+			console.log('geoPlace 1.5 ', moment().format("MM/DD HH:mm:ss.SSS"), this.place_id, place);
+			if (place) {
+				place.updated =  moment().valueOf();
+				Places.insert(place);
+			}
+		}
 //		console.log('geoPlace ', this.place_id, place);
 		if ((!Session.get('userLocation')) && place) {
 			Session.set('userLocation', place);
 		}
+		console.log('geoPlace 2 ', moment().format("MM/DD HH:mm:ss.SSS"), this.place_id, place);
 		return place;
 	},
 
@@ -201,7 +223,7 @@ Template.homelocation.helpers({
 				Session.set('userLocation', place);
 			}
 		}
-//		console.log('geoMerchant ', this, this.place_id, place);
+		console.log('geoMerchant ', moment().format("MM/DD HH:mm:ss.SSS"), this, this.place_id, place);
 		return place;
 	},	
 	

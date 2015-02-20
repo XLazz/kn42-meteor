@@ -193,18 +193,10 @@ Template.venues.helpers({
 		return Session.get('debug');
 	},	
 	checkedFsqr: function(){
-		console.log('venues checkedFsqr 1 ', this._id, this.foursquareChk, this)
-		var checkedFsqr = ifChecked(this.foursquareChk);
-		// if (checkedFsqr)
-			// return checkedFsqr;
-//		console.log('venues checkedFsqr 1 ', this._id, this);
-/* 		checkedFsqr = CheckedFsqr(this._id);
-		if (checkedFsqr)
-			if (checkedFsqr.venueId) {
-				Session.set('venueId', checkedFsqr.venueId);
-				return checkedFsqr;
-			} */
-//		console.log('venues checkedFsqr 2 ', this._id, this.foursquareChk, checkedFsqr, this);	
+		var checkedFsqr;
+//		console.log('venues checkedFsqr 1 ', moment().format("MM/DD HH:mm:ss.SSS"), this._id, this.foursquareChk, this);
+//		var checkedFsqr = ifChecked(this.foursquareChk);
+		console.log('venues checkedFsqr 2 ', moment().format("MM/DD HH:mm:ss.SSS"), this._id, this.foursquareChk, checkedFsqr, this);
 		return checkedFsqr;
 	},
 	
@@ -225,7 +217,7 @@ Template.venuesSelected.helpers({
 		return Session.get('fsqrSpinner');
 	},
 	checkedFsqr: function(){
-//		console.log('venues checkedFsqr 1 ', this._id, this.foursquareChk, this)
+		console.log('checkedFsqr venues 1 ', moment().format("MM/DD HH:mm:ss.SSS"), this._id, this.foursquareChk, this)
 		var ifCheckins = UserPlaces.findOne({foursquareChk:{$exists: true}});
 		if (!ifCheckins)
 			loadFsqr(this._id);
@@ -239,7 +231,7 @@ Template.venuesSelected.helpers({
 			Session.set('venueId', checkedFsqr.venueId);
 			return checkedFsqr;
 		} */
-		console.log('venues checkedFsqr 2 ', moment().format("MM/DD HH:mm:ss.SSS"), this._id, this.foursquareChk, checkedFsqr, this);	
+		console.log('checkedFsqr venues 2 ', moment().format("MM/DD HH:mm:ss.SSS"), this._id, this.foursquareChk, checkedFsqr, this);	
 		return checkedFsqr;
 	},
 	checkinFsqr: function(){

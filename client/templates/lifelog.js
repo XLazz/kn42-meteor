@@ -31,9 +31,9 @@ Template.lifelog.helpers({
   searching: function() {
 		var userId = Meteor.userId();
     if (UserPlaces.findOne({userId: userId})) {
-			console.log('searching UserPlaces 1 ', moment().format("MM/DD HH:mm:ss.SSS"), UserPlaces.findOne({userId: userId}) );
+//			console.log('searching UserPlaces 1 ', moment().format("MM/DD HH:mm:ss.SSS"), UserPlaces.findOne({userId: userId}) );
 			if (UserPlaces.findOne({userId: userId})._id) {
-				console.log('searching UserPlaces 2 ', moment().format("MM/DD HH:mm:ss.SSS"), UserPlaces.findOne({userId: userId}));
+//				console.log('searching UserPlaces 2 ', moment().format("MM/DD HH:mm:ss.SSS"), UserPlaces.findOne({userId: userId}));
 				return;
 			}
 		}
