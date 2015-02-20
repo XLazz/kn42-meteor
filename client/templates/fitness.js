@@ -229,18 +229,19 @@ Template.routes.events({
 			Session.set('watchGPS', false);
 		}
 		var userId = Meteor.userId();
-		FitnessTracks.insert({userId: userId, activityId: Session.get('fitActivity'), timestamp: moment().valueOf(), created: new Date()});
-		var fitnessTrack = FitnessTracks.findOne({userId:Meteor.userId()},{sort: {created: -1}});
+		var timestamp = moment().valueOf();
+		var created = moment(timestamp).format("YYYY-MM-DD HH:mm:ss.SSS");
+		var fitnessTrackId = FitnessTracks.insert({userId: userId, activityId: Session.get('fitActivity'), timestamp: timestamp, created: created});
+		var fitnessTrack = FitnessTracks.findOne(fitnessTrackId);
 		Session.set('fitnessTrack', fitnessTrack);
-		var fitActivity = Session.get('fitActivity');
-		Session.set('fitActivity', fitActivity);
 		Session.set('fitness', true);
 		Session.set('findfit', false);
 		Session.set('geoback', true );
 		Session.set('interval', 10000);
 		UpdateGeo();
 		PollingGeo();
-		console.log(' click startfit ', fitActivity);
+		console.log(' click startfit ', fitnessTrack);
+		// update userPlace with fitness session
 		return;
 	},
 	"click .stopfit": function (event, template) {
@@ -262,6 +263,8 @@ Template.routes.events({
 		Session.set('fitness', false);
 		Session.set('fitnessTrack', false);
 		Session.set('fitActivity', false);
+		var userPlaceId = UserPlaces.findOne({fitnessId: fitnessTrack._id})._id;
+		UserPlaces.update(userPlaceId, { $set: {timestampEnd: timestampEnd}});
 		return;
 	},
 	"click .fitActivity": function (event, template) {

@@ -70,7 +70,7 @@ Template.lifelog.events({
 			}, 100);		 */
 		});
 		Meteor.call('removevenuesFsqr', userId, function(err, results) {
-			console.log('Meteor.call event removevenuesFsqr', userLocation.name, results);
+			console.log('Meteor.call event removevenuesFsqr', this, results);
 			return results;
 		});
 //		Meteor.call('getLocations', Meteor.userId(), 'list');

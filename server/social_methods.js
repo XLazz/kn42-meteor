@@ -153,7 +153,7 @@ Meteor.methods({
 							place.timestampEnd = 1000*(item.createdAt)+60000;
 							place.location = {coords:{latitude: item.venue.location.lat, longitude: item.venue.location.lng}};
 							place.started = moment(place.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS");
-							place.confirmed = true;	
+							place.confirmed = 'confirmed';	
 							var name = item.venue.name.split(" ");
 							if (name[0] == 'The') {
 								name = name[1];

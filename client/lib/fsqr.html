@@ -22,7 +22,7 @@
 		</div>
 	{{else}}
 		<div style="width: auto; white-space: normal; font-size: 85%;" >
-			{{#if checkinFsqr}} 
+			{{#if checkinFsqr.name}} 
 				<span>
 					<div><i class="fa fa-foursquare checkFsqr" ></i> Checkin at {{checkinFsqr.name}}</div> 
 					<div>
@@ -31,14 +31,14 @@
 					</div>
 				</span>			
 			{{else}}
-				<div class="updatevenues checkFsqr" id="">
-					<i class="fa fa-foursquare"></i>
-					{{findFsqr}}
-				</div>
+<!-- 				<div class="updatevenues checkFsqr" id="">
+					<i class="fa fa-foursquare"></i> -->
+				{{findFsqr}}
+<!-- 				</div>
 				<div>
 					<button class="button btn btn-primary btn-small btn-modal goFsqr" id=""> Yes </button>
 					<button class="button btn btn-secondary btn-small btn-modal otherFsqr" id=""> Other </button>
-				</div>
+				</div> -->
 			{{/if}}
 		</div>						
 	{{/if}} 

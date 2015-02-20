@@ -320,7 +320,7 @@ UpdateGeo = function (){
 		return;
 	var geoId;
 	// geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
-	console.log('UpdateGeo event ', location, geoId, 'fitActivity:', Session.get('fitActivity'), 'fithnes:', Session.get('fitness'), Session.get('fitstart'), Session.get('fitstop'), 'fitnessTrackId', Session.get('fitnessTrackId') );
+	console.log('UpdateGeo event ', location, geoId, 'fitActivity:', Session.get('fitActivity'), 'fithnes:', Session.get('fitness'), Session.get('fitstart'), Session.get('fitstop'), 'fitnessTrackId', Session.get('fitnessTrack') );
 	if (!geoId){
 		var uuid = Meteor.uuid();
 		var device = 'browser';
@@ -362,7 +362,7 @@ UpdateGeoDB = function(location, uuid, device){
 	var avgspeed;
 	var userId = Meteor.userId();
 	var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
-	
+	var timestamp = moment().valueOf();
 	console.log('UpdateGeoDB ',  'watchGPS', Session.get('watchGPS'), location, 'fitness', Session.get('fitActivity'), Session.get('fitness'), Session.get('fitstart'), Session.get('fitstop'), Session.get('fitnessTrack'), 'driving', Session.get('driving'), Session.get('driveTrack') );
 
 	if (Session.get('location')) {
@@ -386,7 +386,9 @@ UpdateGeoDB = function(location, uuid, device){
 	
 	if (Session.get('fitness')){
 		if (!Session.get('fitnessTrack')) {
-			FitnessTracks.insert({userId: userId, activityId: Session.get('fitActivity'), timestamp: moment().valueOf(), created: new Date()});
+			var fitnessTrackId = FitnessTracks.insert({userId: userId, activityId: Session.get('fitActivity'), timestamp: timestamp, created: new Date()});
+			var fitnessTrack = FitnessTracks.findOne(fitnessTrackId);
+			Session.set('fitnessTrack', fitnessTrack);
 		}		
 		Tracks.insert({
 			location: location,
@@ -407,6 +409,21 @@ UpdateGeoDB = function(location, uuid, device){
 			FitnessTracks.update(fitnessTrack._id,{$set:{fitStart: fitnessStart.location}});
 			var fitnessTrack = FitnessTracks.findOne(fitnessTrack._id,{sort: {created: -1}});
 			Session.set('fitnessTrack', fitnessTrack);
+			if (!geoId)
+				geoId = {};
+			UserPlaces.insert(
+				{
+					userId: userId,
+					location: location,
+					started:  moment(timestamp).format("YYYY-MM-DD HH:mm:ss.SSS"),
+					timestamp: timestamp,
+					geoId: geoId._id,
+					location: geoId.location,
+					location_id: geoId.location_id,
+					confirmed: 'fitness',
+					fitnessId: Session.get('fitActivity')
+				}
+			);
 		}
 	}
 

@@ -257,7 +257,7 @@ Template.homelocation.helpers({
 	
 	findFsqr: function(){
 		var userLocation = this._id;
-		var venue = loadFsqr(userLocation);
+//		var venue = loadFsqr(userLocation);
 		console.log(' findFsqr ', venue);
 		return venue;
 	},
@@ -621,7 +621,7 @@ UI.registerHelper('ifConfirmed2', function () {
 	}
 });
 
-Template.common_kn.helpers({
+/* Template.common_kn.helpers({
 	status: function() {
 		if (Session.get('geoback')) {
 			return 'running';
@@ -632,7 +632,7 @@ Template.common_kn.helpers({
 	ifService: function() {
 		return Session.get('geoback')
 	},
-});
+}); */
 
 Template.showMapLoc.helpers({
 	debug: function () {

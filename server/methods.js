@@ -22,7 +22,7 @@ Meteor.methods({
 		if (!userPlaces) 
 			return;
 		console.log();
-		console.log('userPlaces with empty place_id ', userId, ' these many ',  userPlaces.count());
+		console.log('userPlaces with empty place_id. userId: ', userId, ' these many ',  userPlaces.count());
 		userPlaces = userPlaces.fetch();
 		var radius = 50;
 		var name = '';
