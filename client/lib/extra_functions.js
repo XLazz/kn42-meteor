@@ -356,6 +356,21 @@ getGPlace = function(place_id){
 	return place;
 };
 
+updateEmptyPlaces = function(){
+	console.log('updateEmptyPlaces function 1 ', moment().format("MM/DD HH:mm:ss.SSS"));
+	if ((moment().valueOf() - Session.get('updatePlaces') < 50000)) 
+		return;
+	var initiator = 'updateEmptyPlaces function';
+	Session.set('updatePlaces', moment().valueOf());
+	Meteor.call('updatePlaces', Meteor.userId(), initiator, function(err, results) {
+		console.log('updatePlaces call  ', Meteor.userId(), this.location, this, results);
+		Meteor.setTimeout(function(){
+			Session.set('updatePlaces', false);
+		}, 60000);	
+		return results;
+	});
+}
+
 UpdateProfile = function(userId){
 	var user_details = Meteor.users.findOne(userId);
 	var user_email;

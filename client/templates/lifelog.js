@@ -162,19 +162,25 @@ Template.showlocations.helpers({
 					doc.timespent = moment.duration(duration).humanize();
 					doc.timestart = moment(doc.timestamp).format("MM/DD/YY HH:mm");
 					doc.userPlaceId = doc._id;
+					if (!doc.place_id)
+						updateEmptyPlaces();
 					var place = Places.findOne({place_id: doc.place_id});						
+					if (!place) 
+						place = MerchantsCache.findOne({place_id: doc.place_id},{fields:{_id:0}});		
 					if (place) {
 						doc.name = place.name;
 						doc.vicinity = place.vicinity;
 						doc.icon = place.icon;
+					} else {
+						updateEmptyPlaces();
 					}
 					if (doc._id == Session.get('userPlace')._id)
 						doc.showbut = true;
-/* 					if (doc.foursquareChk) {
+					if (doc.foursquareChk) {
 						var fsqr = ifChecked(doc.foursquareChk);
 						doc.fsqrName = fsqr.name;
 						doc.fsqrDat = fsqr.date;
-					} */
+					}
 /* 					var count = UserPlaces.find({userId: userId, place_id: doc.place_id}).count();
 					doc.count = count; */
 					return doc;
@@ -238,26 +244,11 @@ Template.showlocations.helpers({
 	'showExp': function(){
 		return Session.get('showExp');
 	},
-	updated: function() {
-//		Meteor.setInterval(Meteor.call('getLocations','list'), 1000000);	
+	updating: function() {
+		updateEmptyPlaces();
+		return Session.get('updatePlaces');
 	},
-	updatePlaces: function() {
-		console.log('locations helper updatePlaces 1 ', moment().format("MM/DD HH:mm:ss.SSS"));
-		if (Session.get('updatePlaces'))
-			return;
-		var emptyPlaces = UserPlaces.find({userId: Meteor.userId(), place_id:''});
-		if (emptyPlaces)
-			Session.set('updatePlaces', true);
-		var initiator = 'unknown lifelog';
-		Meteor.call('updatePlaces', Meteor.userId(), initiator, function(err, results) {
-			console.log('updatePlaces call  ', Meteor.userId(), this.location, this, results);
-			Meteor.setTimeout(function(){
-        Session.set('updatePlaces', false);
-			}, 5000);
 
-			return results;
-		});
-	},
 	ifUpdating:function() {
 		return Session.get('updatePlaces');
 	}

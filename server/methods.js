@@ -18,6 +18,8 @@ Meteor.methods({
 	},
 
 	updatePlaces: function(userId){
+			
+		// 1st check with no place_id
 		var userPlaces = UserPlaces.find({userId: userId, place_id: {$exists: false}}, {limit: 200, sort:{timestamp: -1}});
 		if (!userPlaces) 
 			return;

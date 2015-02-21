@@ -376,11 +376,13 @@ ifStationary = function(userId, geoId){
 		console.log('User stationary for ', stat_time, ' in ', geoLoc.stationary_place_id);
 		
 		// updating geolog with new stationary status
-		console.log('Same place ', geoLoc.stationary_place_id);
+		console.log('User stationary at geolog place: ', geoLoc.place_id, ' userplace: ', userPlace.place_id);
 		GeoLog.upsert(geoId, {$set: {status:  'stationary'}});	
 		
-		// and now let's add a new one
-		if ((userPlace.place_id != geoLoc.stationary_place_id) || ( userPlace.geo_place_id != geoLoc.place_id )) {
+		// and now let's see if we need to add a new one
+		if ((userPlace.place_id != geoLoc.stationary_place_id) && ( userPlace.geo_place_id != geoLoc.place_id ) && ( userPlace.place_id != geoLoc.stationary_place_id )) {
+			// we need to add a new place
+			console.log('adding a new place with place_id', geoLoc.stationary_place_id, geoLoc.place_id, ' userPlace: ', userPlace.geo_place_id, userPlace.place_id);
 			if (!userPlace.timestampEnd) {
 				//if place was not finalized, then add timestampEnd
 				userPlace.timestampEnd = moment().valueOf()-2000;
@@ -432,7 +434,7 @@ ifStationary = function(userId, geoId){
 	}
 }
 
-ifStatic = function(userId, currentPlace, currentPlaceAlt, location){
+/* ifStatic = function(userId, currentPlace, currentPlaceAlt, location){
 // Add userplace if user becomes static for some time;
 	if (!userId)
 		return;
@@ -460,13 +462,6 @@ ifStatic = function(userId, currentPlace, currentPlaceAlt, location){
 	
 	if (!lastPlace) {
 		console.log('ifStatic no last place, calling php server ');
-/* 		Meteor.call('getLocations', userId, 'list', function(err,results){
-			if (results) {
-				if (!results.length)
-					insertPlace(userId, lastLoc, currentPlaceAlt);
-				console.log('calling php server for json 2 ', results.length);
-			}
-		}); */
 	} else {
 		if (lastPlace.timestampEnd) {
 			var claimed = findClaimed(userId, lastLoc.location.coords);
@@ -477,7 +472,7 @@ ifStatic = function(userId, currentPlace, currentPlaceAlt, location){
 		} 
 	}
 //		alert ('moved');
-}
+} */
 
 
 GoogleMaps.asyncPlaces = Async.wrap (GoogleMaps.places);
