@@ -70,13 +70,13 @@ Template.showMapClaim.helpers({
 			console.log('GoogleMaps not loaded');
       // We can use the `ready` callback to interact with the map API once the map is ready.
       GoogleMaps.ready('claimedMap', function(map) {
-				console.log('GoogleMaps ready');
+				console.log('GoogleMaps ready loading markers ', claimed);
         // Add a marker to the map once it's ready
 
 				var marker = new google.maps.Marker({
 					position: new google.maps.LatLng(claimed.coords.latitude,claimed.coords.longitude),
 					map: map.instance,
-					title: 'Name: ' + claimed.name 
+/* 					title: 'Name: ' + claimed.name  */
 				});	
 				console.log ('adding marker ', marker);
 

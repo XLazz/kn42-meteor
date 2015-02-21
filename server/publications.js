@@ -1,3 +1,13 @@
+Meteor.startup(function() {
+	GeoLog._ensureIndex({ "timestamp": 1},{ unique: true, dropDups: true } );
+	UserPlaces._ensureIndex({ "timestamp": 1}, { unique: true, dropDups: true } );
+	PlaceServices._ensureIndex( { types: 1 }, { unique: true, dropDups: true } );
+	Places._ensureIndex({ "updated": 1});
+	Drives._ensureIndex({ "timestamp": 1});
+	Tracks._ensureIndex({ "timestamp": 1});
+	VenuesCheckins._ensureIndex({ "createdAt": 1});
+});
+		
 /* Meteor.publish('bookmarkCounts', function() {
   return BookmarkCounts.find();
 });
@@ -39,20 +49,20 @@ Meteor.publish(null, function() {
   }); */
 	return People.find();
 //	return Services.find();
-	return GeoLog.find({userId:this.userId},{sort: {timestamp:-1}, limit:200});
+	return GeoLog.find({userId:this.userId},{sort: {timestamp:-1}, limit:50});
 	return GooglePlaces.find({});
 });
 Meteor.publish('PlaceServices', function(userId) {
 	return PlaceServices.find();
 });
 Meteor.publish('GeoLog', function(userId) {
-	return GeoLog.find({userId:this.userId},{sort: {timestamp:-1}, limit:300});
+	return GeoLog.find({userId:this.userId},{sort: {timestamp:-1}, limit:40});
 });
 Meteor.publish('Experiences', function(userId) {
 	return Experiences.find({userId:this.userId});
 });
 Meteor.publish('UserPlaces', function(userId) {
-	return UserPlaces.find({userId:this.userId});
+	return UserPlaces.find({userId:this.userId},{sort:{timestamp: -1}, limit: 50});
 });
 Meteor.publish('Places', function(userId) {
 	return Places.find({}, {fields:{_id:1, 'address': 1, updated: 1, place_id: 1, name:1, icon:1, vicinity:1, coords:1, types:1}, sort: {updated: -1}, limit: 200});

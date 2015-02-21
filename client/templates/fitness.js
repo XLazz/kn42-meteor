@@ -329,7 +329,7 @@ Template.showMapFit.helpers({
 			console.log('GoogleMaps not loaded');
       // We can use the `ready` callback to interact with the map API once the map is ready.
       GoogleMaps.ready('fitnessMap', function(map) {
-				console.log('GoogleMaps ready');
+				
         // Add a marker to the map once it's ready
 				var track = Tracks.find({fitnessTrackId:Session.get('fitTrack')},
 					{
@@ -341,6 +341,7 @@ Template.showMapFit.helpers({
 						}
 					}
 				);
+				console.log('GoogleMaps ready loading markers ', track);
 				var mytrack = track.fetch();
 //				console.log ('track ', mytrack);
 //				console.log ('track ', mytrack[0].activityId);
@@ -353,7 +354,7 @@ Template.showMapFit.helpers({
 						map: map.instance,
 						title: 'Speed: ' + item.location.coords.speed 
 					});	
-//					console.log ('adding marker ', marker);
+					console.log ('adding marker ', marker);
 				});
 
       });

@@ -37,11 +37,11 @@ Meteor.methods({
 				if (response.results[1]) {
 					console.log('userPlaces  ', item._id, item.started, response.results[1].name, response.results[1].place_id);
 					UserPlaces.upsert(item._id, {$set: {place_id: response.results[1].place_id}});
-					Places.upsert({place_id: response.results[1].place_id},{$set: response.results[1]});
+					Places.upsert({place_id: response.results[1].place_id},{$set: response.results[1], updated: moment().valueOf()});
 				} else {
 					console.log('userPlaces  ', item._id, item.started, response.results[0].name, response.results[0].place_id);
 					UserPlaces.upsert(item._id, {$set: {place_id: response.results[0].place_id}});
-					Places.upsert({place_id: response.results[0].place_id},{$set: response.results[0]});
+					Places.upsert({place_id: response.results[0].place_id},{$set: response.results[0], updated: moment().valueOf()});
 				}
 		});
 			//		Meteor.users.upsert(userId, {$set: user_details});
@@ -122,9 +122,6 @@ Meteor.methods({
 			}
 		});
 
-		UserLocations._ensureIndex( { user_history_location_id: 1 }, { unique: true, dropDups: true } );
-		PlaceServices._ensureIndex( { types: 1 }, { unique: true, dropDups: true } );
-//		UserPlaces._ensureIndex( { user_history_location_id: 1 }, { unique: true, dropDups: true } );
 		return userLocations;
 	},
 	
