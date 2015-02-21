@@ -84,6 +84,7 @@ Template.homelocation.helpers({
 			{userId: userId}, 
 			{ 
 				sort: {timestamp: -1},
+				limit: 20,
 				transform: function(doc){
 					if (doc.status == 'stationary') {
 						if (Session.get('debug'))
