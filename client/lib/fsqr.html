@@ -22,24 +22,15 @@
 		</div>
 	{{else}}
 		<div style="width: auto; white-space: normal; font-size: 85%;" >
-			{{#if checkinFsqr.name}} 
+			{{#with findFsqr}}
 				<span>
-					<div><i class="fa fa-foursquare checkFsqr" ></i> Checkin at {{checkinFsqr.name}}</div> 
+					<div><i class="fa fa-foursquare checkFsqr" ></i> Checkin at {{findFsqr.name}}</div> 
 					<div>
-						<button class="button btn btn-primary btn-small btn-modal goFsqr" id="{{checkinFsqr.id}}"> Yes </button>
-						<button class="button btn btn-secondary btn-small btn-modal otherFsqr" id="{{checkinFsqr.id}}"> Other </button>
+						<button class="button btn btn-primary btn-small btn-modal goFsqr" id="{{findFsqr.id}}"> Yes </button>
+						<button class="button btn btn-secondary btn-small btn-modal otherFsqr" id="{{findFsqr.id}}"> Other </button>
 					</div>
-				</span>			
-			{{else}}
-<!-- 				<div class="updatevenues checkFsqr" id="">
-					<i class="fa fa-foursquare"></i> -->
-				{{findFsqr}}
-<!-- 				</div>
-				<div>
-					<button class="button btn btn-primary btn-small btn-modal goFsqr" id=""> Yes </button>
-					<button class="button btn btn-secondary btn-small btn-modal otherFsqr" id=""> Other </button>
-				</div> -->
-			{{/if}}
+				</span>		
+			{{/with}}
 		</div>						
 	{{/if}} 
 <!-- 	<button class="button updatevenues btn btn-primary btn-xs btn-modal" style="bottom:0"> Update Venues</button> -->
@@ -54,29 +45,16 @@
 			{{#if venues}}
 				<br /><br />
 				{{#each venues}}
-					<div class="separator">
-					</div>
-					<div class="row setlocations" id="{{place_id}}">
-						<div class="col-xs-6 col-sm-6 col-md-6">{{#if name}}{{name}}{{/if}}</div>
-						<div class="col-xs-3 col-sm-3 col-md-3">{{#if name}}{{distance}}km{{/if}}</div>
-						<div class="col-xs-3 col-sm-3 col-md-3">
-							<img src="" />
-<!-- 							<img src="{{categories.0.icon.prefix}}bg_32{{categories.0.icon.suffix}}" /> -->
+						<div class="separator">
 						</div>
-					</div>	
-				{{/each}}
-				<div class="row elsewhere" id="{{place_id}}">
-					<div class="col-xs-8 col-sm-8 col-md-8">Elsewhere</div>
-					<div class="col-xs-4 col-sm-4 col-md-4">
-						<form class="form-inline" >
-							<div class="form-group">
-	<!-- 							<input type="button" class="button elsewhere btn btn-primary" id="0" value="Set" /> -->
-								<img class="setlocations3" id="icon-{{place_id}}" style="width:40px" src="img/app/rss_icon.png" />
-								<input type="hidden" id="place-0" value="else">
+						<div class="row setlocations" id="{{place_id}}">
+							<div class="col-xs-6 col-sm-6 col-md-6">{{name}}</div>
+							<div class="col-xs-3 col-sm-3 col-md-3">{{distance}}km</div>
+							<div class="col-xs-3 col-sm-3 col-md-3">					
+								<img src="{{categories.[0].icon.prefix}}bg_32{{categories.[0].icon.suffix}}" />
 							</div>
-						</form>	
-					</div>
-				</div>
+						</div>	
+				{{/each}}
 				<br />
 			{{else}}
 				{{> searching}}

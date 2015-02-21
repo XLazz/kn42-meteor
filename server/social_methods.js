@@ -61,24 +61,23 @@ Meteor.methods({
 		var venues = GetFsqrLoc (coords, limit, query);
 		if (!venues)
 			return;
-		venues = venues.response.venues;
+		venues = venues;
 		
-		if (venues.length !== 0) {
+/* 		if (venues.length !== 0) {
 			var i = 0;
-			console.log('venues Fsqr http call 2 update ', coords, ' # of results', venues.length  );
+			console.log('venues Fsqr http call 2 update  # of results', venues.length  );
 			venues.forEach(function (item, index, array) {
 				if (item.stats.usersCount > 10) {
 					item.updated = moment().valueOf();
-					console.log ('venues Fsqr http call 2 update ', i++, coords, ' # of results', item );
+					console.log ('venues Fsqr http call 3 update ', i++, '  item ', item.name );
 					item.location.lat = parseFloat(item.location.lat);
 					item.location.lng = parseFloat(item.location.lng);
-					VenuesCache.upsert({id: item.id}, {$set: {'id': item.id, 'name':item.name, 'location':item.location, 'updated': item.updated, 'stats': item.stats }});
+//					VenuesCache.upsert({id: item.id}, {$set: {'id': item.id, 'name':item.name, 'location':item.location, 'updated': item.updated, 'stats': item.stats }});
 				}
 			});
 		} else {
 			console.log('venues empty ', coords, ' # of results', venues.length );
-/* 			VenuesCache.remove({userId: userId,}); 		 */
-		}
+		} */
 		return venues;		
 	},
 
@@ -153,7 +152,7 @@ Meteor.methods({
 							place.timestampEnd = 1000*(item.createdAt)+60000;
 							place.location = {coords:{latitude: item.venue.location.lat, longitude: item.venue.location.lng}};
 							place.started = moment(place.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS");
-							place.confirmed = 'confirmed';	
+							place.status = 'confirmed';	
 							var name = item.venue.name.split(" ");
 							if (name[0] == 'The') {
 								name = name[1];

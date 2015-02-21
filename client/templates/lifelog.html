@@ -15,80 +15,68 @@
 					{{> spinner}}
 				{{else}}
 					{{> showlocations}}
-					{{> overlay}}
+<!-- 					{{> overlay}} -->
 				{{/if}}
 			</div>
-<!--       <div class="list-recipes">
-					<hr>
-					<div>
-					</div>
-      </div> -->
     </div>
-		{{#if ifDebug}}
-		<footer class="footer" style="bottom: 0; position: absolute;">
-			<div class="footer">
-				<button class="button reloadlocations btn btn-danger btn-xs btn-modal"> Reload </button>
-				<button class="button updatelocations btn btn-primary btn-xs btn-modal"> Update </button>
-				{{#if dedup}}
-					<button class="button dedupstop btn btn-primary btn-xs btn-modal"> DeStop</button>
-				{{else}}
-					<button class="button dedup btn btn-primary btn-xs btn-modal"> Dedup </button>
-				{{/if}}
-			</div>
-		</footer>
-		{{/if}}
+<!-- 		{{#if ifDebug}}
+			<footer class="footer" style="bottom: 0; position: absolute;">
+				<div class="footer">
+					<button class="button reloadlocations btn btn-danger btn-xs btn-modal"> Reload </button>
+					<button class="button updatelocations btn btn-primary btn-xs btn-modal"> Update </button>
+					{{#if dedup}}
+						<button class="button dedupstop btn btn-primary btn-xs btn-modal"> DeStop</button>
+					{{else}}
+						<button class="button dedup btn btn-primary btn-xs btn-modal"> Dedup </button>
+					{{/if}}
+				</div>
+			</footer>
+		{{/if}} -->
   </div>
 </template>
 
 <template name="showlocations">
 	{{#each locations}}
+
 		<div class="row">
 			<div class="selectplace col-xs-8 col-sm-8 col-md-8" id="{{_id}}">
-<!-- 				<div>{{geoPlace.vicinity}}
-				</div> -->
 				{{#if travel}}
-					<div>
+					<div style="white-space: initial; font-size:80%">
 						Travelling<br />
 						{{#if location.coords.speed}}speed {{location.coords.speed}} {{/if}}
 						{{status}} since {{timestart}} {{#if timespent}}  for {{timespent}} {{/if}}
 					</div>
 				{{else}}
 					<div>
-						{{#if geoPlace.name}} 
-							{{geoPlace.name}} 
-						{{else}} 
-							{{geoMerchant.name}} 
-							{{#if geoMerchant.unknown}}
-								{{#if place_id}}
-									{{place_id}} ... updating
-								{{else}}
-									{{#if ifUpdating}}
-										wait... updating
-									{{else}}
-										{{updatePlaces}}
-									{{/if}}
-								{{/if}}
-							{{/if}}
-						{{/if}}
+						{{name}} 
 					</div>
 					<div style="font-size: smaller">		
 						{{#if foursquareChk}}
-							{{> venues}}
+							<div style="width: auto; white-space: normal" id="{{checkedFsqr.venueId}}">
+								<i class="fa fa-foursquare"></i> 
+								{{fsqrName}} 
+								{{#if ifDebug}}
+									{{fsqrDate}}
+								{{/if}} 
+							</div>
 						{{/if}}
-						{{#if geoPlace.name}}
-							{{geoPlace.vicinity}} 
-						{{else}}
-							{{geoMerchant.vicinity}} 
-						{{/if}}<br />
-						{{status}} since {{timestart}} {{#if timespent}} for {{timespent}} {{/if}}
-<!-- 						<div>{{> venuesSelected}}</div>			 -->				
+						<div>
+							{{vicinity}} 
+						</div>
+						<div>
+							{{status}} since {{timestart}} 
+							{{#if timespent}} for {{timespent}} {{/if}}	
+							{{#if progress}} {{progress}} {{/if}}
+						</div>
 					</div>
 					{{#if ifDebug}} 
-						<div style="font-size:50%">
-							{{place_id}}
+						<div style="font-size:60%">
+							place_id {{place_id}}<br/>
+							fsqr {{foursquareChk}}<br/>
+							{{timestamp}} finished: {{finished}}<br/>
+							status {{status}}
 						</div>
 					{{/if}}
-					{{#if ifDebug}}<div style="font-size:50%">{{timestamp}} finished: {{finished}}</div>{{/if}}
 				{{/if}}
 			</div>
 			<div class="col-xs-4 col-sm-4 col-md-4">
@@ -103,7 +91,7 @@
 							{{#if travel}}
 								img/app/car.png
 							{{else}}
-								{{#if geoPlace.icon}}  {{geoPlace.icon}} {{else}} {{geoMerchant.icon}} {{/if}}
+								{{icon}}
 							{{/if}}
 						" />
 					</div>
@@ -117,12 +105,8 @@
 			</div>
 		</div>
 
-		{{#if geoPlace.showbut}}
+		{{#if showBut}}
 			{{> buttons}}
-		{{else}}
-			{{#if geoMerchant.showbut}}
-				{{> buttons}}
-			{{/if}}
 		{{/if}}
 		<hr>
 	{{/each}}

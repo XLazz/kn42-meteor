@@ -144,9 +144,7 @@ Meteor.publish('downloadPlaces', function(userId, limit) {
 //					finished: item.finished,
 					timestamp: parseInt(item.timestamp),
 					timestampEnd: parseInt(item.timestampEnd),
-					confirmed: item.confirmed,
-					travel: item.travel, 
-					fitness: item.fitness,
+					status: item.status
 				};
 				console.log('inserting item for user ', userId, _id, item.user_history_location_id);
 				if (item.timestampEnd)

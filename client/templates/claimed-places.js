@@ -84,7 +84,7 @@ Template.showMapClaim.helpers({
       // Map initialization options
       return {
         center: new google.maps.LatLng(claimed.coords.latitude, claimed.coords.longitude),
-        zoom: 18
+        zoom: 16
       };
     } else {
 //			GoogleMaps.load();

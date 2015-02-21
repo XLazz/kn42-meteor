@@ -13,11 +13,13 @@
 	vertical-align: middle;
 	padding-top: 50%;
 	text-align: center;
+	white-space: initial;
 }
 .kn-container {
 	width: 100%; 
 	height: auto;
 	padding: 5px;
+	white-space: initial;
 }
 .kn-leftcol {width:  70%; float: left}
 .kn-rightcol {width:  30%; float: left}

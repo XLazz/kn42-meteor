@@ -82,9 +82,9 @@ Meteor.methods({
 				coords = {latitude: item.latitude, longitude: item.longitude};
 				location = {coords: coords};
 				if (item.status == 'congfirmed')
-					confirmed = true;
+					status = 'confirmed';
 				if (item.status == 'travel')
-					travel = true;	
+					status = 'travel';	
 				if (item.userplaceId) {
 					UserPlaces.upsert(
 						item.userplaceId,
@@ -98,8 +98,7 @@ Meteor.methods({
 							started: item.started,
 							timestamp: timestamp,
 							timestampEnd: timestampEnd,
-							confirmed: confirmed,
-							travel: travel
+							status: status
 						}
 					);
 				} else {
@@ -114,8 +113,7 @@ Meteor.methods({
 							started: item.started,
 							timestamp: timestamp,
 							timestampEnd: timestampEnd,
-							confirmed: confirmed,
-							travel: travel
+							status: status
 						}
 					);				
 				}
@@ -128,8 +126,8 @@ Meteor.methods({
 		return userLocations;
 	},
 	
-	'UserLocationsUpdate':function( userId, userLocationId, place_id){
-		var old_place = UserPlaces.findOne({_id: userLocationId}, {fields: {place_id: 1, _id:0}});	
+	'UserLocationsUpdate':function( userId, userPlaceId, place_id){
+		var old_place = UserPlaces.findOne(userPlaceId, {fields: {place_id: 1, _id:0}});	
 		var found = UserPlaces.find({userId: userId, place_id: old_place.place_id}).fetch();	
 		UserPlaces.update({userId: userId, place_id: old_place.place_id}, {$set: {place_id: place_id}}, {multi:true});	
 

@@ -95,19 +95,7 @@ Template.routes.helpers({
 	},
 	ifFindFit: function () {
 		console.log(' findfit ', Session.get('findfit'));
-		if (!FitnessActivities.findOne()) {
-			var activities = ['running','walking','bicycling'];
-			console.log('FitnessActivities empty ',  activities);
-			activities.forEach(function (item, index, array) {
-			console.log('FitnessActivities empty, adding item',  item);			
-				FitnessActivities.insert(
-					{
-						activity: item,
-						date: new Date
-					}
-				);
-			});
-		}
+
 		return Session.get('findfit');
 	},
 	ifFitness: function () {

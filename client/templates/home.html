@@ -55,83 +55,89 @@
 	{{#with currentlocation}}
 		<div class="row" id="homelocation">
 			<div class="container-fluid kn-container">
-			<div class="col-xs-2 col-sm-2 col-md-2">
-				<div class="row">
-<!-- 					<div class="col-xs-12 col-sm-12 col-md-12">
-						<img style="width: auto; height: auto; max-width: 40px" src="
-							{{#if travel}}
-								img/app/car.png
-							{{else}}
-								{{#if geoPlace.icon}}  {{geoPlace.icon}} {{else}} {{geoMerchant.icon}} {{/if}}
-							{{/if}}
-						" />
-					</div>			 -->	
-				</div>
-				<div class="row">
-					<div class="col-xs-12 col-sm-12 col-md-12">
-<!-- 						{{#unless travel}}
-							<div style="font-size: smaller; float:right">
-								<span class="badge">
-									{{userPlace.count}}
-								</span>
-							</div>
-						{{/unless}} -->
-					</div>
-				</div>
-			</div>
-			<div class="selectplace col-xs-8 col-sm-8 col-md-8" id="
-				{{#if status}}
-					{{_id}}
-				{{/if}}
-			">
-				{{#if travel}}
-					<div>
-						Travelling<br />
-						{{#if location.coords.speed}}speed {{location.coords.speed}} {{/if}}
-						{{status}} since {{started}} {{#if timespent}}  for {{timespent}} {{/if}}
-					</div>
-				{{else}}
-					<div>
-						{{#if name}} 
-							cll {{name}} 
-						{{else}}
-							{{#if geoPlace.name}} 
-								gpp {{geoPlace.name}} 
-							{{else}} 
-								gmm {{geoMerchant.name}} 
-							{{/if}}
-							<br />
-						{{/if}}
+				<div class="col-xs-2 col-sm-2 col-md-2">
+					<div class="row">
+						<div class="col-xs-12 col-sm-12 col-md-12">
+							<img style="width: auto; height: auto; max-width: 40px" src="
+								{{#if travel}}
+									img/app/car.png
+								{{else}}
+									{{#if icon}} 
+										{{icon}} 
+									{{else}} 
 
+									{{/if}}
+								{{/if}}
+							" />
+						</div>				
 					</div>
+					<div class="row">
+						<div class="col-xs-12 col-sm-12 col-md-12">
+	<!-- 						{{#unless travel}}
+								<div style="font-size: smaller; float:right">
+									<span class="badge">
+										{{userPlace.count}}
+									</span>
+								</div>
+							{{/unless}} -->
+						</div>
+					</div>
+				</div>
+				<div class="selectplace col-xs-8 col-sm-8 col-md-8" id="
 					{{#if status}}
-						{{#if ifUser.services.foursquare}}
-							{{> venuesSelected}}
-						{{/if}}
+						{{_id}}
 					{{/if}}
-					<div style="font-size: smaller">
-						{{#if name}}{{vicinity}} {{else}} gmm {{geoMerchant.vicinity}} {{/if}}<br />					
-					</div>
-					{{#if ifDebug}} 
-						<div style="font-size:60%">
-							{{status}} {{#if status}} since {{started}} {{#if timespent}} for {{timespent}} {{/if}} {{/if}} 
-							<br />
-							finished: {{finished}}
-							<br/>
-							place_id: {{place_id}}
+				">
+					{{#if travel}}
+						<div style="white-space:initial; font-size:80%">
+							Travelling<br />
+							{{#if location.coords.speed}}speed {{location.coords.speed}} {{/if}}
+							{{status}} since {{started}} {{#if timespent}}  for {{timespent}} {{/if}}
 						</div>
 					{{else}}
-						<div style="font-size:70%">
-							{{#if status}} since {{started}} {{/if}} 
-						</div>						
+						<div>
+							{{#if name}} 
+								{{name}} 
+							{{else}}
+								{{#if geoMerchant.name}} 
+									gmm {{geoMerchant.name}} 
+								{{else}} 
+									... updating
+								{{/if}}
+								<br />
+							{{/if}}
+
+						</div>
+						{{#if status}}
+							{{#if ifUser.services.foursquare}}
+								{{> venuesSelected}}
+							{{/if}}
+						{{/if}}
+						<div style="font-size: smaller">
+							{{#if name}}{{vicinity}} {{else}} {{geoMerchant.vicinity}} {{/if}}<br />					
+						</div>
+						{{#if ifDebug}} 
+							<div style="font-size:60%">
+								{{status}} {{#if status}} since {{started}} {{#if timespent}} for {{timespent}} {{/if}} {{/if}} 
+								<br />
+								finished: {{finished}}
+								<br/>
+								place_id: {{place_id}}
+							</div>
+						{{else}}
+							<div style="font-size:70%">
+								{{#if status}} since {{started}} {{/if}} 
+							</div>						
+						{{/if}}
 					{{/if}}
-				{{/if}}
-			</div>
-			<div class="col-xs-2 col-sm-2 col-md-2">
-				{{#if claimed}}
-					<span class="glyphicon glyphicon-home" style="font-size: xx-large" aria-hidden="true"></span>
-				{{/if}}
-			</div>
+				</div>
+				<div class="col-xs-2 col-sm-2 col-md-2">
+					{{#unless travel}}
+						{{#if claimed}}
+							<span class="glyphicon glyphicon-home" style="font-size: xx-large" aria-hidden="true"></span>
+						{{/if}}
+					{{/unless}}
+				</div>
 			</div>
 		</div>
 
@@ -151,7 +157,7 @@
 			">
 				<div style="display:inline-block; width: 85%; vertical-align: top;">
 					{{#if travel}}
-						<div>
+						<div style="white-space: initial; font-size:80%">
 							Travelling<br />
 							{{#if location.coords.speed}}speed {{location.coords.speed}} {{/if}}
 							{{status}} since {{started}} {{#if timespent}}  for {{timespent}} {{/if}}
