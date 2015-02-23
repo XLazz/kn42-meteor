@@ -10,27 +10,28 @@ Template.claimPlace.helpers({
     });
   },
 	coords: function () {
-		var userLocation = Session.get('userLocation');
-		var result = GeoLog.findOne(userLocation.geoId);
+		var userPlace = Session.get('userPlace');
+/* 		var result = GeoLog.findOne(userPlace.geoId);
 		
-		console.log('current userLocation ', userLocation.geoId, userLocation, result);
+		console.log('current userLocation ', userPlace.geoId, userPlace, result);
 		if (result) {
 		//Getting coords from Geolog
 			var coords = result.location.coords;
 		} else {
-			var coords = userLocation.location.coords;
-		}
+			var coords = userPlace.location.coords;
+		} */
 //		coords2 = results.location.coords.latitude + ',' + result.location.coords.longitude;
-		console.log('current userLocation ', userLocation.geoId, coords);
-		coords.latitude_harsh = parseFloat(coords.latitude).toFixed(4)-0;
+		var coords = userPlace.location.coords;
+		console.log('current userPlace ', coords, userPlace);
+		coords.latitude_harsh = parseFloat(coords.latitude).toFixed(4);
 		coords.latitude = parseFloat(coords.latitude);
-		coords.longitude_harsh = parseFloat(coords.longitude).toFixed(4)-0;
+		coords.longitude_harsh = parseFloat(coords.longitude).toFixed(4);
 		coords.longitude = parseFloat(coords.longitude);
 		return coords;
 	},
 	place_id: function () {
-		var userLocation = Session.get('userLocation');
-		var place_id = userLocation.place_id;
+		var userPlace = Session.get('userPlace');
+		var place_id = userPlace.place_id;
 		return place_id;
 	},
 	userId: function(){

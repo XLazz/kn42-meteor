@@ -74,6 +74,8 @@ Template.homelocation.helpers({
 		var userPlace;
 		var autoPlace;
 		userPlace = UserPlaces.findOne({userId:userId}, {sort: {timestamp: -1}});		
+		if (!userPlace)
+			return;
 		Session.set('userPlace',userPlace);
 
 //		userPlace = Session.get('userPlace');

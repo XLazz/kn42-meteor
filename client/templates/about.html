@@ -128,10 +128,24 @@
 		</div>
 	{{/each}}
 	<hr>
+	{{#if ifDebug}}
+		<div class="row">
+			<div class="col-md-12 col-xs-12">
+				{{#with status}}
+					Server is {{server}} 
+					{{#if connected}}
+						<input type="button" class="button btn btn-small btn-quartiary disconnect" value="Disconnect" />
+					{{else}}
+						<input type="button" class="button btn btn-small btn-quartiary reconnect" value="Reconnect" />
+					{{/if}}
+				{{/with}}
+			</div>
+		</div>
+	{{/if}}
 	<div class="row">
 		<div class="col-md-12 col-xs-12">
 			Privacy settings: <br />
-			{{#if debug}}
+			{{#if ifDebug}}
 				and what really needs to be here?<br />
 				Name - yes/no<br />
 				My places - yes/no<br />

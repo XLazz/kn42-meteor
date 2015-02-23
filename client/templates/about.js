@@ -200,7 +200,7 @@ Template.profileDetails.events({
 });
 
 Template.userSettings.helpers({
-	debug: function () {
+	ifDebug: function () {
 		return Session.get('debug');
 	},
 	autoplace: function(){
@@ -215,6 +215,12 @@ Template.userSettings.helpers({
 	},
 	privacy: function(){
 	
+	},
+	status: function(){
+		var status = Meteor.status();
+		console.log('meteor status ',  status);
+		status.server = status.status;
+		return status;
 	}
 });
 
@@ -223,6 +229,14 @@ Template.userSettings.events({
 		var myId = template.find('.removeauto');
 		console.log('template.find ', myId.attr, myId.name, myId.id, myId );
 		AutoPlaces.remove(myId.id);
+	},
+	'click .disconnect': function (event, template) {
+		Meteor.disconnect();
+		console.log('meteor status ',  Meteor.status());
+	},
+	'click .reconnect': function (event, template) {
+		Meteor.reconnect();
+		console.log('meteor status ',  Meteor.status());
 	},
 });
 

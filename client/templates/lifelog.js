@@ -174,9 +174,8 @@ Template.showlocations.helpers({
 					} else {
 						updateEmptyPlaces();
 					}
-					if Session.get('userPlace') {
-						if (doc._id == Session.get('userPlace')._id)
-							doc.showbut = true;
+					if ((Session.get('userPlace')) && (doc._id == Session.get('userPlace')._id))
+						doc.showbut = true;
 					if (doc.foursquareChk) {
 						var fsqr = ifChecked(doc.foursquareChk);
 						doc.fsqrName = fsqr.name;

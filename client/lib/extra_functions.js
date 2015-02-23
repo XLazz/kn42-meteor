@@ -99,6 +99,8 @@ PollingGeo = function(){
 				UpdateGeo();
 			}
 		}
+		if (Session.get('watchGPS'));
+			Meteor.clearInterval(Session.get('watchGPS'));
 		var watchGPS = Meteor.setInterval(runGeo, myInterval);
 		Session.set('watchGPS', watchGPS);
 	} else {

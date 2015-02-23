@@ -41,7 +41,7 @@ Meteor.startup(function () {
     preventDefaultEvents: false
   });
 
-  // Only show the connection error box if it has been 5 seconds since
+/*   // Only show the connection error box if it has been 5 seconds since
   // the app started
   setTimeout(function () {
     // Launch screen handle created in lib/router.js
@@ -49,7 +49,7 @@ Meteor.startup(function () {
 
     // Show the connection error box
     Session.set(SHOW_CONNECTION_ISSUE_KEY, true);
-  }, CONNECTION_ISSUE_TIMEOUT);
+  }, CONNECTION_ISSUE_TIMEOUT); */
 });
 
 Template.appBody.rendered = function() {
@@ -120,11 +120,12 @@ Template.appBody.helpers({
   }, */
   
   connected: function() {
-    if (Session.get(SHOW_CONNECTION_ISSUE_KEY)) {
+/*     if (Session.get(SHOW_CONNECTION_ISSUE_KEY)) {
       return Meteor.status().connected;
     } else {
       return true;
-    }
+    } */
+		return Meteor.status().connected;
   },
   
   notifications: function() {
