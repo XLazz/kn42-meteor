@@ -380,14 +380,15 @@ ifStationary = function(userId, geoId){
 		GeoLog.upsert(geoId, {$set: {status:  'stationary'}});	
 		
 		// and now let's see if we need to add a new one
-		if ((userPlace.place_id != geoLoc.stationary_place_id) && ( userPlace.geo_place_id != geoLoc.place_id ) && ( userPlace.place_id != geoLoc.stationary_place_id )) {
+		if (((userPlace.place_id != geoLoc.stationary_place_id) && ( userPlace.geo_place_id != geoLoc.place_id ) && ( userPlace.place_id != geoLoc.stationary_place_id )) || (userPlace.timestampEnd) ) {
+			// new place is not the same or timestampEnd is here already
 			// we need to add a new place
 			console.log('adding a new place with place_id', geoLoc.stationary_place_id, geoLoc.place_id, ' userPlace: ', userPlace.geo_place_id, userPlace.place_id);
 			if (!userPlace.timestampEnd) {
 				//if place was not finalized, then add timestampEnd
 				userPlace.timestampEnd = moment().valueOf()-2000;
 				if (userPlace._id) {
-					UserPlaces.upsert(userPlace._id, {$set: {timestampEnd: userPlace.timestampEnd }});
+					UserPlaces.update(userPlace._id, {$set: {timestampEnd: userPlace.timestampEnd }});
 					// and update place on php server
 					Meteor.call('submitPlace', userId, userPlace)
 				}				
@@ -401,7 +402,7 @@ ifStationary = function(userId, geoId){
 				]
 			});
 			if (autoPlace) 
-				geoLoc.place_id = autoPlace.place_id;	
+				geoLoc.stationary_place_id = autoPlace.place_id;	
 			// no add userplace
 			UserPlaces.insert(
 			{

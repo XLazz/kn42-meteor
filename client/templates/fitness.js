@@ -341,7 +341,8 @@ Template.showMapFit.helpers({
 						}
 					}
 				);
-				console.log('GoogleMaps ready loading markers ', track);
+				if (Session.get('debug'))
+					console.log('GoogleMaps ready loading markers ', track);
 				var mytrack = track.fetch();
 //				console.log ('track ', mytrack);
 //				console.log ('track ', mytrack[0].activityId);
@@ -354,7 +355,8 @@ Template.showMapFit.helpers({
 						map: map.instance,
 						title: 'Speed: ' + item.location.coords.speed 
 					});	
-					console.log ('adding marker ', marker);
+					if (Session.get('debug'))
+						console.log ('adding marker ', marker);
 				});
 
       });
@@ -366,7 +368,7 @@ Template.showMapFit.helpers({
         zoom: 18
       };
     } else {
-//			GoogleMaps.load();
+			GoogleMaps.load();
 //			GoogleMaps.load({ v: '3', key: 'AIzaSyAQH9WdmrwMKphSHloMai5iYlcS5EsXMQA' });
 			console.log('GoogleMaps not yet loaded');
 		}

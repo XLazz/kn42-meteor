@@ -239,11 +239,9 @@
 </template>
 	
 <template name="selectExperience">
-	<div class="row experience animate">	
+	<div class="row experience">	
 		<div class="col-xs-12 col-sm-12 col-md-12">
-
-			{{#with experiences}}
-				
+			{{#with experiences}}			
 				{{#autoForm id="experiencesForm2" collection="Experiences"  doc=this type="update" autosave=true schema="Schemas.Experiences" }}
 					<div class="form-group">
 						{{> afFieldInput name="experience" type="text" autocomplete="on" placeholder="add your experience"}}
@@ -251,7 +249,6 @@
 					</div>
 				{{/autoForm}}
 			{{/with}}
-
 			{{#unless experiences}}
 				{{#autoForm id="experiencesForm1" collection="Experiences" template="plain" type="insert" schema="Schemas.Experiences" }}
 					<div class="form-inline">			
