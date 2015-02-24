@@ -10,7 +10,7 @@ Template.claimPlace.helpers({
     });
   },
 	coords: function () {
-		var userPlace = Session.get('userPlace');
+		var userPlace = UserPlaces.findOne(Session.get('userPlaceId'));
 /* 		var result = GeoLog.findOne(userPlace.geoId);
 		
 		console.log('current userLocation ', userPlace.geoId, userPlace, result);
@@ -30,7 +30,7 @@ Template.claimPlace.helpers({
 		return coords;
 	},
 	place_id: function () {
-		var userPlace = Session.get('userPlace');
+		var userPlace = UserPlaces.findOne(Session.get('userPlaceId'));
 		var place_id = userPlace.place_id;
 		return place_id;
 	},

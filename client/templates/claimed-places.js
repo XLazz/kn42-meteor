@@ -87,7 +87,7 @@ Template.showMapClaim.helpers({
         zoom: 16
       };
     } else {
-//			GoogleMaps.load();
+			GoogleMaps.load();
 //			GoogleMaps.load({ v: '3', key: 'AIzaSyAQH9WdmrwMKphSHloMai5iYlcS5EsXMQA' });
 			console.log('GoogleMaps not yet loaded');
 		}

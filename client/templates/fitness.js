@@ -327,6 +327,7 @@ Template.showMapFit.helpers({
     // Make sure the maps API has loaded
     if (GoogleMaps.loaded()) {
 			console.log('GoogleMaps not loaded');
+			GoogleMaps.initialize();
       // We can use the `ready` callback to interact with the map API once the map is ready.
       GoogleMaps.ready('fitnessMap', function(map) {
 				
@@ -368,9 +369,10 @@ Template.showMapFit.helpers({
         zoom: 18
       };
     } else {
+			console.log('GoogleMaps not yet loaded');
 			GoogleMaps.load();
 //			GoogleMaps.load({ v: '3', key: 'AIzaSyAQH9WdmrwMKphSHloMai5iYlcS5EsXMQA' });
-			console.log('GoogleMaps not yet loaded');
+			
 		}
   }
 });

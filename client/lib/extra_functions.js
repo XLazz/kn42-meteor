@@ -1,7 +1,9 @@
 calculateDistance = function(lat1, lon1, lat2, lon2) {
-  var R = 6371; // km
-  var dLat = (lat2 - lat1).toRad();
-  var dLon = (lon2 - lon1).toRad(); 
+	if (Session.get('debug')) 
+		console.log('calculateDistance function ', lat1, lon1, lat2, lon2);	
+  var R = 6371000; // m
+  var dLat = (parseFloat(lat2) - parseFloat(lat1)).toRad();
+  var dLon = (parseFloat(lon2) - parseFloat(lon1)).toRad(); 
   var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
           Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
           Math.sin(dLon / 2) * Math.sin(dLon / 2); 
@@ -79,7 +81,7 @@ submitCoords = function(userId, geoId, location ){
 PollingGeo = function(){
 	var myInterval = Session.get('interval');
 	if (!Session.get('interval')) {
-		myInterval = 150000;
+		myInterval = 900000;
 	} 
 	var watchGPS;
 	console.log('Polling geo 1 ', myInterval, Session.get('geoback'));
@@ -152,14 +154,10 @@ UpdateGeo = function (){
 	var location = Geolocation.currentLocation();
 	if (!location)
 		return;
-	var geoId;
-	// geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
-	console.log('UpdateGeo event ', location, geoId, 'fitActivity:', Session.get('fitActivity'), 'fithnes:', Session.get('fitness'), Session.get('fitstart'), Session.get('fitstop'), 'fitnessTrackId', Session.get('fitnessTrack') );
-	if (!geoId){
-		var uuid = Meteor.uuid();
-		var device = 'browser';
-		UpdateGeoDB(location, uuid, device);
-	}
+	console.log('UpdateGeo event ', location, 'fitActivity:', Session.get('fitActivity'), 'fithnes:', Session.get('fitness'), Session.get('fitstart'), Session.get('fitstop'), 'fitnessTrackId', Session.get('fitnessTrack') );
+	var uuid = Meteor.uuid();
+	var device = 'browser';
+	UpdateGeoDB(location, uuid, device);	
 	return location;
 };
 
@@ -169,71 +167,75 @@ UpdateGeoCordova = function(){
 		Meteor.clearInterval(Session.get('watchGPS'));
 	}
 	var userId = Meteor.userId();
-	GeolocationFG.get(function(location) {
-		console.log('UpdateGeoCordova ',  location, this);
-/* 		if (location.coords.speed) {
-			Session.set('interval', 50000);
-		} else {
-			Session.set('interval', 800000);
-		} */
-		var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
-		if (!geoId) {
-			var uuid = GeolocationBG2.uuid();
-			var device = GeolocationBG2.device();
-			UpdateGeoDB(location, uuid, device);
-		}
-	//		Session.set('interval', 60000);
-		
+	GeolocationFG.get(function(geolocation) {
+		console.log('UpdateGeoCordova ',  geolocation, this);
+		var uuid = GeolocationBG2.uuid();
+		var device = GeolocationBG2.device();
+		UpdateGeoDB(geolocation, uuid, device);
 		return location;
 	});
 }
 
-UpdateGeoDB = function(location, uuid, device){
+UpdateGeoDB = function(geolocation, uuid, device){
 	if (!Session.get('geoback')) {
 		Meteor.clearInterval(Session.get('watchGPS'));
 	}
 	var distance;
 	var avgspeed;
+	var oldLocation;
 	var userId = Meteor.userId();
-	var geoId = GeoLog.findOne({timestamp: location.timestamp, userId: userId},{fields:{_id:1}});
-	var timestamp = moment().valueOf();
-	console.log('UpdateGeoDB ',  'watchGPS', Session.get('watchGPS'), location, 'fitness', Session.get('fitActivity'), Session.get('fitness'), Session.get('fitstart'), Session.get('fitstop'), Session.get('fitnessTrack'), 'driving', Session.get('driving'), Session.get('driveTrack') );
-
-	if (Session.get('location')) {
-		// if (Session.get('location').speed)
-		if (Session.get('location').coords.speed) {
-			distance = calculateDistance(Session.get('location').coords.latitude, Session.get('location').coords.longitude, location.coords.latitude, location.coords.longitude);
-			timediff = location.timestamp - Session.get('location').timestamp;
-			var avgspeed = distance / timediff;
-		} else {
-			distance = 0;
-			avgspeed = 0;
-		}
-		console.log('distance ', distance);
-	} else {
-		distance = 0;
-		avgspeed = 0;
+	geolocation.distance = 0;
+	geolocation.avgspeed = 0;
+	var location = {
+		location: geolocation,
+		uuid: uuid,
+		device: device,
+		userId: userId,
+		created: new Date(),
+		timestamp: moment().valueOf(),
+		interval: Session.get('interval'),
 	}
-	location.distance = distance;
-	location.avgspeed = avgspeed;
-	Session.set('location', location);	
+	
+	if (Session.get('debug'))
+		console.log('UpdateGeoDB ',  'watchGPS', Session.get('watchGPS'), location, 'fitness', Session.get('fitActivity'), Session.get('fitness'), Session.get('fitstart'), Session.get('fitstop'), Session.get('fitnessTrack'), 'driving', Session.get('driving'), Session.get('driveTrack') );
+
+	if (!Session.get('locationId')) {
+		oldLocation = GeoLog.findOne({userId: userId},{timestamp: -1});
+		if (!oldLocation) {
+			var geoId = GeoLog.insert(location);		
+			oldLocation = GeoLog.findOne(geoId);
+			Session.set('locationId', oldLocation._id);	
+			return;
+		} else {
+			Session.set('locationId', oldLocation._id);		
+		}
+	}
+	
+	oldLocation = GeoLog.findOne(Session.get('locationId'));
+	if (oldLocation.location.timestamp == location.location.timestamp) {
+		console.log('same location.timestamp, exiting');
+		return;
+	}
+		// if (Session.get('location').speed)
+
+	location.location.distance = calculateDistance(oldLocation.location.coords.latitude, oldLocation.location.coords.longitude, location.location.coords.latitude, location.location.coords.longitude);
+	timediff = parseInt(location.location.timestamp) - parseInt(oldLocation.location.timestamp);
+	location.location.avgspeed = Math.round(location.location.distance / timediff * 100 ) / 100;
+	location.location.distance = Math.round(location.location.distance * 100 ) / 100;
+
+	if (Session.get('debug')) 
+		console.log(oldLocation, location);
 	
 	if (Session.get('fitness')){
 		if (!Session.get('fitnessTrack')) {
-			var fitnessTrackId = FitnessTracks.insert({userId: userId, activityId: Session.get('fitActivity'), timestamp: timestamp, created: new Date()});
+			var fitnessTrackId = FitnessTracks.insert({userId: userId, activityId: Session.get('fitActivity'), timestamp: location.timestamp, created: new Date()});
 			var fitnessTrack = FitnessTracks.findOne(fitnessTrackId);
 			Session.set('fitnessTrack', fitnessTrack);
 		}		
-		Tracks.insert({
-			location: location,
-			uuid: Meteor.uuid(),
-			device: device,
-			userId: Meteor.userId(),
-			created: new Date(),
-			activityId: Session.get('fitActivity'),
-			interval: Session.get('interval'),
-			fitnessTrackId: Session.get('fitnessTrack')._id,		
-		});		
+		location.activityId = Session.get('fitActivity');
+		location.fitnessTrackId = Session.get('fitnessTrack')._id;
+		Tracks.insert(location);
+		
 		if (!Session.get('fitnessTrack').fitnessStart) {	
 			console.log('adding fitnessStart ');
 			var fitnessTrack = Session.get('fitnessTrack');
@@ -248,12 +250,10 @@ UpdateGeoDB = function(location, uuid, device){
 			UserPlaces.insert(
 				{
 					userId: userId,
-					location: location,
-					started:  moment(timestamp).format("YYYY-MM-DD HH:mm:ss.SSS"),
-					timestamp: timestamp,
-					geoId: geoId._id,
-					location: geoId.location,
-					location_id: geoId.location_id,
+					location: location.location,
+					started:  moment(location.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS"),
+					timestamp: location.timestamp,
+					geoId: oldLocation._id,
 					status: 'fitness',
 					fitnessId: Session.get('fitActivity')
 				}
@@ -264,17 +264,22 @@ UpdateGeoDB = function(location, uuid, device){
 	if (Session.get('driving')){
 		console.log('driveTrack ', Session.get('driveTrack'));
 		if (!Session.get('driveTrack')) {
-			DriveTracks.insert({userId: userId, activityId: Session.get('driveActivity'), timestamp: moment().valueOf(), created: new Date()});
+			location.driveTrackId = DriveTracks.insert({userId: userId, activityId: Session.get('driveActivity'), timestamp: location.timestamp});
+			Session.set('driveTrack',DriveTracks.findOne(location.driveTrackId));
+				UserPlaces.insert(
+					{
+						userId: userId,
+						location: location.location,
+						started:  moment(location.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS"),
+						timestamp: location.timestamp,
+						geoId: oldLocation._id,
+						status: 'fitness',
+						fitnessId: Session.get('fitActivity')
+					}
+				);
 		}		
-		Drives.insert({
-			location: location,
-			uuid: Meteor.uuid(),
-			device: device,
-			userId: Meteor.userId(),
-			created: new Date(),
-			interval: Session.get('interval'),
-			driveTrackId: Session.get('driveTrack')._id,		
-		});		
+		location.driveTrackId = Session.get('driveTrack')._id
+		Drives.insert(location);		
 		if (!Session.get('driveTrack').driveStart) {	
 			console.log('adding driveStart ');
 			var driveTrack = Session.get('driveTrack');
@@ -286,26 +291,89 @@ UpdateGeoDB = function(location, uuid, device){
 		}
 	}	
 	
-	if (!Session.get('fitness') && !Session.get('driving')){
+	if ((Session.get('fitness')) || (Session.get('driving')))
+		return;
 	
+	if (Session.get('debug')) 
 		console.log(' adding to geolog ', location);
-		var status;
-/* 		if (location.coords.speed > 1)
-			status = 'moving'; */
-		var geoId = GeoLog.insert({
-			location: location,
-			uuid: uuid,
-			device: device,
-			userId: userId,
-			created: new Date(),
-			timestamp: moment().valueOf(),
-			interval: Session.get('interval'),
-			status: status
-		});	
-		addPlace(geoId, location);
-		submitCoords(userId, geoId, location );
+	var status;
+	if (!Session.get('userPlaceId'))
+		Session.set('userPlaceId', UserPlaces.findOne({userId:userId}, {sort: {timestamp: -1}, fields:{_id:1}}));	
+	var userPlace =  UserPlaces.findOne(Session.get('userPlaceId'));
+	if (!userPlace) {
+		Session.set('userPlaceId', UserPlaces.findOne({userId:userId}, {sort: {timestamp: -1}, fields:{_id:1}}));	
+		if (!Session.get('userPlaceId')) {
+			addPlace(location._id, location.location);
+			Session.set('userPlaceId', UserPlaces.findOne({userId:userId}, {sort: {timestamp: -1}, fields:{_id:1}}));
+		}	
 	}
 	
+	// now let's check if stationary
+	var userPlace = UserPlaces.findOne(Session.get('userPlaceId'));
+	if (!userPlace) {
+		Session.set('userPlaceId', UserPlaces.findOne({userId:userId}, {sort: {timestamp: -1}, fields:{_id:1}}));	
+		if (!Session.get('userPlaceId')) {
+			addPlace(OldLocation._id, OldLocation.location);
+			Session.set('userPlaceId', UserPlaces.findOne({userId:userId}, {sort: {timestamp: -1}, fields:{_id:1}}));
+		}	
+	}
+	location.stationary = ifStationary(location, oldLocation, userPlace);
+
+	location._id = GeoLog.insert(location);	
+	Session.set('locationId', location._id);	
+
+	if (Meteor.status().connected)
+		submitCoords(userId, location._id, location.location );	
+
+	// see if we need finalise userplace or add a new one
+	if (!userPlace)
+		return;
+	// if not stationary and not finalised, then finalise it
+	if ((!userPlace.timestampEnd) && (!location.stationary))
+	UserPlaces.update(userPlace._id,{$set:{timestampEnd:userPlace.timestampEnd}});
+	// if stationary and old userplace finalised, create new
+	if ((userPlace.timestampEnd) && (location.stationary)){
+		var newUserPlace = {
+			userId: userPlace.userId,
+			location: location.location,
+			started:  moment(location.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS"),
+			timestamp: location.timestamp,
+			geoId: location._id	
+		};
+		newUserPlaceId = UserPlaces.insert(newUserPlace);
+		// and update userPlace session with the new userPlace
+		Session.set('userPlaceId', newUserPlaceId);	
+	}
+};
+
+ifStationary = function(location, oldLocation, userPlace){
+	
+
+	var distance;
+	location.stationary = true;
+	if (location.location.coords.speed > 5)
+		location.stationary = false;
+	if (location.location.coords.speed > 1) {
+		if (location.location.coords.avgspeed > 0.1)
+			location.stationary = false;
+	} else {
+		if (oldLocation.stationary) {
+			if (!userPlace)
+				return;
+			distance = calculateDistance(location.location.coords.latitude, location.location.coords.longitude, userPlace.location.coords.latitude, userPlace.location.coords.longitude);
+			if (Session.get('debug')) 
+				console.log('if location.stationary 1. going with userplace ', location.stationary, ' distance ', distance, oldLocation.stationary);
+		} else {
+			distance = calculateDistance(location.location.coords.latitude, location.location.coords.longitude, oldLocation.location.coords.latitude, oldLocation.location.coords.longitude);	
+			if (Session.get('debug')) 
+				console.log('if location.stationary 2. going with oldLocation ', location.stationary, ' distance ', distance, oldLocation.stationary);
+		}
+		if (distance > 30)
+			location.stationary = false;
+	}	
+	if (Session.get('debug')) 
+		console.log('if location.stationary 3 ', location.stationary, ' distance ', distance, location.location.coords, userPlace.location.coords, ' speed ', location.location.coords.speed, ' avgspeed ',location.location.coords.avgspeed, userPlace, location);
+	return location.stationary;
 };
 
 findClaimed = function(userId, coords){
@@ -356,6 +424,20 @@ getGPlace = function(place_id){
 	if (!place)
 		return;
 	return place;
+};
+
+getGLoc = function(){
+	console.log('getGLoc function ', moment().format("MM/DD HH:mm:ss.SSS"));
+	if (Session.get('getGLoc')) 
+		return;
+	Session.set('getGLoc', moment().valueOf());
+	Meteor.setTimeout(function(){
+		Meteor.call('getGLoc', userId, params, initiator, function(err, results) {
+			if (results)
+			console.log('getGLoc 2 called getGLoc ', results);
+		});	
+	}, 20000);
+
 };
 
 updateEmptyPlaces = function(){

@@ -15,6 +15,8 @@ Template.coords.helpers({
 	geologs: function(){
 		return GeoLog.find({userId: Meteor.userId()}, {sort: {timestamp: -1}, 
 			transform: function(doc){	
+				if (doc.status)
+					doc.stationary = true;
 				if (doc.confirmed)
 					doc.place_id = doc.confirmed;
 				return doc;
@@ -32,6 +34,10 @@ Template.coords.helpers({
 		var place = Places.findOne({place_id: this.place_id});
 //		console.log('geoPlace ', this.place_id);
 		return place;
+	},
+	
+	userPlace: function(){
+		return UserPlaces.findOne(Session.get('userPlaceId'));
 	},
 	
 	geoMerchant: function() {

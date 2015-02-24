@@ -84,7 +84,7 @@
 					</div>
 				</div>
 				<div class="selectplace col-xs-8 col-sm-8 col-md-8" id="
-					{{#if status}}
+					{{#if stationary}}
 						{{_id}}
 					{{/if}}
 				">
@@ -92,15 +92,14 @@
 						<div style="white-space:initial; font-size:80%">
 							Travelling<br />
 							{{#if location.coords.speed}}speed {{location.coords.speed}} {{/if}}
-							{{status}} since {{started}} {{#if timespent}}  for {{timespent}} {{/if}}
 						</div>
 					{{else}}
 						<div>
 							{{#if name}} 
-								{{name}} 
+								<span id="userPlace">{{name}}</span>
 							{{else}}
 								{{#if geoMerchant.name}} 
-									gmm {{geoMerchant.name}} 
+									<span id="geoMerchant">{{geoMerchant.name}} </span>
 								{{else}} 
 									... updating
 								{{/if}}
@@ -108,7 +107,7 @@
 							{{/if}}
 
 						</div>
-						{{#if status}}
+						{{#if stationary}}
 							{{#if ifUser.services.foursquare}}
 								{{> venuesSelected}}
 							{{/if}}
@@ -118,7 +117,7 @@
 						</div>
 						{{#if ifDebug}} 
 							<div style="font-size:60%">
-								{{status}} {{#if status}} since {{started}} {{#if timespent}} for {{timespent}} {{/if}} {{/if}} 
+								{{stationary}} {{status}} {{#if stationary}} since {{started}} {{#if timespent}} for {{timespent}} {{/if}} {{/if}} 
 								<br />
 								finished: {{finished}}
 								<br/>
@@ -126,7 +125,7 @@
 							</div>
 						{{else}}
 							<div style="font-size:70%">
-								{{#if status}} since {{started}} {{/if}} 
+								{{#if stationary}} since {{started}} {{/if}} 
 							</div>						
 						{{/if}}
 					{{/if}}
@@ -141,17 +140,17 @@
 			</div>
 		</div>
 
-		{{#if status}}
+		{{#if stationary}}
 			{{> buttons}}
 		{{/if}}
 
 	{{/with}}
 </template>
 
-<template name="locationmove">
+<!-- <template name="locationmove">
 		<div class="col-xs-12 col-sm-6 col-md-8">
 			<div class="selectplace" style="width: 100%; height: auto" id="
-				{{#if currentlocation.status}}
+				{{#if currentlocation.stationary}}
 					{{userPlace._id}}
 				{{/if}}
 			">
@@ -160,7 +159,6 @@
 						<div style="white-space: initial; font-size:80%">
 							Travelling<br />
 							{{#if location.coords.speed}}speed {{location.coords.speed}} {{/if}}
-							{{status}} since {{started}} {{#if timespent}}  for {{timespent}} {{/if}}
 						</div>
 					{{else}}
 						<div>
@@ -170,8 +168,7 @@
 						</div>
 						<div style="font-size: smaller">
 							{{vicinity}} <br />
-							{{status}} since {{started}} {{timestamp}} {{#if timespent}}  for {{timespent}} {{/if}}
-<!-- 						<div>{{> venuesSelected}}</div> -->							
+							{{stationary}} since {{started}} {{timestamp}} {{#if timespent}}  for {{timespent}} {{/if}}				
 						</div>
 					{{/if}}
 					
@@ -184,12 +181,12 @@
 				</div>
 			</div>
 			<div>
-				{{#if status}}
+				{{#if stationary}}
 					{{> buttons}}
 				{{/if}}
 			</div>
 		</div>
-</template>
+</template> -->
 
 <template name="buttons">
 	{{#with buttonsPlace}}
@@ -283,8 +280,4 @@
 	{{> venuesSelected}}
 </template>
 
-<template name="showMapLoc">
-	<div class="map-container">
-		{{> googleMap name="locationMap" options=locationMapOptions}}
-	</div>
-</template>
+

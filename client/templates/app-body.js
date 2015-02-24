@@ -208,7 +208,7 @@ Template.appBody.events({
 		} else {
 			console.log('starting service');
 			Session.set('geoback', true);
-			Session.set('interval', 300000);
+			Session.set('interval', 1000000);
 			UpdateGeo();
 			PollingGeo();
 		}
