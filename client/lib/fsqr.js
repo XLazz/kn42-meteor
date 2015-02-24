@@ -327,11 +327,13 @@ Template.venuesSelected.events({
 		return;
 	},
 	'click .goFsqr': function(event, template) {
-		// we are checking in Fsqr
-		var userPlaceId = this.userPlaceId;
+		// we are checking in Fsqr	
+
 		var venueId = $(event.currentTarget).attr("id");
+		var userPlaceId = $(event.delegateTarget).attr("id");
+		console.log('clicked goFsqr 1 ',  this._id, this.name, event.currentTarget, this, event);
 		var venue = goFsqr(venueId, userPlaceId);
-		console.log('clicked goFsqr ',  this,	' submitted userPlaceId, venue ', userPlaceId, venue);
+		console.log('clicked goFsqr 2 ',  this,	' submitted userPlaceId, venue ', userPlaceId, venue);
 		return venue;
 	},
 });

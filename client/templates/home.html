@@ -83,11 +83,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="selectplace col-xs-8 col-sm-8 col-md-8" id="
-					{{#if stationary}}
-						{{_id}}
-					{{/if}}
-				">
+				<div class="selectplace col-xs-8 col-sm-8 col-md-8" id="{{#if stationary}}{{_id}}{{/if}}">
 					{{#if travel}}
 						<div style="white-space:initial; font-size:80%">
 							Travelling<br />
@@ -119,7 +115,7 @@
 							<div style="font-size:60%">
 								{{stationary}} {{status}} {{#if stationary}} since {{started}} {{#if timespent}} for {{timespent}} {{/if}} {{/if}} 
 								<br />
-								finished: {{finished}}
+								userPlace: {{_id}}
 								<br/>
 								place_id: {{place_id}}
 							</div>

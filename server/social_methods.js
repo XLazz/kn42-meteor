@@ -97,7 +97,7 @@ Meteor.methods({
 		VenuesCheckins.upsert({id:venue.response.checkin.id}, {$set:{userId: userId, checkinId: venue.response.checkin.id, createdAt: venue.response.checkin.createdAt, venueId: venue.response.checkin.venue.id, }});
 		VenuesFsqr.upsert({id:venue.response.checkin.venue.id}, venue.response.checkin.venue);
 		if (userPlaceId)
-			UserPlaces.upsert(userPlaceId, {$set:{foursquareChk: venue.response.checkin.id}});
+			UserPlaces.update(userPlaceId, {$set:{foursquareChk: venue.response.checkin.id}});
 		return venue;		
 	},
 	
