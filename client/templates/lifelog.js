@@ -151,6 +151,10 @@ Template.showlocations.helpers({
 						doc.confirmed = true;
 					if (doc.status == 'travel')
 						doc.travel = true;
+					if (doc.status == 'fitness')
+						doc.fitness = true;
+					if ((doc.status != 'travel') && (doc.status != 'fitness'))
+						doc.stationary = true;
 					if (!doc.timestampEnd) {
 						doc.timestampEnd = moment().valueOf();
 						doc.finished = 'in progress';
