@@ -131,31 +131,31 @@ Template.routes.helpers({
 	
 	track: function(){
 //		console.log(' track fitness fitnessTrack ', Session.get('fitnessTrack'));
-		if (!Session.get('fitnessTrack')){
-			var fitnessTrack = FitnessTracks.findOne({userId:Meteor.userId()},{sort:{created: -1}, limit: 5});
-			console.log(' track fitness last ', fitnessTrack);
-			Session.set('fitnessTrack', fitnessTrack);
-		} else {	
-			var activity = FitnessActivities.findOne({activityId: Session.get('fitnessTrack').activityId});
-			var track = Tracks.find({userId: Meteor.userId(), fitnessTrackId: Session.get('fitnessTrack')._id }, {
-				sort: {created: -1}, limit:5,
-				transform: function(doc){	
-					var time = doc.location.timestamp;
-					time = moment(time).format("h:mm:ss");
-					doc.time = time;
-					if (!doc.location.coords.speed)
-						doc.location.distance = 0;
-					console.log('checking calories', doc.calories, doc.location.distance, doc.location.speed, doc);
+/* 		if (!Session.get('fitnessTrackId')){
+			var fitnessTrackId = FitnessTracks.findOne({userId:Meteor.userId()},{sort:{created: -1}, limit: 1, fields:{_id:1}});
+			console.log(' track fitness last ', fitnessTrackId);
+			Session.set('fitnessTrackId', fitnessTrackId);
+		} */ 
+		if (!Session.get('fitnessTrackId'))
+			return;
+		
+		var track = Tracks.find({userId: Meteor.userId(), fitnessTrackId: Session.get('fitnessTrackId') }, {
+			sort: {created: -1}, limit:10,
+			transform: function(doc){	
+				doc.time = moment(doc.timestamp).format("hh:mm:ss");
+				if (!doc.location.coords.speed)
+					doc.location.distance = 0;
+				console.log('checking calories', doc.calories, doc.location.distance, doc.location.speed, doc);
 //					doc.location.distance = truncateDecimals(doc.location.distance, 3);
 //					doc.location.coords.speed = truncateDecimals(doc.location.coords.speed, 2);
-					return doc;
-				}
-			});
-			Session.set('lastTrack', track);
-			track.fitnessTrackId = Session.get('fitnessTrack')._id;
+				return doc;
+			}
+		});
+		Session.set('lastTrack', track);
+		track.fitnessTrackId = Session.get('fitnessTrackId');
 //			console.log(' track fitness ', track);
-			return track;
-		}
+		return track;
+		
 	},
 	userTracks: function(){
 		var userTracks = FitnessTracks.find(
@@ -221,14 +221,20 @@ Template.routes.events({
 		var created = moment(timestamp).format("YYYY-MM-DD HH:mm:ss.SSS");
 		var fitnessTrackId = FitnessTracks.insert({userId: userId, activityId: Session.get('fitActivity'), timestamp: timestamp, created: created});
 		var fitnessTrack = FitnessTracks.findOne(fitnessTrackId);
-		Session.set('fitnessTrack', fitnessTrack);
+		// and finalise userPlace since we are in fitness now
+		var userPlace = UserPlaces.findOne({userId: userId}, {sort:{timestamp: -1}});
+		if (userPlace)
+			if (!userPlace.timestampEnd)
+				UserPlaces.update(userPlace._id, {$set:{timestampEnd:timestamp}});
+
+		Session.set('fitnessTrackId', fitnessTrackId);
 		Session.set('fitness', true);
 		Session.set('findfit', false);
 		Session.set('geoback', true );
 		Session.set('interval', 10000);
 		UpdateGeo();
 		PollingGeo();
-		console.log(' click startfit ', fitnessTrack);
+		console.log(' click startfit ', fitnessTrackId);
 		// update userPlace with fitness session
 		return;
 	},
@@ -236,23 +242,35 @@ Template.routes.events({
 		if (!Meteor.userId()) {
 			return;
 		}
+		var userId = Meteor.userId();
 		if (Session.get('watchGPS')) {
 			Meteor.clearInterval(Session.get('watchGPS'));
 			Session.set('watchGPS', false);
 		}
-		Session.set('interval', 300000);
-		UpdateGeo();
-		PollingGeo();
-		var fitnessTrack = Session.get('fitnessTrack');
+		var fitnessTrackId = Session.get('fitnessTrackId');
 		var timestampEnd = moment().valueOf();
-		FitnessTracks.update(fitnessTrack._id,{$set:{timestampEnd: timestampEnd}});
+		FitnessTracks.update(fitnessTrackId,{$set:{timestampEnd: timestampEnd}});
+		var geoLoc = Tracks.findOne({fitnessTrackId: fitnessTrackId},{sort: {timestamp:1}});
 /* 		var geolog = GeoLog.findOne({fitnessTrackId: fitnessTrack._id});
 		GeoLog.update(geolog._id,{$set:{fitness: 'end'}}); */
+		console.log('stopfit ', fitnessTrackId, geoLoc);
+		var userPlaceId = UserPlaces.insert({
+			userId: userId,
+			location: geoLoc.location,
+			started:  moment(geoLoc.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS"),
+			timestamp:  geoLoc.timestamp,
+			timestampEnd: timestampEnd,
+			status: 'fitness',
+			fitnessId: fitnessTrackId		
+		});
+		
 		Session.set('fitness', false);
-		Session.set('fitnessTrack', false);
 		Session.set('fitActivity', false);
-		var userPlaceId = UserPlaces.findOne({fitnessId: fitnessTrack._id})._id;
-		UserPlaces.update(userPlaceId, { $set: {timestampEnd: timestampEnd}});
+		Session.set('interval', 1000000);
+		UpdateGeo();
+		PollingGeo();
+		
+		console.log('stopfit userPlaceId ', userPlaceId, 'fitnessTrackId', fitnessTrackId);
 		return;
 	},
 	"click .fitActivity": function (event, template) {
@@ -270,9 +288,9 @@ Template.routes.events({
 			return;
 		}
 		//		var fitActivity = template.find('.fitActivity').id;
-		var fitTrack = $(event.currentTarget).attr('id');
-		console.log('click .showMap ',  fitTrack, $(event.currentTarget));
-		Session.set('fitTrack', fitTrack);
+		var fitnessTrackId = $(event.currentTarget).attr('id');
+		console.log('click .showMap ',  fitnessTrackId, $(event.currentTarget));
+		Session.set('fitnessTrackId', fitnessTrackId);
 		Overlay.show('showMapFit');	
 		return;
 	},
@@ -291,9 +309,9 @@ Template.showMapFit.helpers({
 		return Session.get('debug');
 	},
 	track: function () {
-		console.log(' track ', Session.get('fitTrack'));
-		var fitTrack = Session.get('fitTrack');
-		var track = Tracks.find({fitnessTrackId:fitTrack},
+		console.log(' track fitnessTrackId ', Session.get('fitnessTrackId'));
+		var fitnessTrackId = Session.get('fitnessTrackId');
+		var track = Tracks.find({fitnessTrackId:fitnessTrackId},
 			{
 				sort: {created: -1},
 				transform: function(doc){	
@@ -306,8 +324,8 @@ Template.showMapFit.helpers({
 		return track;
 	},
 	fitnessTrack: function(){
-		var fitTrack = Session.get('fitTrack');
-		var track = FitnessTracks.findOne(fitTrack,{
+		var fitnessTrackId = Session.get('fitnessTrackId');
+		var track = FitnessTracks.findOne(fitnessTrackId,{
 			transform: function(doc){
 				// console.log('timespent 1 ', doc);
 				// console.log('timespent 2 ', doc.timestampEnd);
@@ -326,13 +344,13 @@ Template.showMapFit.helpers({
   fitnessMapOptions: function() {
     // Make sure the maps API has loaded
     if (GoogleMaps.loaded()) {
-			console.log('GoogleMaps not loaded');
-			GoogleMaps.initialize();
+			console.log('GoogleMaps loaded');
+//			GoogleMaps.initialize();
       // We can use the `ready` callback to interact with the map API once the map is ready.
       GoogleMaps.ready('fitnessMap', function(map) {
 				
         // Add a marker to the map once it's ready
-				var track = Tracks.find({fitnessTrackId:Session.get('fitTrack')},
+				var track = Tracks.find({fitnessTrackId:Session.get('fitnessTrackId')},
 					{
 						sort: {'created': 1},
 						transform: function(doc){	
@@ -343,7 +361,7 @@ Template.showMapFit.helpers({
 					}
 				);
 				if (Session.get('debug'))
-					console.log('GoogleMaps ready loading markers ', track);
+					console.log('GoogleMaps ready loading markers ', track.fetch(), this);
 				var mytrack = track.fetch();
 //				console.log ('track ', mytrack);
 //				console.log ('track ', mytrack[0].activityId);
@@ -361,11 +379,12 @@ Template.showMapFit.helpers({
 				});
 
       });
-			var fitTrack = Session.get('fitTrack');
-			var trackStart = FitnessTracks.findOne(fitTrack);			
+			var fitnessTrackId = Session.get('fitnessTrackId');
+			var fitnessTrack = FitnessTracks.findOne(fitnessTrackId);		
+			var trackStart = Tracks.findOne({fitnessTrackId:fitnessTrackId}, {sort: {timestamp: -1}});
       // Map initialization options
       return {
-        center: new google.maps.LatLng(trackStart.fitStart.coords.latitude, trackStart.fitStart.coords.longitude),
+        center: new google.maps.LatLng(trackStart.location.coords.latitude, trackStart.location.coords.longitude),
         zoom: 18
       };
     } else {

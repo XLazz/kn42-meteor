@@ -1,9 +1,13 @@
 calculateDistance = function(lat1, lon1, lat2, lon2) {
 	if (Session.get('debug')) 
 		console.log('calculateDistance function ', lat1, lon1, lat2, lon2);	
+	lat1 = parseFloat(lat1);
+	lat2 = parseFloat(lat2);
+	lon1 = parseFloat(lon1);
+	lon2 = parseFloat(lon2);
   var R = 6371000; // m
-  var dLat = (parseFloat(lat2) - parseFloat(lat1)).toRad();
-  var dLon = (parseFloat(lon2) - parseFloat(lon1)).toRad(); 
+  var dLat = (lat2 - lat1).toRad();
+  var dLon = (lon2 - lon1).toRad(); 
   var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
           Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
           Math.sin(dLon / 2) * Math.sin(dLon / 2); 
@@ -220,87 +224,38 @@ UpdateGeoDB = function(geolocation, uuid, device){
 	if (Session.get('debug'))
 		console.log('UpdateGeoDB 2 ',  'locationId ', Session.get('locationId'), ' location ', location, ' oldLocation ', oldLocation, ' geolocation ', geolocation );
 	
-	if (oldLocation.location.timestamp == location.location.timestamp) {
-		console.log('same location.timestamp, exiting');
-		return;
-	}
+
 		// if (Session.get('location').speed)
+
+	if (Session.get('debug')) 
+		console.log(oldLocation, location);
+
+	// adding logs for fitness session
+	if (Session.get('fitness')){
+		location.activityId = Session.get('fitActivity');
+		location.fitnessTrackId = Session.get('fitnessTrackId');
+		Tracks.insert(location);
+	}
+
+	// adding logs for driving session
+	if (Session.get('driving')){
+		console.log('driveTrackId ', Session.get('driveTrackId'));
+		location.driveTrackId = Session.get('driveTrackId');
+		Drives.insert(location);		
+	}	
 
 	location.location.distance = calculateDistance(oldLocation.location.coords.latitude, oldLocation.location.coords.longitude, location.location.coords.latitude, location.location.coords.longitude);
 	timediff = parseInt(location.location.timestamp) - parseInt(oldLocation.location.timestamp);
 	location.location.avgspeed = Math.round(location.location.distance / timediff * 100 ) / 100;
-	location.location.distance = Math.round(location.location.distance * 100 ) / 100;
-
-	if (Session.get('debug')) 
-		console.log(oldLocation, location);
+	location.location.distance = Math.round(location.location.distance * 100 ) / 100; //m
 	
-	if (Session.get('fitness')){
-		if (!Session.get('fitnessTrack')) {
-			var fitnessTrackId = FitnessTracks.insert({userId: userId, activityId: Session.get('fitActivity'), timestamp: location.timestamp, created: new Date()});
-			var fitnessTrack = FitnessTracks.findOne(fitnessTrackId);
-			Session.set('fitnessTrack', fitnessTrack);
-		}		
-		location.activityId = Session.get('fitActivity');
-		location.fitnessTrackId = Session.get('fitnessTrack')._id;
-		Tracks.insert(location);
-		
-		if (!Session.get('fitnessTrack').fitnessStart) {	
-			console.log('adding fitnessStart ');
-			var fitnessTrack = Session.get('fitnessTrack');
-			var fitnessStart = Tracks.findOne({fitnessTrackId:fitnessTrack._id},{sort: {created: -1}});
-			console.log('adding fitnessStart 1 ', fitnessTrack );
-			console.log('adding fitnessStart 2 ', fitnessTrack._id, fitnessStart.location );
-			FitnessTracks.update(fitnessTrack._id,{$set:{fitStart: fitnessStart.location}});
-			var fitnessTrack = FitnessTracks.findOne(fitnessTrack._id,{sort: {created: -1}});
-			Session.set('fitnessTrack', fitnessTrack);
-			if (!geoId)
-				geoId = {};
-			UserPlaces.insert(
-				{
-					userId: userId,
-					location: location.location,
-					started:  moment(location.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS"),
-					timestamp: location.timestamp,
-					geoId: oldLocation._id,
-					status: 'fitness',
-					fitnessId: Session.get('fitActivity')
-				}
-			);
-		}
-	}
-
-	if (Session.get('driving')){
-		console.log('driveTrack ', Session.get('driveTrack'));
-		if (!Session.get('driveTrack')) {
-			location.driveTrackId = DriveTracks.insert({userId: userId, activityId: Session.get('driveActivity'), timestamp: location.timestamp});
-			Session.set('driveTrack',DriveTracks.findOne(location.driveTrackId));
-				UserPlaces.insert(
-					{
-						userId: userId,
-						location: location.location,
-						started:  moment(location.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS"),
-						timestamp: location.timestamp,
-						geoId: oldLocation._id,
-						status: 'fitness',
-						fitnessId: Session.get('fitActivity')
-					}
-				);
-		}		
-		location.driveTrackId = Session.get('driveTrack')._id
-		Drives.insert(location);		
-		if (!Session.get('driveTrack').driveStart) {	
-			console.log('adding driveStart ');
-			var driveTrack = Session.get('driveTrack');
-			var driveStart = Drives.findOne({driveTrackId:driveTrack._id},{sort: {created: -1}});
-			console.log('adding driveStart 2 ', driveTrack._id, driveStart.location );
-			DriveTracks.update(driveTrack._id,{$set:{driveStart: driveStart.location}});
-			var driveTrack = DriveTracks.findOne(driveTrack._id,{sort: {created: -1}});
-			Session.set('driveTrack', driveTrack);
-		}
-	}	
-	
+	// Main geolog, only when not fitness or driving in place
 	if ((Session.get('fitness')) || (Session.get('driving')))
 		return;
+	if (oldLocation.location.timestamp == location.location.timestamp) {
+		console.log('same location.timestamp, exiting');
+		return;
+	}
 	
 	if (Session.get('debug')) 
 		console.log(' adding to geolog ', location);
@@ -449,18 +404,27 @@ getGLoc = function(){
 };
 
 updateEmptyPlaces = function(){
-	console.log('updateEmptyPlaces function 1 ', moment().format("MM/DD HH:mm:ss.SSS"));
-	if ((moment().valueOf() - Session.get('updatePlaces') < 50000)) 
+//	console.log('updateEmptyPlaces function 1 ', moment().format("MM/DD HH:mm:ss.SSS"));
+	var timelimit = 60000;
+	if (!Session.get('updatePlaces'))
+		Session.set('updatePlaces', 0);
+	if ((moment().valueOf() - Session.get('updatePlaces') < timelimit + 1000 )) {
+		if (Session.get('debug'))
+			console.log('recent call to updateEmptyPlaces ', moment().valueOf() - Session.get('updatePlaces') - timelimit, ' was ', moment(Session.get('updatePlaces')).format("MM/DD HH:mm:ss.SSS"), ' now ', moment().format("MM/DD HH:mm:ss.SSS"));
 		return;
+	}
 	var initiator = 'updateEmptyPlaces function';
 	Session.set('updatePlaces', moment().valueOf());
-	Meteor.call('updatePlaces', Meteor.userId(), initiator, function(err, results) {
-		console.log('updatePlaces call  ', Meteor.userId(), this.location, this, results);
-		Meteor.setTimeout(function(){
-			Session.set('updatePlaces', false);
-		}, 60000);	
-		return results;
-	});
+	console.log('updateEmptyPlaces function 1 ', moment().format("MM/DD HH:mm:ss.SSS"));
+	Meteor.setTimeout(function(){
+		Meteor.call('updatePlaces', Meteor.userId(), initiator, Session.get('debug'), function(err, results) {
+			console.log('updatePlaces call  ', Meteor.userId(), this.location, this, results);
+			return results;
+			Session.set('updatePlaces', 0);
+		});
+	}, 1000);	
+		
+//	});
 }
 
 UpdateProfile = function(userId){

@@ -79,6 +79,7 @@ Template.driving.helpers({
 			console.log ('checking distance 2 for each ', location, item.location.distance, distance);
 		});
 		DriveTracks.update(driveTrackId,{$set:{distance: distance}});
+		distance = Math.round(distance / 1000 * 100)/100; // make it in km and round to 2 digs	
 		return distance;
 	}
 });
@@ -93,13 +94,12 @@ Template.driving.events({
 			Session.set('watchGPS', false);
 		}
 		var userId = Meteor.userId();
-		DriveTracks.insert({userId: userId, timestamp: moment().valueOf(), created: new Date()});
-		var driveTrack = DriveTracks.findOne({userId:Meteor.userId()},{sort: {created: -1}});
-		Session.set('driveTrack', driveTrack);
-		console.log(' click startdriving driveTrack ', driveTrack);
+		var driveTrackId = DriveTracks.insert({userId: userId, timestamp: moment().valueOf(), created: new Date()});
+		Session.set('driveTrackId', driveTrackId);
+		console.log(' click startdriving driveTrack ', driveTrackId);
 		Session.set('driving', true);
 		Session.set('geoback', true );
-		Session.set('interval', 30000);
+		Session.set('interval', 1000000);
 		PollingGeo();
 //		PollingGeo();		
 		return;
@@ -112,15 +112,15 @@ Template.driving.events({
 			Meteor.clearInterval(Session.get('watchGPS'));
 			Session.set('watchGPS', false);
 		}
-		var driveTrack = Session.get('driveTrack');
+		var driveTrackId = Session.get('driveTrackId');
 		var timestampEnd = moment().valueOf();
-		var driveEnd = Drives.findOne({driveTrackId:driveTrack._id},{sort: {timestamp: -1}});
-		DriveTracks.update(driveTrack._id,{$set:{timestampEnd: timestampEnd, driveEnd: driveEnd.location}});
+		var driveEnd = Drives.findOne({driveTrackId:driveTrackId},{sort: {timestamp: -1}});
+		DriveTracks.update(driveTrackId,{$set:{timestampEnd: timestampEnd, driveEnd: driveEnd.location}});
 		Session.set('driving', false);
-		Session.set('driveTrack', false);
+		Session.set('driveTrackId', false);
 		Session.set('geoback', false );
 		PollingGeo();
-		Session.set('interval', 300000);
+		Session.set('interval', 1000000);
 		Session.set('geoback', true);
 		return;
 	},

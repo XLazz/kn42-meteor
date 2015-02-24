@@ -227,9 +227,10 @@ CheckInFsqr = function(venueId){
 	console.log('calling CheckInFsqr final. never should come here ', response);
 }
 
-GetGoogleLoc = function(userId, coords, radius, name){
+GetGoogleLoc = function(userId, coords, radius, name, ifDebug){
 	var response;
-	console.log('GetGoogleLoc userId ', userId, 'radius ', radius, 'name ', name);
+	if (ifDebug)
+		console.log('GetGoogleLoc userId ', userId, 'radius ', radius, 'name ', name);
 /* 	if ((!userLocation.location) && (userLocation.timestamp)) {
 		var userLocation = GeoLog.findOne({userId: userId, timestamp: userLocation.timestamp});
 		userLocation = userLocation.location;
@@ -252,8 +253,10 @@ GetGoogleLoc = function(userId, coords, radius, name){
 										}
 									}); */
 		response =  JSON.parse(response1.content);
-//		console.log('response calling google length ', response.results.length);
+		if (ifDebug)
+			console.log('response calling google length ', response.results.length, response, url);
 //		Meteor._sleepForMs(1000);
+
 		return response;
   } catch (e) {
     // Got a network error, time-out or HTTP error in the 400 or 500 range.

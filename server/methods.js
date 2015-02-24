@@ -1,3 +1,4 @@
+var ifUpdating;
 Meteor.methods({
 
 	updateProfile: function(userId){
@@ -17,33 +18,57 @@ Meteor.methods({
 		}
 	},
 
-	updatePlaces: function(userId){
+	updatePlaces: function(userId, ifDebug){
 			
 		// 1st check with no place_id
-		var userPlaces = UserPlaces.find({userId: userId, place_id: {$exists: false}}, {limit: 200, sort:{timestamp: -1}, fields: {_id: 0}});
-		if (!userPlaces) 
+		if (ifUpdating)
 			return;
-		console.log();
-		console.log('userPlaces with empty place_id. userId: ', userId, ' these many ',  userPlaces.count());
+		ifUpdating = true;
+		var userPlaces = UserPlaces.find(
+			{userId: userId}, 
+			{
+				place_id: {$exists: false}, 
+				limit: 10, 
+				sort:{timestamp: -1},
+			}	
+		);
+		if (!userPlaces) {
+			userPlaces = 'all filled up';
+			return userPlaces;
+		}
+		if (ifDebug)
+			console.log('userPlaces with empty place_id. userId: ', userId, ' these many ',  userPlaces.count());
 		userPlaces = userPlaces.fetch();
 		var radius = 50;
 		var name = '';
+		var place;
 //		response = GetGoogleLoc(userId,  userPlaces.fetch()[0].location.coords, radius, name);
 //		console.log('userPlaces  ', response);
+		var i = 0;
 		userPlaces.forEach(function (item, index, array) {
-			var response = GetGoogleLoc(userId, item.location.coords, radius, name);
 			
-			if (response.results)
+			var response = GetGoogleLoc(userId, item.location.coords, radius, name, ifDebug);
+			if  (ifDebug)
+				console.log('updatePlaces calling GetGoogleLoc for item ', item._id, ' #: ', i++, item, response);
+			
+			if ((response.results) && (item._id))
 				if (response.results[1]) {
-					console.log('userPlaces  ', item._id, item.started, response.results[1].name, response.results[1].place_id);
-					UserPlaces.upsert(item._id, {$set: {place_id: response.results[1].place_id}});
-					Places.upsert({place_id: response.results[1].place_id},{$set: response.results[1], updated: moment().valueOf()});
+					if (ifDebug)
+						console.log('userPlaces 1 item._id ', item._id, item.started, ' response.results[1].name ', response.results[1].name, 'response.results[1].place_id ', response.results[1].place_id);
+					UserPlaces.update(item._id, {$set: {place_id: response.results[1].place_id}});
+					console.log('updating places ');
+					place = response.results[1];
 				} else {
-					console.log('userPlaces  ', item._id, item.started, response.results[0].name, response.results[0].place_id);
-					UserPlaces.upsert(item._id, {$set: {place_id: response.results[0].place_id}});
-					Places.upsert({place_id: response.results[0].place_id},{$set: response.results[0], updated: moment().valueOf()});
+					if (ifDebug)
+						console.log('userPlaces 2 ', item._id, item.started, response.results[0].name, response.results[0].place_id);
+					UserPlaces.update(item._id, {$set: {place_id: response.results[0].place_id}});
+					place = response.results[0];
 				}
+				place.updated = moment().valueOf();
+				if (!Places.findOne({place_id: place.place_id}))
+					Places.insert(place);
 		});
+		ifUpdating = false;
 			//		Meteor.users.upsert(userId, {$set: user_details});
 		
 	},
@@ -131,20 +156,21 @@ Meteor.methods({
 						}
 					);
 				} else {
-					UserPlaces.upsert(
-						{user_history_location_id: item.user_history_location_id},
-						{
-							userId: userId,
-							user_history_location_id: item.user_history_location_id,
-							location_id: item.location_id,
-							location: location,
-							place_id: item.place_id,
-							started: item.started,
-							timestamp: timestamp,
-							timestampEnd: timestampEnd,
-							status: status
-						}
-					);				
+					if (item.user_history_location_id)
+						UserPlaces.upsert(
+							{user_history_location_id: item.user_history_location_id},
+							{
+								userId: userId,
+								user_history_location_id: item.user_history_location_id,
+								location_id: item.location_id,
+								location: location,
+								place_id: item.place_id,
+								started: item.started,
+								timestamp: timestamp,
+								timestampEnd: timestampEnd,
+								status: status
+							}
+						);				
 				}
 			}
 		});
