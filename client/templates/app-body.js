@@ -125,6 +125,7 @@ Template.appBody.helpers({
     } else {
       return true;
     } */
+
 		return Meteor.status().connected;
   },
   
@@ -157,6 +158,10 @@ Template.appBody.events({
     Session.set(MENU_KEY, ! Session.get(MENU_KEY));
   },
 
+	'click .connection': function(event) {
+    Meteor.reconnect();
+  },
+	
   'click .js-back': function(event) {
     nextInitiator = 'back';
     

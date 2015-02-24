@@ -38,21 +38,14 @@ Template.about.events({
 
 Template.profileDetails.helpers({
 	user_details: function(){
-		var user_email;
 		var userId = Meteor.userId();
-		var api_key;
-		var create_profile;
 //		var user_emails = Meteor.user().emails;
-		if (Meteor.userId()) {
-			var user_details = Meteor.user();
-//			console.log('Meteor.user() ', Meteor.user());
-		}
-//		console.log('checking profile ', user_details);
+		if (!userId)
+			return;
+		var user_details = Meteor.user();
     if (!user_details.profile.picture) {
         Meteor.call('updateProfile', userId) ;
     }
-//		console.log('checking profile ', user_details.profile);
-		
 		return user_details;
 	},
 	
