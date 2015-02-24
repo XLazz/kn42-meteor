@@ -20,7 +20,7 @@ Meteor.methods({
 	updatePlaces: function(userId){
 			
 		// 1st check with no place_id
-		var userPlaces = UserPlaces.find({userId: userId, place_id: {$exists: false}}, {limit: 200, sort:{timestamp: -1}});
+		var userPlaces = UserPlaces.find({userId: userId, place_id: {$exists: false}}, {limit: 200, sort:{timestamp: -1}, fields: {_id: 0}});
 		if (!userPlaces) 
 			return;
 		console.log();
@@ -46,6 +46,33 @@ Meteor.methods({
 		});
 			//		Meteor.users.upsert(userId, {$set: user_details});
 		
+	},
+
+	'updatePlace': function(userId, location, experience){
+		// v008
+		if ((!userId) || (!location))  {
+			console.error('updatePlace and no location');
+			return;
+		}
+		if ((!location.location_id) && (!location.userplaceId)){
+			console.error('updatePlace and no location_id ', location);
+			return;
+		}		
+		check(arguments, [Match.Any]);
+		var place = UserPlaces.findOne(location.userplaceId);
+		var api_key = GetApi(userId);
+		//		var url = 'http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&had=' + had + '&stars=' + stars + '&comment=' + comment + '&location_id='+ location.location_id + '&google_place='+ place_id;
+		if (place) {
+			var url = 'http://kn42.xlazz.com/server/request.php?api_key=' +api_key +'&location=update&location_id='+ location.location_id + '&google_place=' +location.place_id + '&userplaceId=' + location.userplaceId + '&status=' +location.status +'&timestamp=' +place.timestamp+ '&timestampEnd=' +place.timestampEnd;
+		} else {
+			var url = 'http://kn42.xlazz.com/server/request.php?api_key=' +api_key +'&location=update&location_id='+ location.location_id + '&google_place=' +location.place_id + '&userplaceId=' + location.userplaceId + '&status=' +location.status ;
+		}
+		console.log('submitPlace  1 ', api_key, url);
+		var myJSON = Meteor.http.call('GET',url);
+		console.log('submitPlace ', myJSON.content);
+		var response = JSON.parse(myJSON.content);
+		console.log('updatePlace answer 2 ', api_key, url, response );
+		return response;
 	},
 	
 	'getLocations':function(userId, list){
@@ -319,32 +346,6 @@ Meteor.methods({
 		return response;
 	},
 
-	'updatePlace': function(userId, location, experience){
-	// v008
-		if ((!userId) || (!location))  {
-			console.error('updatePlace and no location');
-			return;
-		}
-		if ((!location.location_id) && (!location.userplaceId)){
-			console.error('updatePlace and no location_id ', location);
-			return;
-		}		
-		check(arguments, [Match.Any]);
-		var place = UserPlaces.findOne(location.userplaceId);
-		var api_key = GetApi(userId);
-//		var url = 'http://kn42.xlazz.com/server/request.php?api_key=' + api_key + '&had=' + had + '&stars=' + stars + '&comment=' + comment + '&location_id='+ location.location_id + '&google_place='+ place_id;
-		if (place) {
-			var url = 'http://kn42.xlazz.com/server/request.php?api_key=' +api_key +'&location=update&location_id='+ location.location_id + '&google_place=' +location.place_id + '&userplaceId=' + location.userplaceId + '&status=' +location.status +'&timestamp=' +place.timestamp+ '&timestampEnd=' +place.timestampEnd;
-		} else {
-			var url = 'http://kn42.xlazz.com/server/request.php?api_key=' +api_key +'&location=update&location_id='+ location.location_id + '&google_place=' +location.place_id + '&userplaceId=' + location.userplaceId + '&status=' +location.status ;
-		}
-		console.log('submitPlace  1 ', api_key, url);
-		var myJSON = Meteor.http.call('GET',url);
-		console.log('submitPlace ', myJSON.content);
-		var response = JSON.parse(myJSON.content);
-		console.log('updatePlace answer 2 ', api_key, url, response );
-		return response;
-	},
 	sendEmail: function(doc) {
 		// Important server-side check for security and data integrity
 		check(doc, Schemas.contact);

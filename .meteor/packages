@@ -71,3 +71,4 @@ standard-app-packages
 meteorhacks:async
 dburles:google-maps
 servicelocale:googlemaps-api
+meteorhacks:kadira
