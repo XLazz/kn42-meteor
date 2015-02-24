@@ -199,19 +199,27 @@ UpdateGeoDB = function(geolocation, uuid, device){
 	if (Session.get('debug'))
 		console.log('UpdateGeoDB ',  'watchGPS', Session.get('watchGPS'), location, 'fitness', Session.get('fitActivity'), Session.get('fitness'), Session.get('fitstart'), Session.get('fitstop'), Session.get('fitnessTrack'), 'driving', Session.get('driving'), Session.get('driveTrack') );
 
-	if (!Session.get('locationId')) {
+	oldLocation = GeoLog.findOne(Session.get('locationId'));
+	if (!oldLocation) {
 		oldLocation = GeoLog.findOne({userId: userId},{timestamp: -1});
 		if (!oldLocation) {
 			var geoId = GeoLog.insert(location);		
 			oldLocation = GeoLog.findOne(geoId);
 			Session.set('locationId', oldLocation._id);	
+			if (Session.get('debug'))
+				console.log('UpdateGeoDB 1.1 ',  ' oldLocation ', oldLocation );
 			return;
 		} else {
+			if (Session.get('debug'))
+				console.log('UpdateGeoDB 1.2 ',  ' oldLocation ', oldLocation );
 			Session.set('locationId', oldLocation._id);		
 		}
-	}
+	} 
 	
-	oldLocation = GeoLog.findOne(Session.get('locationId'));
+
+	if (Session.get('debug'))
+		console.log('UpdateGeoDB 2 ',  'locationId ', Session.get('locationId'), ' location ', location, ' oldLocation ', oldLocation, ' geolocation ', geolocation );
+	
 	if (oldLocation.location.timestamp == location.location.timestamp) {
 		console.log('same location.timestamp, exiting');
 		return;
@@ -313,7 +321,7 @@ UpdateGeoDB = function(geolocation, uuid, device){
 	if (!userPlace) {
 		Session.set('userPlaceId', UserPlaces.findOne({userId:userId}, {sort: {timestamp: -1}, fields:{_id:1}}));	
 		if (!Session.get('userPlaceId')) {
-			addPlace(OldLocation._id, OldLocation.location);
+			addPlace(oldLocation._id, oldLocation.location);
 			Session.set('userPlaceId', UserPlaces.findOne({userId:userId}, {sort: {timestamp: -1}, fields:{_id:1}}));
 		}	
 	}
