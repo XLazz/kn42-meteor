@@ -261,7 +261,8 @@ Template.routes.events({
 			timestamp:  geoLoc.timestamp,
 			timestampEnd: timestampEnd,
 			status: 'fitness',
-			fitnessId: fitnessTrackId		
+			fitnessId: fitnessTrackId,
+			origin: 'stopfit'
 		});
 		
 		Session.set('fitness', false);

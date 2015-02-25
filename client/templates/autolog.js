@@ -132,7 +132,8 @@ Template.driving.events({
 			timestamp:  geoLoc.timestamp,
 			timestampEnd: timestampEnd,
 			status: 'driving',
-			fitnessId: driveTrackId		
+			fitnessId: driveTrackId,
+			origin: 'stopdriving'
 		});
 		
 		Session.set('driving', false);
@@ -212,20 +213,31 @@ Template.showMapDrv.helpers({
 //				console.log ('track ', mytrack);
 //				console.log ('track ', mytrack[0].activityId);
 				var oldLocation;
+				var lineCoordinates = [];
 				track.forEach(function (item, index, array) {
-					var marker = new google.maps.Marker({
+/* 					var marker = new google.maps.Marker({
 						position: new google.maps.LatLng(item.location.coords.latitude,item.location.coords.longitude),
 						map: map.instance,
 						title: 'Speed: ' + item.location.coords.speed 
-					});	
+					});	 */
+					lineCoordinates.push (new google.maps.LatLng(item.location.coords.latitude, item.location.coords.longitude));
 					if (Session.get('debug'))
-						console.log ('adding marker ', marker);
+						console.log ('adding marker ', lineCoordinates);
+					var line = new google.maps.Polyline({
+						path: lineCoordinates,
+						geodesic: true,
+						strokeColor: '#FF0000',
+						strokeOpacity: 1.0,
+						strokeWeight: 2,
+						map: map.instance
+					});
 				});
+
+
 				
       });
-			var driveTrackId = Session.get('driveTrackId');
-			var driveTrack = FitnessTracks.findOne(driveTrackId);		
-			var driveStart = Drives.findOne({driveTrackId:driveTrackId}, {sort: {timestamp: -1}});
+//			var driveTrack = FitnessTracks.findOne(driveTrackId);		
+			var driveStart = Drives.findOne({driveTrackId:Session.get('driveTrackId')}, {sort: {timestamp: -1}});
       // Map initialization options
       return {
         center: new google.maps.LatLng(driveStart.location.coords.latitude, driveStart.location.coords.longitude),

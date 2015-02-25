@@ -146,11 +146,13 @@ Template.showlocations.helpers({
 				transform: function(doc){		
 					if (doc.status == 'confirmed')
 						doc.confirmed = true;
-					if (doc.status == 'travel')
+					if ((doc.status == 'travel')||(doc.status == 'driving')) {
 						doc.travel = true;
+//						doc.confirmed = false;
+					}
 					if (doc.status == 'fitness')
 						doc.fitness = true;
-					if ((doc.status != 'travel') && (doc.status != 'fitness'))
+					if ((doc.status != 'travel') && (doc.status != 'fitness') && (doc.status != 'driving'))
 						doc.stationary = true;
 					if (!doc.timestampEnd) {
 						doc.timestampEnd = moment().valueOf();
@@ -341,6 +343,17 @@ Template.showlocations.events({
 		console.log('click .showMap ',  fitnessTrackId, $(event.currentTarget));
 		Session.set('fitnessTrackId', fitnessTrackId);
 		Overlay.show('showMapFit');	
+		return;
+	},
+	'click .showMapDrv': function (event, template) {
+		if (!Meteor.userId()) {
+			return;
+		}
+		//		var fitActivity = template.find('.fitActivity').id;
+		var driveTrackId = event.currentTarget.id;
+		console.log('click .showMap ',  driveTrackId, $(event.currentTarget));
+		Session.set('driveTrackId', driveTrackId);
+		Overlay.show('showMapDrv');	
 		return;
 	},
 	'click .showMapPlace': function (event, template) {

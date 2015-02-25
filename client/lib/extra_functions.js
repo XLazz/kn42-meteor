@@ -305,7 +305,8 @@ UpdateGeoDB = function(geolocation, uuid, device){
 			location: location.location,
 			started:  moment(location.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS"),
 			timestamp: location.timestamp,
-			geoId: location._id	
+			geoId: location._id,
+			origin: 'UpdateGeoDB'
 		};
 		newUserPlaceId = UserPlaces.insert(newUserPlace);
 		// and update userPlace session with the new userPlace
