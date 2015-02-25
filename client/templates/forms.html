@@ -2,6 +2,13 @@
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-xs-12 col-sm-12 col-md-12">
+				<div style="height: 240px">
+					{{> showMapClaim}}
+				</div>
+			</div>
+		</div>			
+		<div class="row bottom">
+			<div class="col-xs-12 col-sm-12 col-md-12">
 				{{#autoForm id="claimPlaceForm" type="insert" collection="ClaimedPlaces"}}
 					<div class="form-group">
 						{{> afFieldInput name="name" placeholder="Name your place"}}

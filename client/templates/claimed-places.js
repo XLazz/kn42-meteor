@@ -63,28 +63,38 @@ Template.showMapClaim.helpers({
 		return Session.get('debug');
 	},
   claimedMapOptions: function() {
+		var location;
     // Make sure the maps API has loaded
-		var claimedId = Session.get('claimedId');
-		var claimed = ClaimedPlaces.findOne(claimedId);
+		if (Session.get('claimedId')) {
+			location = ClaimedPlaces.findOne(Session.get('claimedId'));			
+		} 
+		if (location) {
+			var name = location.name;
+		} else {
+			var place = UserPlaces.findOne(Session.get('userPlaceId'));
+			location = place.location;
+			var name = place.name;
+		}
+		
 		GoogleMaps.load();
     if (GoogleMaps.loaded()) {
 			console.log('GoogleMaps loaded');
       // We can use the `ready` callback to interact with the map API once the map is ready.
       GoogleMaps.ready('claimedMap', function(map) {
-				console.log('GoogleMaps ready loading markers ', claimed);
+				console.log('GoogleMaps ready loading markers ', location);
         // Add a marker to the map once it's ready
 
 				var marker = new google.maps.Marker({
-					position: new google.maps.LatLng(claimed.coords.latitude,claimed.coords.longitude),
+					position: new google.maps.LatLng(location.coords.latitude,location.coords.longitude),
 					map: map.instance,
-/* 					title: 'Name: ' + claimed.name  */
+					title: 'Name: ' + name 
 				});	
 				console.log ('adding marker ', marker);
 
       });
       // Map initialization options
       return {
-        center: new google.maps.LatLng(claimed.coords.latitude, claimed.coords.longitude),
+        center: new google.maps.LatLng(location.coords.latitude, location.coords.longitude),
         zoom: 16
       };
     } else {

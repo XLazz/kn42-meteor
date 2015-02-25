@@ -674,6 +674,7 @@ Template.claimIt.events({
 				});
 			}
 		});
+		Session.set('claimedId', false);
 		Overlay.show('claimPlace');	
 	},	
 	"click .editClaim": function (event, template) {

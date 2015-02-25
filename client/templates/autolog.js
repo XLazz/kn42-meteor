@@ -20,8 +20,8 @@ Template.driving.helpers({
 	},
 	
 	drive: function(){
-		if (!Session.get('fitnessTrackId'))
-		return;
+		if (!Session.get('driveTrackId'))
+			return;
 		
 		var track = Drives.find({userId: Meteor.userId(), driveTrackId: Session.get('driveTrackId') }, {
 			sort: {created: -1}, limit:10,
