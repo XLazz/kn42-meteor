@@ -101,11 +101,11 @@ Template.connectAccounts.helpers({
 			console.log('checkinsFsqr 1 ', (moment().valueOf() - Session.get('FsqrCall')), checkinsFsqr.count() );
 			if (!Session.get('FsqrCall'))
 				Session.set('FsqrCall', 0);
-			if (moment().valueOf() - Session.get('FsqrCall') > 3000) { 
+			if (moment().valueOf() - Session.get('FsqrCall') > 60000) { 
 				Session.set('FsqrCall', moment().valueOf());
 				Meteor.call('checkinsFsqr', Meteor.userId(), function(err, results){
 					var timestamp = moment().valueOf();
-					Session.set('FsqrCall', timestamp);
+					Session.set('FsqrCall', 0);
 					return;
 				});
 			}

@@ -153,16 +153,9 @@ Meteor.methods({
 							place.location = {coords:{latitude: item.venue.location.lat, longitude: item.venue.location.lng}};
 							place.started = moment(place.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS");
 							place.status = 'confirmed';	
-							var name = item.venue.name.split(" ");
-							if (name[0] == 'The') {
-								name = name[1];
-							} else {
-								name = name[0];
-							}
-							name = '';
+
 							console.log('checkins Fsqr http call 4 adding item to UserPlaces ', i, item.id, item.venue.name, place.timestamp, place.started  );
 							var userPlaceId = UserPlaces.insert(place);
-//							var response = GetGoogleLoc(userId, place.location.coords, 100,  name);
 							if (response) {
 								if (response.results.length) {				
 									place.geo_place_id = response.results[0].place_id;

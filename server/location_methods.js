@@ -53,7 +53,7 @@ Meteor.methods({
 				}
 			}
 		}
-		ifStationary (userId, params.geoId);
+//		ifStationary (userId, params.geoId);
 		return response;
 	},
 	

@@ -348,7 +348,8 @@ findClaimed = function(userId, coords){
 
 //		lat2 = lat2.toString()
 	var claimed = ClaimedPlaces.findOne({'coords.latitude': { $gt: latdown, $lt: latup }, 'coords.longitude': { $gt: lngdown, $lt: lngup }});
-//	console.log('check claimed ', latup, latdown, lngup, lngdown, claimed);
+	if (Session.get('debug'))
+		console.log('check claimed ', latup, latdown, lngup, lngdown, claimed);
 	return claimed;
 }
 
@@ -405,10 +406,10 @@ getGLoc = function(){
 
 updateEmptyPlaces = function(){
 //	console.log('updateEmptyPlaces function 1 ', moment().format("MM/DD HH:mm:ss.SSS"));
-	var timelimit = 60000;
+	var timelimit = 3000;
 	if (!Session.get('updatePlaces'))
 		Session.set('updatePlaces', 0);
-	if ((moment().valueOf() - Session.get('updatePlaces') < timelimit + 1000 )) {
+	if ((moment().valueOf() - Session.get('updatePlaces') > 60000 )) {
 		if (Session.get('debug'))
 			console.log('recent call to updateEmptyPlaces ', moment().valueOf() - Session.get('updatePlaces') - timelimit, ' was ', moment(Session.get('updatePlaces')).format("MM/DD HH:mm:ss.SSS"), ' now ', moment().format("MM/DD HH:mm:ss.SSS"));
 		return;
@@ -418,13 +419,36 @@ updateEmptyPlaces = function(){
 	console.log('updateEmptyPlaces function 1 ', moment().format("MM/DD HH:mm:ss.SSS"));
 	Meteor.setTimeout(function(){
 		Meteor.call('updatePlaces', Meteor.userId(), initiator, Session.get('debug'), function(err, results) {
-			console.log('updatePlaces call  ', Meteor.userId(), this.location, this, results);
+			console.log('updatePlaces call  ', Meteor.userId(), results);
 			return results;
 			Session.set('updatePlaces', 0);
 		});
-	}, 1000);	
+	}, timelimit);	
 		
 //	});
+}
+
+updateEmptyNames = function(){
+//	console.log('updateEmptyPlaces function 1 ', moment().format("MM/DD HH:mm:ss.SSS"));
+	var timelimit = 3000;
+	if (!Session.get('updateNames'))
+		Session.set('updateNames', 0);
+	if ((moment().valueOf() - Session.get('updateNames') > 60000 )) {
+		if (Session.get('debug'))
+			console.log('recent call to updateNames ', moment().valueOf() - Session.get('updateNames') - timelimit, ' was ', moment(Session.get('updateNames')).format("MM/DD HH:mm:ss.SSS"), ' now ', moment().format("MM/DD HH:mm:ss.SSS"));
+		return;
+	}
+	var initiator = 'updateNames function';
+	Session.set('updateNames', moment().valueOf());
+	console.log('updateNames function 1 ', moment().format("MM/DD HH:mm:ss.SSS"));
+	Meteor.setTimeout(function(){
+		Meteor.call('updatePlaceNames', Meteor.userId(), initiator, Session.get('debug'), function(err, results) {
+			console.log('updatePlaceNames call  ', Meteor.userId(), results);
+			return results;
+			Session.set('updateNames', 0);
+		});
+	}, timelimit);	
+
 }
 
 UpdateProfile = function(userId){

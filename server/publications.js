@@ -122,12 +122,16 @@ Meteor.publish('downloadPlaces', function(userId, limit) {
 				console.log('got empty item on downloadPlaces ');
 //				return;
 			} else {
-				console.log('inserting item for user 1 ', item.user_history_location_id, item.timestamp, item.timestampEnd, item.started, item.finished);
+				
 				if (!item.timestamp || item.timestamp == 0) 
 					item.timestamp = moment(item.started).valueOf();
 				if (!item.timestampEnd || item.timestampEnd == 0)
-					if (item.finished)
+					if (item.finished) {
 						item.timestampEnd = moment(item.finished).valueOf();
+					} else {
+						item.timestampEnd = item.timestamp + 60;
+					}
+						
 				if (item.status == 'confirmed')
 						item.confirmed = true;
 				if (item.status == 'travel')
@@ -156,21 +160,15 @@ Meteor.publish('downloadPlaces', function(userId, limit) {
 					timestampEnd: parseInt(item.timestampEnd),
 					status: item.status
 				};
-				console.log('inserting item for user ', userId, _id, item.user_history_location_id);
-				if (item.timestampEnd)
-					UserPlaces.upsert(_id, doc);
-				if (item.place_id) {
+				console.log('inserting item for user 1 userId ', userId, item.user_history_location_id, item.place_id, item.timestamp, item.timestampEnd );
+				//console.log('inserting item for user ', userId, _id, item.user_history_location_id);
+				UserPlaces.upsert(_id, doc);
+/* 				if (item.place_id) {
 					Meteor.call('getGPlace', item.place_id, function(err, results){
 						console.log('getGPlace in publications ', item.place_id);
 						return;
 					});			
-				} else {
-/* 					var radius = 50;
-					var name = '';
-					//		response = GetGoogleLoc(userId,  userPlaces.fetch()[0].location.coords, radius, name);
-					//		console.log('userPlaces  ', response);
-					var response = GetGoogleLoc(userId, item.location.coords, radius, name);	 */
-				}
+				}  */
 			}
       
     });

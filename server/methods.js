@@ -38,14 +38,9 @@ Meteor.methods({
 		if (ifUpdating)
 			return;
 		ifUpdating = true;
-		var userPlaces = UserPlaces.find(
-			{userId: userId}, 
-			{
-				place_id: {$exists: false}, 
-				limit: 10, 
-				sort:{timestamp: -1},
-			}	
-		);
+		console.log('empty places', UserPlaces.find({place_id: {$exists: false}}).count(), 'filled', UserPlaces.find({place_id: {$exists: true}}).count());
+		
+		var userPlaces = UserPlaces.find({userId: userId, place_id: {$exists: false}}, {limit: 50, sort:{timestamp: -1}	}	);
 		if (!userPlaces) {
 			userPlaces = 'all filled up';
 			return userPlaces;
@@ -54,39 +49,121 @@ Meteor.methods({
 			console.log('userPlaces with empty place_id. userId: ', userId, ' these many ',  userPlaces.count());
 		userPlaces = userPlaces.fetch();
 		var radius = 50;
-		var name = '';
-		var place;
 //		response = GetGoogleLoc(userId,  userPlaces.fetch()[0].location.coords, radius, name);
 //		console.log('userPlaces  ', response);
 		var i = 0;
+		var name = '';
+		var place;
 		userPlaces.forEach(function (item, index, array) {
-			
+			// console.log('');
+			// if  (ifDebug)
+				// console.log('updatePlaces calling GetGoogleLoc 1 item#', i++, userId, item.location.coords, radius, ifDebug);
 			var response = GetGoogleLoc(userId, item.location.coords, radius, name, ifDebug);
 			if  (ifDebug)
-				console.log('updatePlaces calling GetGoogleLoc for item ', item._id, ' #: ', i++, item, response);
-			
-			if ((response.results) && (item._id))
-				if (response.results[1]) {
+				console.log('updatePlaces calling GetGoogleLoc 2 item#', i,  'for item ', item._id, 'place_id', item.place_id, '# of google responses', response.results.length);
+			if (response.results.length == 0)
+				return;
+			response.results.forEach(function (item, index, array) {
+				var ifAuto = AutoPlaces.findOne({place_id:item.place_id});
+				if (ifAuto) {
 					if (ifDebug)
-						console.log('userPlaces 1 item._id ', item._id, item.started, ' response.results[1].name ', response.results[1].name, 'response.results[1].place_id ', response.results[1].place_id);
-					UserPlaces.update(item._id, {$set: {place_id: response.results[1].place_id}});
-					console.log('updating places ');
-					place = response.results[1];
-				} else {
-					if (ifDebug)
-						console.log('userPlaces 2 ', item._id, item.started, response.results[0].name, response.results[0].place_id);
-					UserPlaces.update(item._id, {$set: {place_id: response.results[0].place_id}});
-					place = response.results[0];
+						console.log('userPlaces 0.5 ifAuto ', item.place_id, item.name);
+					place = item;
+					return place;
 				}
-				place.updated = moment().valueOf();
-				if (!Places.findOne({place_id: place.place_id}))
-					Places.insert(place);
+			});
+			if  (ifDebug)
+				if (place)
+					console.log('userPlaces 0.6 ', item._id, item.started, place.name, place.place_id);
+			if (!place) {
+				if ((response.results) && (item._id)) {
+					if (response.results[1]) {
+						place = response.results[1];
+						if (ifDebug)
+							console.log('userPlaces 1 ', item._id, item.started, place.name, place.place_id);
+					} else {
+						place = response.results[0];
+						if (ifDebug)
+							console.log('userPlaces 2 ', item._id, item.started, place.name, place.place_id);
+					}
+				}
+			}
+			place.updated = moment().valueOf();
+			UserPlaces.update(item._id, {$set: {place_id: place.place_id}});
+			if (!Places.findOne({place_id: place.place_id}))
+				Places.insert(place);
+			
 		});
 		ifUpdating = false;
 			//		Meteor.users.upsert(userId, {$set: user_details});
 		
 	},
 
+	updatePlaceNames: function(userId, ifDebug){
+		
+		return; //doesnt work yet
+		// 1st check with no place_id
+		if (ifUpdating)
+			return;
+		ifUpdating = true;
+		console.log('empty places', UserPlaces.find({place_id: {$exists: false}}).count(), 'filled', UserPlaces.find({place_id: {$exists: true}}).count());
+		
+		var userPlaces = UserPlaces.find({userId: userId, place_id: {$exists: false}}, {limit: 50, sort:{timestamp: -1}	}	);
+		if (!userPlaces) {
+			userPlaces = 'all filled up';
+			return userPlaces;
+		}
+		if (ifDebug)
+		console.log('userPlaces with empty place_id. userId: ', userId, ' these many ',  userPlaces.count());
+		userPlaces = userPlaces.fetch();
+		var radius = 50;
+		//		response = GetGoogleLoc(userId,  userPlaces.fetch()[0].location.coords, radius, name);
+		//		console.log('userPlaces  ', response);
+		var i = 0;
+		var name = '';
+		userPlaces.forEach(function (item, index, array) {
+			console.log('');
+			if  (ifDebug)
+			console.log('updatePlaces calling GetGoogleLoc 1 item#', i++, userId, item.location.coords, radius, ifDebug);
+			var response = GetGoogleLoc(userId, item.location.coords, radius, name, ifDebug);
+			if  (ifDebug)
+			console.log('updatePlaces calling GetGoogleLoc 2 item#', i,  'for item ', item._id, 'place_id', item.place_id, '# of google responses', response.results.length);
+			if (response.results.length == 0)
+			return;
+			var place = response.results.forEach(function (item, index, array) {
+				var ifAuto = AutoPlaces.findOne({place_id:item.place_id});
+				if (ifAuto) {
+					if (ifDebug)
+					console.log('userPlaces 0.5 ifAuto ', item.place_id, item.name);
+					return item;
+				}
+			});
+			if  (ifDebug)
+			if (place)
+			console.log('userPlaces 0.6 ', item._id, item.started, place.name, place.place_id);
+			if (!place) {
+				if ((response.results) && (item._id)) {
+					if (response.results[1]) {
+						place = response.results[1];
+						if (ifDebug)
+						console.log('userPlaces 1 ', item._id, item.started, place.name, place.place_id);
+					} else {
+						place = response.results[0];
+						if (ifDebug)
+						console.log('userPlaces 2 ', item._id, item.started, place.name, place.place_id);
+					}
+				}
+				place.updated = moment().valueOf();
+				UserPlaces.update(item._id, {$set: {place_id: place.place_id}});
+				if (!Places.findOne({place_id: place.place_id}))
+				Places.insert(place);
+			}
+		});
+		ifUpdating = false;
+		//		Meteor.users.upsert(userId, {$set: user_details});
+		
+	},
+	
 	'updatePlace': function(userId, location, experience){
 		// v008
 		if ((!userId) || (!location))  {
@@ -356,6 +433,7 @@ Meteor.methods({
 			geoId,
 			{$set: {location_id: got_location.location_id}}
 		);
+		Meteor.call('updatePlaces', userId);
 		return got_location;
 	},
 

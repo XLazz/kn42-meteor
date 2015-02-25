@@ -171,6 +171,8 @@ Template.showlocations.helpers({
 					var place = Places.findOne({place_id: doc.place_id});						
 					if (!place) 
 						place = MerchantsCache.findOne({place_id: doc.place_id},{fields:{_id:0}});		
+/* 					if (!place)
+						updateEmptyNames(); */
 					if (place) {
 						doc.name = place.name;
 						doc.vicinity = place.vicinity;
@@ -281,7 +283,8 @@ Template.showlocations.events({
 		if (userPlace.place_id) {
 			console.log('click on div inside 0 with place_id ',userPlaceId, userPlace.place_id);		
 		} else {
-			var location = userPlace.location;
+			// no place_id in userPlaces, we will call getGLoc in methods
+//			var location = userPlace.location;
 			var radius = 500;
 			var initiator = 'showlocations.events';
 			if (userPlace.foursquareId) {
@@ -289,7 +292,7 @@ Template.showlocations.events({
 				name = userPlace.fsqrName.split(" ");
 			}
 
-			var location = userPlace.location.latitude +','+ userPlace.location.longitude;
+//			var location = userPlace.location.latitude +','+ userPlace.location.longitude;
 			var params = {
 				location: userPlace.location,
 				radius: 20,
@@ -324,9 +327,7 @@ Template.showlocations.events({
 			Session.set('userPlaceId', userPlaceId);
 		} else if (place) {
 			// Session.set('userPlace', place);
-		}
-		
-		
+		}	
 		console.log ('Session userPlaceId ', Session.get('userPlaceId'));
 	},	
 

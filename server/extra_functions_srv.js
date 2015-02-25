@@ -228,14 +228,9 @@ CheckInFsqr = function(venueId){
 }
 
 GetGoogleLoc = function(userId, coords, radius, name, ifDebug){
-	var response;
-	if (ifDebug)
-		console.log('GetGoogleLoc userId ', userId, 'radius ', radius, 'name ', name);
-/* 	if ((!userLocation.location) && (userLocation.timestamp)) {
-		var userLocation = GeoLog.findOne({userId: userId, timestamp: userLocation.timestamp});
-		userLocation = userLocation.location;
-	} */
-//	console.log('calling google 1 ', coords);
+	// if (ifDebug)
+		// console.log('GetGoogleLoc userId ', userId, 'radius ', radius, 'name ', name);
+
   try {	
 		var location = coords.latitude + ',' + coords.longitude;
 		var radius = radius;
@@ -252,9 +247,9 @@ GetGoogleLoc = function(userId, coords, radius, name, ifDebug){
 											key: google_server_key
 										}
 									}); */
-		response =  JSON.parse(response1.content);
-		if (ifDebug)
-			console.log('response calling google length ', response.results.length, response, url);
+		var response =  JSON.parse(response1.content);
+		// if (ifDebug)
+			// console.log('response calling google length: ', response.results.length);
 //		Meteor._sleepForMs(1000);
 
 		return response;
@@ -343,7 +338,7 @@ GoogleMaps.getPlaces = function(params){
 	return response
 }
 
-ifStationary = function(userId, geoId){
+/* ifStationary = function(userId, geoId){
 	var stat_time = 200000;
 	var diffstamp = moment().valueOf() - stat_time;
 	var geoLoc = GeoLog.findOne(geoId);
@@ -436,7 +431,7 @@ ifStationary = function(userId, geoId){
 			//					console.log('User has moved from ', lastLoc.stationary_place_id, ' to ', currentPlaceAlt.place_id);
 		} 
 	}
-}
+} */
 
 /* ifStatic = function(userId, currentPlace, currentPlaceAlt, location){
 // Add userplace if user becomes static for some time;

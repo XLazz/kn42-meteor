@@ -222,11 +222,13 @@
 <template name="claimIt">
 <!-- 	<div class="row">
 		<div class="btn-info col-xs-12 col-sm-12 col-md-12"> -->
-			{{#if claimed}}
-				<span class="right"><button class="inline button claim btn btn-small editClaim" id="{{claimed._id}}">Claimed: {{claimed.name}}</button></span>
-			{{else}}
+			{{#with claimed}}
+				<span class="right"><button class="inline button claim btn btn-small editClaim" id="{{_id}}">Claimed: {{name}}</button></span>
+			{{/with}}	
+			{{#unless claimed}}
 				<span class="right">Claim your place: <input type="button" class="inline button claim btn btn-quartiary btn-small" id="{{_id}}" value="Claim" /></span>
-			{{/if}}
+			{{/unless}}
+				
 <!-- 		</div>
 	</div> -->
 </template>
