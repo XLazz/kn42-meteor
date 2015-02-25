@@ -618,19 +618,22 @@ Template.buttons.rendered = function() {
 Template.claimIt.helpers({
 	"claimed": function (event, template) {
 		userId = Meteor.userId();
-		var userPlaceId = Session.get('userPlaceId');
+		var userPlaceId = this.userPlaceId;
+		console.log('claimed 1 ', userPlaceId, this);
 		if (!userPlaceId)
 			return;
-		var userPlace = UserPlaces.findOne(userPlaceId);
-//			console.log('claimed userPlace ',userPlace.geoId , userPlace, result );
+		var userPlace = UserPlaces.findOne(userPlaceId);			
+		console.log('claimed 1.5 ', userPlaceId , userPlace );
 		if (userPlace) 	
 			if (userPlace.location)
 				if (userPlace.location.coords)
 					var coords = userPlace.location.coords;
 		
+		console.log('claimed 2 ', userPlaceId, userPlace.location.coords, userPlace);
 		var claimed = findClaimed(userId, coords);
 		if (!claimed) 
 			return
+		console.log('claimed 3 ', userPlaceId, claimed);
 		Session.set('claimed', claimed);
 		return claimed;
 	},	

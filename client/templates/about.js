@@ -43,8 +43,14 @@ Template.profileDetails.helpers({
 		if (!userId)
 			return;
 		var user_details = Meteor.user();
+		if (!user_details)
+			return;
+		console.log(' pic ', user_details.profile.picture)
     if (!user_details.profile.picture) {
-        Meteor.call('updateProfile', userId) ;
+			console.log('call updateProfile ', userId, user_details.profile.picture)
+			Meteor.call('updateProfile', userId, function(err,results){
+				console.log('call updateProfile ', results);
+			}); 
     }
 		return user_details;
 	},

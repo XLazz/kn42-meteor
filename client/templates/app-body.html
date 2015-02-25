@@ -105,10 +105,10 @@
 		
 		
       <div class="notifications">
-        {{#unless connected}}
+        {{#unless connected.connected}}
           <div class="notification connection">
             <!-- <span class="icon-sync"></span> -->
-            <div class="title-notification">Server is disconnected</div>
+            <div class="title-notification">Server is {{connected.status}}</div>
           </div>
         {{/unless}}
         {{#each notifications}}

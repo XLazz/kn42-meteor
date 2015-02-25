@@ -3,7 +3,7 @@ Meteor.methods({
 
 	updateProfile: function(userId){
 		var user_details = Meteor.users.findOne(userId);
-		var user_email;
+		console.log('updateProfile ', userId , user_details);
 		if (!user_details) {
 			return;
 		}
@@ -16,6 +16,20 @@ Meteor.methods({
 			Meteor.users.upsert({_id:userId}, {$set: update});
 			//		Meteor.users.upsert(userId, {$set: user_details});
 		}
+		
+		if ((!user_details.profile.picture) || (user_details.profile.picture == 'img/app/robot.jpg')) {
+			console.log('no pic, getting it from services for ', userId);
+			var picture;
+			if (user_details.services.google.picture) {
+				picture = user_details.services.google.picture;
+			} else {
+				if (user_details.profile.picture != 'img/app/robot.jpg')
+				picture = 'img/app/robot.jpg';
+			}
+			if (picture)
+				Meteor.users.update(userId, {$set: {'profile.picture': picture}});
+		}
+		return Meteor.users.findOne(userId);
 	},
 
 	updatePlaces: function(userId, ifDebug){

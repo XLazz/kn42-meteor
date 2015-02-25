@@ -66,8 +66,9 @@ Template.showMapClaim.helpers({
     // Make sure the maps API has loaded
 		var claimedId = Session.get('claimedId');
 		var claimed = ClaimedPlaces.findOne(claimedId);
+		GoogleMaps.load();
     if (GoogleMaps.loaded()) {
-			console.log('GoogleMaps not loaded');
+			console.log('GoogleMaps loaded');
       // We can use the `ready` callback to interact with the map API once the map is ready.
       GoogleMaps.ready('claimedMap', function(map) {
 				console.log('GoogleMaps ready loading markers ', claimed);
