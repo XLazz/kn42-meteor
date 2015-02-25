@@ -1,0 +1,28 @@
+<template name="showMapPlace">
+	<div class="topdiv">
+		Your route
+	</div>
+	<div class="content-scrollable">
+		<div class="container-fluid">
+			<div class="map-container">
+				{{> googleMap name="placeMap" options=placeMapOptions}}
+			</div>
+			<div class="separator">
+			</div>
+<!-- 			{{#each track}}
+				<div class="row setlocations" id="">
+					<div class="col-xs-12 col-sm-12 col-md-12" style="font-size:70%"> 
+						Track {{date}} {{location.coords.latitude}},{{location.coords.longitude}} {{location.coords.speed}}km/h {{distance}}m
+					</div>
+				</div>	
+			{{/each}} -->
+			<div class="row setlocations" id="">
+				<div class="col-xs-12 col-sm-12 col-md-12" > 
+<!-- 					Route: {{fitnessTrack.distance}}km in {{fitnessTrack.timespent}}, {{fitnessTrack.calories}}cal -->
+				</div>
+			</div>	
+		</div>
+	</div>
+	<input type="button" class="button cancel btn btn-danger btn-down" value="Cancel" />
+</template>
+

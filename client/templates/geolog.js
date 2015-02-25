@@ -195,7 +195,6 @@ Template.footergeo.events({
 	"click .deletedata": function (event, template) {
 		console.log('delete geodata events ');
 		Meteor.call('deleteGeoData', Meteor.userId());
-//		Meteor.call('getLocations','list',function(err,results));
 	},	
 
 

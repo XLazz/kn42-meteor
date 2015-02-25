@@ -142,7 +142,7 @@ Template.showlocations.helpers({
 			{
 				sort: {timestamp: -1},
 				limit: 10,
-				fields: {name:1,vicinity:1,timestamp:1,timestampEnd:1,icon:1,place_id:1,foursquareChk:1,status:1},
+				fields: {name:1,vicinity:1,timestamp:1,timestampEnd:1,icon:1,place_id:1,foursquareChk:1,status:1,fitnessId:1},
 				transform: function(doc){		
 					if (doc.status == 'confirmed')
 						doc.confirmed = true;
@@ -331,7 +331,30 @@ Template.showlocations.events({
 	'click .cancel': function(event, template) {
 		console.log('showlocations click .cancel ', this);
 		Session.set('searching', false);
-	}
+	},
+	'click .showMapFit': function (event, template) {
+		if (!Meteor.userId()) {
+			return;
+		}
+		//		var fitActivity = template.find('.fitActivity').id;
+		var fitnessTrackId = event.currentTarget.id;
+		console.log('click .showMap ',  fitnessTrackId, $(event.currentTarget));
+		Session.set('fitnessTrackId', fitnessTrackId);
+		Overlay.show('showMapFit');	
+		return;
+	},
+	'click .showMapPlace': function (event, template) {
+		if (!Meteor.userId()) {
+			return;
+		}
+		//		var fitActivity = template.find('.fitActivity').id;
+		var userPlaceId = event.currentTarget.id;
+		console.log('click .showMap ',  userPlaceId, $(event.currentTarget));
+		Session.set('userPlaceId', userPlaceId);
+		Overlay.show('showMapPlace');	
+		return;
+	},
+	
 });
 
 Template.selectPlace.helpers({

@@ -96,15 +96,15 @@
 							{{/if}}
 						{{/if}}
 					</div>
-					<div class="col-xs-6 col-sm-6 col-md-6">
+					<div class="col-xs-6 col-sm-6 col-md-6" >
 						{{#if stationary}}
-							<img style="width: auto; height: auto; max-width: 40px" src="{{icon}}" />
+							<span class="showMapPlace" id="{{_id}}"><img style="width: auto; height: auto; max-width: 40px" src="{{icon}}" /></span>
 						{{/if}}
 						{{#if travel}}
 							<img style="width: auto; height: auto; max-width: 40px" src="img/app/car.png" />
 						{{/if}}
 						{{#if fitness}}
-							<i class="fa fa-male"  style="font-size: xx-large"></i>
+							<span class="showMapFit" id="{{fitnessId}}"><i class="fa fa-male"  style="font-size: xx-large"></i></span>
 						{{/if}}
 					</div>
 					
