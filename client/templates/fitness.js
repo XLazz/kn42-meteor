@@ -1,21 +1,49 @@
+/* trackDistance = function(fitnessTrackId){
+	var track = Tracks.find({userId: Meteor.userId(), fitnessTrackId: Session.get('fitnessTrackId') }, {
+	sort: {created: -1}, 
+	var old_doc;
+	transform: function(doc){	
+		doc.time = moment(doc.timestamp).format("hh:mm:ss");
+		if (!old_doc) 
+			doc.location.distance = 0;
+		doc.location.distance = 
+		console.log('checking calories', doc.calories, doc.location.distance, doc.location.speed, doc);
+//					doc.location.distance = truncateDecimals(doc.location.distance, 3);
+//					doc.location.coords.speed = truncateDecimals(doc.location.coords.speed, 2);
+		old_doc = doc;
+		return doc;
+	}
+}); */
+
 checkDistance = function(fitnessTrackId){
 	var distance = 0;
 	var calories = 0;
-	fitnessTrack = FitnessTracks.findOne(fitnessTrackId);
+	var old_loc;
+	var i = 0;
+	var fitnessTrack = FitnessTracks.findOne(fitnessTrackId);
 //	console.log('distance fitnessTrack ', fitnessTrack);
 	if (fitnessTrack.distance) {
 		return fitnessTrack.distance;
 	}
 	var cursor = Tracks.find({fitnessTrackId: fitnessTrackId});
-//	console.log ('checking distance for 1 ', fitnessTrackId, cursor.location, cursor.fetch());
+	if (Session.get('debug'))
+		console.log ('checking distance for 1 ', fitnessTrackId, cursor.count());
 	cursor.forEach(function(item, index, array){
-		var location = item.location;
-		distance = distance + item.location.distance;
-		distance = truncateDecimals(distance, 3);
-//			console.log ('checking distance 2 for each ', location, item.location.distance, distance);
+		if (old_loc) {
+			if (Session.get('debug')) {
+				console.log('item ', fitnessTrackId, item._id, item.location.coords, old_loc.location.coords);
+			}
+			location.distance = calculateDistanceLoc (item.location.coords, old_loc.location.coords);
+			distance += location.distance;
+			if (Session.get('debug'))
+				console.log ('checking distance for 1.5 ', i, ' id ', fitnessTrackId, item._id, distance, location.distance);
+		}
+		old_loc = item;
+		i++;
 	});
+	distance = Math.round(distance * 10) /10;
 	FitnessTracks.update(fitnessTrackId,{$set:{distance: distance}});
-	return fitnessTrack.distance;
+	return distance;
 }
 
 checkCalories = function(fitnessTrackId){
@@ -160,6 +188,7 @@ Template.routes.helpers({
 	userTracks: function(){
 		var userTracks = FitnessTracks.find(
 			{userId: Meteor.userId()},{
+
 				sort:{timestamp: -1},
 				transform: function(doc){
 					doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm");
@@ -170,6 +199,8 @@ Template.routes.helpers({
 						if ((!doc.calories) || (doc.calories == 0))
 							checkCalories(doc._id);
 					}
+					if (!doc.distance)
+						doc.distance = checkDistance(doc._id);
 					return doc;
 				}
 			}
@@ -249,22 +280,30 @@ Template.routes.events({
 		}
 		var fitnessTrackId = Session.get('fitnessTrackId');
 		var timestampEnd = moment().valueOf();
-		FitnessTracks.update(fitnessTrackId,{$set:{timestampEnd: timestampEnd}});
-		var geoLoc = Tracks.findOne({fitnessTrackId: fitnessTrackId},{sort: {timestamp:1}});
-/* 		var geolog = GeoLog.findOne({fitnessTrackId: fitnessTrack._id});
-		GeoLog.update(geolog._id,{$set:{fitness: 'end'}}); */
-		console.log('stopfit ', fitnessTrackId, geoLoc);
-		var userPlaceId = UserPlaces.insert({
-			userId: userId,
-			location: geoLoc.location,
-			started:  moment(geoLoc.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS"),
-			timestamp:  geoLoc.timestamp,
-			timestampEnd: timestampEnd,
-			status: 'fitness',
-			fitnessId: fitnessTrackId,
-			origin: 'stopfit'
-		});
+
+		if ((timestampEnd - geoLoc.timestamp) > 60000) {
+			// if more than 1 mins, finalise it
+			FitnessTracks.update(fitnessTrackId,{$set:{timestampEnd: timestampEnd}});
+			var geoLoc = Tracks.findOne({fitnessTrackId: fitnessTrackId},{sort: {timestamp:1}});
+			/* 		var geolog = GeoLog.findOne({fitnessTrackId: fitnessTrack._id});
+			GeoLog.update(geolog._id,{$set:{fitness: 'end'}}); */
+			console.log('stopfit ', fitnessTrackId, geoLoc);
+			var userPlaceId = UserPlaces.insert({
+				userId: userId,
+				location: geoLoc.location,
+				started:  moment(geoLoc.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS"),
+				timestamp:  geoLoc.timestamp,
+				timestampEnd: timestampEnd,
+				status: 'fitness',
+				fitnessId: fitnessTrackId,
+				origin: 'stopfit'
+			});
+		} else {
+			// if less than 1 mins, remove
+			FitnessTracks.remove(fitnessTrackId);	
+		}
 		
+		Session.set('userPlaceId', userPlaceId);
 		Session.set('fitness', false);
 		Session.set('fitActivity', false);
 		Session.set('interval', 1000000);
@@ -369,14 +408,25 @@ Template.showMapFit.helpers({
 				var activity = FitnessActivities.findOne({_id: mytrack[0].activityId});
 				activity = activity.activity;
 				var oldLocation;
+
+				var lineCoordinates = [];
 				track.forEach(function (item, index, array) {
-					var marker = new google.maps.Marker({
+					/* 					var marker = new google.maps.Marker({
 						position: new google.maps.LatLng(item.location.coords.latitude,item.location.coords.longitude),
 						map: map.instance,
 						title: 'Speed: ' + item.location.coords.speed 
-					});	
+					});	 */
+					lineCoordinates.push (new google.maps.LatLng(item.location.coords.latitude, item.location.coords.longitude));
 					if (Session.get('debug'))
-						console.log ('adding marker ', marker);
+					console.log ('adding marker ', lineCoordinates);
+					var line = new google.maps.Polyline({
+						path: lineCoordinates,
+						geodesic: true,
+						strokeColor: '#FF0000',
+						strokeOpacity: 1.0,
+						strokeWeight: 2,
+						map: map.instance
+					});
 				});
 
       });

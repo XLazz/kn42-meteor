@@ -1,4 +1,33 @@
-
+checkDistanceDrive = function(driveTrackId){
+	var distance = 0;
+	var calories = 0;
+	var old_loc;
+	var i = 0;
+	var fitnessTrack = DriveTracks.findOne(driveTrackId);
+//	console.log('distance fitnessTrack ', fitnessTrack);
+	if (fitnessTrack.distance) {
+		return fitnessTrack.distance;
+	}
+	var cursor = Drives.find({driveTrackId: driveTrackId});
+	if (Session.get('debug'))
+		console.log ('checking distance for 1 ', driveTrackId, cursor.count());
+	cursor.forEach(function(item, index, array){
+		if (old_loc) {
+			if (Session.get('debug')) {
+				console.log('item ', driveTrackId, item._id, item.location.coords, old_loc.location.coords);
+			}
+			location.distance = calculateDistanceLoc (item.location.coords, old_loc.location.coords);
+			distance += location.distance;
+			if (Session.get('debug'))
+				console.log ('checking distance for 1.5 ', i, ' id ', driveTrackId, item._id, distance, location.distance);
+		}
+		old_loc = item;
+		i++;
+	});
+	distance = Math.round(distance * 10) /10;
+	DriveTracks.update(driveTrackId,{$set:{distance: distance}});
+	return distance;
+}
 
 Template.autolog.helpers({
 
@@ -58,25 +87,7 @@ Template.driving.helpers({
 	},
 	
   distance: function(){
-		var driveTrackId = this._id;
-		var distance = 0;
-		driveTrack = DriveTracks.findOne(driveTrackId);
-		console.log(' driveTrack ', driveTrack);
-		if (driveTrackId.distance) {
-			return driveTrack.distance;
-		}
-		var driveTrackId = this._id;
-		var cursor = Drives.find({driveTrackId: driveTrackId});
-		console.log ('checking distance for 1 ', driveTrackId, cursor.location, cursor.fetch());
-		cursor.forEach(function(item, index, array){
-			var location = item.location;
-			distance = distance + item.location.distance;
-			distance = truncateDecimals(distance, 3);
-			console.log ('checking distance 2 for each ', location, item.location.distance, distance);
-		});
-		DriveTracks.update(driveTrackId,{$set:{distance: distance}});
-		distance = Math.round(distance / 1000 * 100)/100; // make it in km and round to 2 digs	
-		return distance;
+		return checkDistanceDrive(this._id);
 	}
 });
 
@@ -120,22 +131,27 @@ Template.driving.events({
 		}
 		var driveTrackId = Session.get('driveTrackId');
 		var timestampEnd = moment().valueOf();
-		DriveTracks.update(driveTrackId,{$set:{timestampEnd: timestampEnd}});
-		var geoLoc = Drives.findOne({driveTrackId: driveTrackId},{sort: {timestamp:1}});
-		/* 		var geolog = GeoLog.findOne({fitnessTrackId: fitnessTrack._id});
-		GeoLog.update(geolog._id,{$set:{fitness: 'end'}}); */
-		console.log('stopfit ', driveTrackId, geoLoc);
-		var userPlaceId = UserPlaces.insert({
-			userId: userId,
-			location: geoLoc.location,
-			started:  moment(geoLoc.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS"),
-			timestamp:  geoLoc.timestamp,
-			timestampEnd: timestampEnd,
-			status: 'driving',
-			fitnessId: driveTrackId,
-			origin: 'stopdriving'
-		});
-		
+
+		if ((timestampEnd - geoLoc.timestamp) > 300000) {
+			DriveTracks.update(driveTrackId,{$set:{timestampEnd: timestampEnd}});
+			var geoLoc = Drives.findOne({driveTrackId: driveTrackId},{sort: {timestamp:1}});
+			/* 		var geolog = GeoLog.findOne({fitnessTrackId: fitnessTrack._id});
+			GeoLog.update(geolog._id,{$set:{fitness: 'end'}}); */
+			console.log('stopfit ', driveTrackId, geoLoc);
+			var userPlaceId = UserPlaces.insert({
+				userId: userId,
+				location: geoLoc.location,
+				started:  moment(geoLoc.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS"),
+				timestamp:  geoLoc.timestamp,
+				timestampEnd: timestampEnd,
+				status: 'driving',
+				fitnessId: driveTrackId,
+				origin: 'stopdriving'
+			});
+		} else {
+			DriveTracks.remove(driveTrackId);
+		}
+		Session.set('userPlaceId', userPlaceId);
 		Session.set('driving', false);
 		Session.set('interval', 1000000);
 		UpdateGeo();

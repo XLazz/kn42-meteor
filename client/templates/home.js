@@ -67,30 +67,35 @@ Template.homelocation.helpers({
 		if (Session.get('debug'))
 			console.log('currentlocation 1 ', moment().format("MM/DD HH:mm:ss.SSS"));
 		userId = Meteor.userId();
+		var currentlocation = {};
 		if (!userId) 
-			return;
-		var moving;
-		var currentlocation;
+			return currentlocation.status = 'please login';	
+
 		var place;
 		var autoPlace;
-		if (!Session.get('userPlaceId'))
-			Session.set('userPlaceId', UserPlaces.findOne({userId:userId}, {sort: {timestamp: -1}, fields:{_id:1}}) );
-		var userPlace = UserPlaces.findOne(Session.get('userPlaceId'));
-		if (!userPlace) {
-			return;
-		}
+
+		if (Session.get('userPlaceId')) {
+			var userPlace = UserPlaces.findOne(Session.get('userPlaceId'));
+		} else {		
+			var userPlace = UserPlaces.findOne({userId:userId}, {sort: {timestamp: -1}});
+			var userPlaceId = userPlace._id;
+			Session.set('userPlaceId', userPlace._id);
+		} 	
+		if (!userPlace) 
+			return currentlocation.status = '...updating';	
+		
 		if (Session.get('debug'))
 			console.log('currentlocation 1.1 ', moment().format("MM/DD HH:mm:ss.SSS"), ' location ', Session.get('locationId'), ' userPlace ', userPlace );
-		if (!userPlace)
-			return;
-		
-		
-		if (!Session.get('locationId')) {
-			Session.set('locationId', GeoLog.findOne({userId:userId}, {sort: {timestamp: -1}, fields:{_id:1}}));		
-			return;
-		}
-		var location = GeoLog.findOne(Session.get('locationId'));	
-
+			
+		if (Session.get('locationId')) {
+			var location = GeoLog.findOne(Session.get('locationId'));	
+		} else {
+			var location = GeoLog.findOne({userId:userId}, {sort: {timestamp: -1}});
+			Session.set('locationId', location._id);		
+		} 
+		if (!location) 
+		return currentlocation.status = '...updating';	
+	
 		if (Session.get('debug'))
 			console.log('currentlocation 1.2 ', moment().format("MM/DD HH:mm:ss.SSS"), ' location.stationary ', location.stationary, location.location.distance, location.location.coords.speed, userPlace );
 		
@@ -102,7 +107,7 @@ Template.homelocation.helpers({
 				userPlace.confirmed = true;
 			if (userPlace.status === 'travel')
 				userPlace.travel = true;	
-			if (!userPlace.place_id) {
+/* 			if (!userPlace.place_id) {
 				var initiator = 'homelocation geoMerchant';
 				// if (!this.location)
 				// return;
@@ -111,11 +116,11 @@ Template.homelocation.helpers({
 					radius: 20
 				};
 				console.log('calling getGLoc ');
-/* 				Meteor.call('getGLoc', userId, params, initiator, function(err, results) {
+				Meteor.call('getGLoc', userId, params, initiator, function(err, results) {
 					if (results)
 						console.log('currentlocation 1.3 called getGLoc ', results);
-				}); */
-			}
+				});
+			} */
 			if (!userPlace.name) {
 				var place = Places.findOne({place_id: userPlace.place_id}, {fields:{name:1, vicinity:1, icon:1}});	
 				// if (!place)
@@ -138,46 +143,8 @@ Template.homelocation.helpers({
 			currentlocation.travel = true;		
 		}
 		
-/* 		currentlocation = GeoLog.findOne(	
-			{userId: userId}, 
-			{ 
-				sort: {timestamp: -1},
-				limit: 20,
-				transform: function(doc){
-					if (doc.status == 'stationary') {
-						if (Session.get('debug'))
-							console.log('currentlocation 1.5 ', moment().format("MM/DD HH:mm:ss.SSS"), doc.place_id, doc.status, doc);
-						// lets check if user has auto-check places
-						if (userPlace){
-							doc.userPlaceId = userPlace._id;
-							doc.place_id = userPlace.place_id;
-							if (userPlace.status)
-								doc.status = userPlace.status;
-							if (userPlace.status == 'confirmed')
-								doc.confirmed = true;
-							if (userPlace.status == 'travel')
-								doc.travel = true;
-						}
-						doc.showbut = true;
-					} 
-					console.log('currentlocation 2 ', moment().format("MM/DD HH:mm:ss.SSS"), doc.place_id, autoPlace, doc);
-					// find place details
-					var place = Places.findOne({place_id: doc.place_id});	
-					if (Session.get('debug'))
-						console.log('currentlocation 2.5 ', moment().format("MM/DD HH:mm:ss.SSS"), doc.place_id, place, doc.status, doc);
-
-					if (place) {
-						doc.name = place.name;
-						doc.vicinity = place.vicinity;
-						doc.icon = place.icon;
-					}
-					return doc;
-				}
-			}	
-		); */
-		
 		if (!currentlocation)
-			return;
+			return currentlocation.status = '...updating';	
 		if (!userPlace.timestampEnd) {
 			currentlocation.timestampEnd =  moment().valueOf()
 			currentlocation.finished = 'in progress';
@@ -198,35 +165,6 @@ Template.homelocation.helpers({
 
 		return currentlocation;
 	},
-	
-/* 	userPlace: function() {
-		userId = Meteor.userId();
-		if (Session.get('debug'))
-			console.log('userPlace 0 ', moment().format("MM/DD HH:mm:ss.SSS"), this, this.place_id);
-		var place;
-		if (!Session.get('userPlace')) {
-			place = this
-			var count = UserPlaces.find({userId:userId, place_id: this.place_id}).count();
-			place.count = count;
-			Session.set('userPlace', place);
-			if (Session.get('debug'))
-				console.log('userPlace 0.5 ', moment().format("MM/DD HH:mm:ss.SSS"), this, this.place_id);
-			return place;
-		}
-		place = Session.get('userPlace');
-		if (Session.get('debug'))
-			console.log('userPlace 3 ', moment().format("MM/DD HH:mm:ss.SSS"), this, this.place_id, place, count);
-		return place;
-	}, */
-
-/* 	placeSubst: function() {
-		var place;
-		// We use this helper inside the {{#each posts}} loop, so the context
-		// will be a post object. Thus, we can use this.authorId.
-		place = PlacesSubst.findOne({old_place_id: this.place_id});
-//		console.log('PlacesSubst ', this.place_id, place);
-		return place;
-	}, */
 	
 	geoPlace: function() {
 		console.log('geoPlace 1 ', moment().format("MM/DD HH:mm:ss.SSS"), this.place_id, this);

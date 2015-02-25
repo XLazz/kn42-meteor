@@ -1,6 +1,13 @@
+calculateDistanceLoc = function(coords1, coords2) {
+	// if (Session.get('debug')) 
+		// console.log('calculateDistanceLoc ', coords1, coords2);
+	var distance = calculateDistance(coords1.latitude, coords1.longitude, coords2.latitude, coords2.longitude);
+	return distance;
+};
+
 calculateDistance = function(lat1, lon1, lat2, lon2) {
-	if (Session.get('debug')) 
-		console.log('calculateDistance function ', lat1, lon1, lat2, lon2);	
+	// if (Session.get('debug')) 
+		// console.log('calculateDistance function ', lat1, lon1, lat2, lon2);	
 	lat1 = parseFloat(lat1);
 	lat2 = parseFloat(lat2);
 	lon1 = parseFloat(lon1);
@@ -275,6 +282,7 @@ UpdateGeoDB = function(geolocation, uuid, device){
 	var userPlace = UserPlaces.findOne(Session.get('userPlaceId'));
 	if (!userPlace) {
 		Session.set('userPlaceId', UserPlaces.findOne({userId:userId}, {sort: {timestamp: -1}, fields:{_id:1}}));	
+		userPlace = UserPlaces.findOne(Session.get('userPlaceId'));
 		if (!Session.get('userPlaceId')) {
 			addPlace(oldLocation._id, oldLocation.location);
 			Session.set('userPlaceId', UserPlaces.findOne({userId:userId}, {sort: {timestamp: -1}, fields:{_id:1}}));
@@ -293,12 +301,12 @@ UpdateGeoDB = function(geolocation, uuid, device){
 		return;
 	// if not stationary and not finalised, then finalise it
 	if ((!userPlace.timestampEnd) && (!location.stationary))
-		UserPlaces.update(userPlace._id,{$set:{timestampEnd: location.timestamp}});
+		UserPlaces.update(Session.get('userPlaceId'),{$set:{timestampEnd: location.timestamp}});
 	// if stationary and old userplace finalised, create new
 	if ((userPlace.timestampEnd) && (location.stationary)){
-		if (!userPlace.timestampEnd) {
+		if (!UserPlaces.findOne(Session.get('userPlaceId'),{fields: {timestampEnd: 1, _id: 0}})) {
 			location.timestampEnd = userPlace.timestamp + 60000;
-			UserPlaces.update(userPlace._id,{$set:{timestampEnd:location.timestampEnd}});
+			UserPlaces.update(Session.get('userPlaceId'),{$set:{timestampEnd:location.timestampEnd, oldId: Session.get('userPlaceId')}});
 		}
 		var newUserPlace = {
 			userId: userPlace.userId,
