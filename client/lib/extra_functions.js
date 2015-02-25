@@ -413,7 +413,7 @@ updateEmptyPlaces = function(){
 	var timelimit = 3000;
 	if (!Session.get('updatePlaces'))
 		Session.set('updatePlaces', 0);
-	if ((moment().valueOf() - Session.get('updatePlaces') > 60000 )) {
+	if ((moment().valueOf() - Session.get('updatePlaces') < 60000 )) {
 		if (Session.get('debug'))
 			console.log('recent call to updateEmptyPlaces ', moment().valueOf() - Session.get('updatePlaces') - timelimit, ' was ', moment(Session.get('updatePlaces')).format("MM/DD HH:mm:ss.SSS"), ' now ', moment().format("MM/DD HH:mm:ss.SSS"));
 		return;
@@ -437,7 +437,7 @@ updateEmptyNames = function(){
 	var timelimit = 3000;
 	if (!Session.get('updateNames'))
 		Session.set('updateNames', 0);
-	if ((moment().valueOf() - Session.get('updateNames') > 60000 )) {
+	if ((moment().valueOf() - Session.get('updateNames') < 60000 )) {
 		if (Session.get('debug'))
 			console.log('recent call to updateNames ', moment().valueOf() - Session.get('updateNames') - timelimit, ' was ', moment(Session.get('updateNames')).format("MM/DD HH:mm:ss.SSS"), ' now ', moment().format("MM/DD HH:mm:ss.SSS"));
 		return;

@@ -141,7 +141,7 @@ Template.showlocations.helpers({
 			{userId: userId}, 
 			{
 				sort: {timestamp: -1},
-				limit: 10,
+				limit: 20,
 				fields: {name:1,vicinity:1,timestamp:1,timestampEnd:1,icon:1,place_id:1,foursquareChk:1,status:1,fitnessId:1},
 				transform: function(doc){		
 					if (doc.status == 'confirmed')

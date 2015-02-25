@@ -60,16 +60,14 @@
 				</div>
 			</div>
 			{{#each userDrives}}
-				{{#if show}}
-					<div class="row showtrack loading animate" id="{{_id}}">
-						<div class="col-xs-2 col-sm-2 col-md-2">				
-							<i class="fa fa-car"></i>
-						</div>
-						<div class="col-xs-10 col-sm-10 col-md-10 showMap" id="{{_id}}">
-							<span class="label label-primary">{{date}} {{trackActivity.activity}} </span> <span class="label label-primary">{{duration}} {{distance}}km</span>
-						</div>
+				<div class="row showtrack loading animate" id="{{_id}}">
+					<div class="col-xs-2 col-sm-2 col-md-2">				
+						<i class="fa fa-car"></i>
 					</div>
-				{{/if}}
+					<div class="col-xs-10 col-sm-10 col-md-10 showMap" id="{{_id}}">
+						<span class="label label-primary">{{date}} {{trackActivity.activity}} </span> <span class="label label-primary">{{duration}} {{distance}}km</span>
+					</div>
+				</div>
 			{{/each}}
 		{{/if}}
 	</div>

@@ -20,39 +20,35 @@ Template.driving.helpers({
 	},
 	
 	drive: function(){
-		console.log(' drive  driveTrack ', Session.get('driveTrack'));	
-		var drive = Drives.find({driveTrackId: Session.get('driveTrack')._id }, {
-			sort: {created: -1}, limit:5,
+		if (!Session.get('fitnessTrackId'))
+		return;
+		
+		var track = Drives.find({userId: Meteor.userId(), driveTrackId: Session.get('driveTrackId') }, {
+			sort: {created: -1}, limit:10,
 			transform: function(doc){	
-				var time = doc.location.timestamp;
-				time = moment(time).format("h:mm:ss");
-				doc.time = time;
-				console.log(' track drive 1 ', doc);
+				doc.time = moment(doc.timestamp).format("hh:mm:ss");
 				if (!doc.location.coords.speed)
-					doc.location.distance = 0;
-				doc.location.distance = truncateDecimals(doc.location.distance, 2);
-				doc.location.coords.speed = truncateDecimals(doc.location.coords.speed, 2);
+				doc.location.distance = 0;
 				return doc;
 			}
 		});
-//		driveTrack.driveTrackId = Session.get('driveTrack')._id;
-		console.log(' drive ', drive);
-		return drive;	
+//		Session.set('lastTrack', track);
+		track.driveTrackId = Session.get('driveTrackId');
+		//			console.log(' track fitness ', track);
+		return track;
 	},
 	userDrives: function(){
 		var userDrives = DriveTracks.find(
 			{userId: Meteor.userId()},{
-			sort: {created: -1}, limit:20,
-			transform: function(doc){
-				doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm");
-				doc.duration = moment.duration(doc.timestampEnd - doc.timestamp).humanize();
-				doc.dur_sec = doc.timestampEnd - doc.timestamp;
-				if (doc.dur_sec > 60000)
-					doc.show = true;
-				return doc;
-			}}
+				sort:{timestamp: -1},
+				transform: function(doc){
+					doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm");
+					doc.duration = moment.duration(doc.timestampEnd - doc.timestamp).humanize();
+					doc.dur_sec = doc.timestampEnd - doc.timestamp;
+					return doc;
+				}
+			}
 		);
-
 		return userDrives;
 	},
 	driveTrack: function(){
@@ -94,44 +90,68 @@ Template.driving.events({
 			Session.set('watchGPS', false);
 		}
 		var userId = Meteor.userId();
-		var driveTrackId = DriveTracks.insert({userId: userId, timestamp: moment().valueOf(), created: new Date()});
+		var timestamp = moment().valueOf();
+		var created = moment(timestamp).format("YYYY-MM-DD HH:mm:ss.SSS");
+		var driveTrackId = DriveTracks.insert({userId: userId, timestamp: timestamp, created: created});
+		var driveTrack = DriveTracks.findOne(driveTrackId);
+		// and finalise userPlace since we are in fitness now
+		var userPlace = UserPlaces.findOne({userId: userId}, {sort:{timestamp: -1}});
+		if (userPlace)
+			if (!userPlace.timestampEnd)
+				UserPlaces.update(userPlace._id, {$set:{timestampEnd:timestamp}});
+		
 		Session.set('driveTrackId', driveTrackId);
-		console.log(' click startdriving driveTrack ', driveTrackId);
 		Session.set('driving', true);
 		Session.set('geoback', true );
-		Session.set('interval', 1000000);
+		Session.set('interval', 10000);
+		UpdateGeo();
 		PollingGeo();
-//		PollingGeo();		
+		console.log(' click startdriving ', driveTrackId);
 		return;
 	},
 	"click .stopdriving": function (event, template) {
 		if (!Meteor.userId()) {
 			return;
 		}
+		var userId = Meteor.userId();
 		if (Session.get('watchGPS')) {
 			Meteor.clearInterval(Session.get('watchGPS'));
 			Session.set('watchGPS', false);
 		}
 		var driveTrackId = Session.get('driveTrackId');
 		var timestampEnd = moment().valueOf();
-		var driveEnd = Drives.findOne({driveTrackId:driveTrackId},{sort: {timestamp: -1}});
-		DriveTracks.update(driveTrackId,{$set:{timestampEnd: timestampEnd, driveEnd: driveEnd.location}});
+		DriveTracks.update(driveTrackId,{$set:{timestampEnd: timestampEnd}});
+		var geoLoc = Drives.findOne({driveTrackId: driveTrackId},{sort: {timestamp:1}});
+		/* 		var geolog = GeoLog.findOne({fitnessTrackId: fitnessTrack._id});
+		GeoLog.update(geolog._id,{$set:{fitness: 'end'}}); */
+		console.log('stopfit ', driveTrackId, geoLoc);
+		var userPlaceId = UserPlaces.insert({
+			userId: userId,
+			location: geoLoc.location,
+			started:  moment(geoLoc.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS"),
+			timestamp:  geoLoc.timestamp,
+			timestampEnd: timestampEnd,
+			status: 'driving',
+			fitnessId: driveTrackId		
+		});
+		
 		Session.set('driving', false);
-		Session.set('driveTrackId', false);
-		Session.set('geoback', false );
-		PollingGeo();
 		Session.set('interval', 1000000);
-		Session.set('geoback', true);
+		UpdateGeo();
+		PollingGeo();
+		
+		console.log('stopfit userPlaceId ', userPlaceId, 'driveTrackId', driveTrackId);
 		return;
+
 	},
 	'click .showMap': function (event, template) {
 		if (!Meteor.userId()) {
 			return;
 		}
 		//		var fitActivity = template.find('.fitActivity').id;
-		var drvTrack = $(event.currentTarget).attr('id');
-		console.log('click .showMap ',  drvTrack, $(event.currentTarget));
-		Session.set('drvTrack', drvTrack);
+		var driveTrackId = $(event.currentTarget).attr('id');
+		console.log('click .showMap ',  driveTrackId, $(event.currentTarget));
+		Session.set('driveTrackId', driveTrackId);
 		Overlay.show('showMapDrv');	
 		return;
 	},
@@ -150,9 +170,9 @@ Template.showMapDrv.helpers({
 		return Session.get('debug');
 	},
 	track: function () {
-		console.log(' drive  ', Session.get('drvTrack'));
-		var drvTrack = Session.get('drvTrack');
-		var track = Drives.find({driveTrackId:drvTrack},
+		console.log(' drive  ', Session.get('driveTrackId'));
+		var driveTrackId = Session.get('driveTrackId');
+		var track = Drives.find({driveTrackId:driveTrackId},
 			{
 				sort: {created: -1},
 				transform: function(doc){	
@@ -165,8 +185,8 @@ Template.showMapDrv.helpers({
 		return track;
 	},
 	driveTrack: function(){
-		var drvTrack = Session.get('drvTrack');
-		var track = FitnessTracks.findOne(drvTrack);
+		var driveTrackId = Session.get('driveTrackId');
+		var track = DriveTracks.findOne(driveTrackId);
 		console.log('drvTrack track ', track);
 		return track;
 	},
@@ -176,41 +196,46 @@ Template.showMapDrv.helpers({
       // We can use the `ready` callback to interact with the map API once the map is ready.
       GoogleMaps.ready('driveMap', function(map) {
         // Add a marker to the map once it's ready
-				var track = Drives.find({driveTrackId:drvTrack},
-				{
-					sort: {created: -1},
-					transform: function(doc){	
-						doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm:ss");
-						doc.location.coords.speed = Math.round(doc.location.coords.speed * 1000 / 60 / 60 * 100) / 100 
-						return doc;
+				var track = Drives.find({driveTrackId:Session.get('driveTrackId')},
+					{
+						sort: {'created': 1},
+						transform: function(doc){	
+							doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm:ss");
+							doc.location.coords.speed = Math.round(doc.location.coords.speed * 1000 / 60 / 60 * 100) / 100 
+							return doc;
+						}
 					}
-				}
 				);
+				if (Session.get('debug'))
+					console.log('GoogleMaps ready loading markers ', track.fetch(), this);
+				var mytrack = track.fetch();
+//				console.log ('track ', mytrack);
+//				console.log ('track ', mytrack[0].activityId);
+				var oldLocation;
 				track.forEach(function (item, index, array) {
-					//			console.log(' foreach ', item.types );
 					var marker = new google.maps.Marker({
 						position: new google.maps.LatLng(item.location.coords.latitude,item.location.coords.longitude),
 						map: map.instance,
-						title: 'Speed: ' + item.location.coords.speed
+						title: 'Speed: ' + item.location.coords.speed 
 					});	
+					if (Session.get('debug'))
+						console.log ('adding marker ', marker);
 				});
+				
       });
-			var drvTrack = Session.get('drvTrack');
-			var trackStart = DriveTracks.findOne(drvTrack);			
-			console.log('DriveTracks ',trackStart, drvTrack);
+			var driveTrackId = Session.get('driveTrackId');
+			var driveTrack = FitnessTracks.findOne(driveTrackId);		
+			var driveStart = Drives.findOne({driveTrackId:driveTrackId}, {sort: {timestamp: -1}});
       // Map initialization options
       return {
-        center: new google.maps.LatLng(trackStart.driveStart.coords.latitude, trackStart.driveStart.coords.longitude),
+        center: new google.maps.LatLng(driveStart.location.coords.latitude, driveStart.location.coords.longitude),
         zoom: 18
       };
     } else {
 			console.log('GoogleMaps not yet loaded');
 			GoogleMaps.load();
-			if (GoogleMaps.loaded()) {
-				console.log('GoogleMaps loaded');
-			} else {
-				console.log('GoogleMaps not yet loaded 2');	
-			}
-		}			
+			//			GoogleMaps.load({ v: '3', key: 'AIzaSyAQH9WdmrwMKphSHloMai5iYlcS5EsXMQA' });
+			
+		}
   }
 });
