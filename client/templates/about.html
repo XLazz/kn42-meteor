@@ -128,20 +128,25 @@
 		</div>
 	{{/each}}
 	<hr>
-	{{#if ifDebug}}
-		<div class="row">
-			<div class="col-md-12 col-xs-12">
-				{{#with status}}
-					Server is {{server}} 
-					{{#if connected}}
-						<input type="button" class="button btn btn-small btn-quartiary disconnect" value="Disconnect" />
-					{{else}}
-						<input type="button" class="button btn btn-small btn-quartiary reconnect" value="Reconnect" />
-					{{/if}}
-				{{/with}}
-			</div>
+	<div class="row">
+		<div class="col-md-6 col-xs-6">
+			{{#with status}}
+				{{#if connected}}
+					<input type="button" class="button btn btn-small btn-quartiary disconnect" value="Disconnect" />
+				{{else}}
+					<input type="button" class="button btn btn-small btn-quartiary reconnect" value="Reconnect" />
+				{{/if}}
+				Server is {{server}} 
+			{{/with}}
 		</div>
-	{{/if}}
+		<div class="col-md-6 col-xs-6">
+			{{#if ifDebug}}
+				<input type="button" class="button btn btn-small btn-quartiary nondebug" value="NonDebug" />
+			{{else}}
+				<input type="button" class="button btn btn-small btn-quartiary debug" value="Debug" />
+			{{/if}}
+		</div>
+	</div>
 	<div class="row">
 		<div class="col-md-12 col-xs-12">
 			Privacy settings: <br />

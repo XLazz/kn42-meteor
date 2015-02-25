@@ -6,19 +6,13 @@ Meteor.startup(function () {
 	
 	if (!Meteor.user())
 		return;
-/* 	Session.set('geoback', true );
-	Session.set('interval', 300000); */
+	Session.set('geoback', true );
+	Session.set('interval', 1000000);
 	UpdateGeo();
 	PollingGeo();
 	console.log(' setting initial sessiong geoback ', Meteor.user().profile.geoback);
 	if (!UserPlaces.findOne({userId: Meteor.userId()})) {
 		console.log('autostart getPlaces ', Session.get('getPlaces'), Session.get('getPlacesNotReady'));
-		// if (Session.get('phpCall'))
-			// return
-/* 		var userId = Meteor.userId();
-		var limit = 20;
-    var searchHandle = Meteor.subscribe('downloadPlaces', userId, limit);
-    Session.set('getPlacesNotReady', ! searchHandle.ready()); */
   }
-	GoogleMaps.load({ v: '3', key: 'AIzaSyAQH9WdmrwMKphSHloMai5iYlcS5EsXMQA'});
+//	GoogleMaps.load({ v: '3', key: 'AIzaSyAQH9WdmrwMKphSHloMai5iYlcS5EsXMQA'});
 });

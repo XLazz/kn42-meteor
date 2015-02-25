@@ -586,11 +586,6 @@ Template.buttons.events({
 		var userId = Meteor.userId();
 
 		console.log('locations events 1 ',this.place_id);
-//		Meteor.call('getLocations','list');
-/* 		Meteor.call('getGLoc', userId, userPlace.location, radius, function(err, results){
-			console.log('locations events getGLoc results ', results.results);	
-		}); */
-
 		Session.set('searching', false);
 		Session.set('radius', radius);
 		Overlay.show('selectPlace');	

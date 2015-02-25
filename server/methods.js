@@ -191,7 +191,7 @@ Meteor.methods({
 		return response;
 	},
 	
-	'getLocations':function(userId, list){
+/* 	'getLocations':function(userId, list){
 		if (!userId) {
 			return;
 		}
@@ -206,9 +206,6 @@ Meteor.methods({
 		var userLocations = JSON.parse(myJSON.content).user_locations;
 		console.log('calling php server for json 3. num of els ', userLocations.length);
 		userLocations.forEach(function (item, index, array) {
-/* 			Meteor.call('getGPlace', item.place_id, function(err, results){
-			}); */
-
 			var ifPlace = UserPlaces.findOne({				
 				$and: [
 					{location_id: item.location_id}, {userId: userId}, {
@@ -267,7 +264,7 @@ Meteor.methods({
 		});
 
 		return userLocations;
-	},
+	}, */
 	
 	'UserLocationsUpdate':function( userId, userPlaceId, place_id){
 		var old_place = UserPlaces.findOne(userPlaceId, {fields: {place_id: 1, _id:0}});	

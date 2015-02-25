@@ -293,9 +293,13 @@ UpdateGeoDB = function(geolocation, uuid, device){
 		return;
 	// if not stationary and not finalised, then finalise it
 	if ((!userPlace.timestampEnd) && (!location.stationary))
-	UserPlaces.update(userPlace._id,{$set:{timestampEnd:userPlace.timestampEnd}});
+		UserPlaces.update(userPlace._id,{$set:{timestampEnd: location.timestamp}});
 	// if stationary and old userplace finalised, create new
 	if ((userPlace.timestampEnd) && (location.stationary)){
+		if (!userPlace.timestampEnd) {
+			location.timestampEnd = userPlace.timestamp + 60000;
+			UserPlaces.update(userPlace._id,{$set:{timestampEnd:location.timestampEnd}});
+		}
 		var newUserPlace = {
 			userId: userPlace.userId,
 			location: location.location,

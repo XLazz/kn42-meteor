@@ -78,20 +78,18 @@ Template.lifelog.events({
 			console.log('Meteor.call event removevenuesFsqr', this, results);
 			return results;
 		});
-//		Meteor.call('getLocations', Meteor.userId(), 'list');
-//		Meteor.call('getLocations','list',function(err,results));
 	},
 	
 	"click .updatelocations": function (event, template) {
 		if (!Meteor.userId()) {
 			return;
 		}
-		console.log('updatelocations events ');
+/* 		console.log('updatelocations events ');
 		Meteor.call('getLocations', Meteor.userId(), 'list', function(err, results){
 			console.log('getLocations http call ', results);
 			Session.set('getPlaces', false);
 			Session.set('getPlacesNotReady', false);
-		});
+		}); */
 //		Meteor.call('getLocations','list',function(err,results));
 	},
 	"click .dedup": function (event, template) {
@@ -100,7 +98,6 @@ Template.lifelog.events({
 		}
 		console.log('dedup events ');
 		Session.set('dedup', true);
-		//		Meteor.call('getLocations','list',function(err,results));
 	},	
 	"click .dedupstop": function (event, template) {
 		if (!Meteor.userId()) {

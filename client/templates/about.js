@@ -237,5 +237,11 @@ Template.userSettings.events({
 		Meteor.reconnect();
 		console.log('meteor status ',  Meteor.status());
 	},
+	'click .debug': function (event, template) {
+		Session.set('debug', true);
+	},
+	'click .nondebug': function (event, template) {
+		Session.set('debug', false);
+	},
 });
 
