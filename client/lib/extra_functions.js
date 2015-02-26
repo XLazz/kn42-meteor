@@ -424,7 +424,7 @@ updateEmptyPlaces = function(){
 		Session.set('updatePlaces', 0);
 	if ((moment().valueOf() - Session.get('updatePlaces') < 60000 )) {
 		if (Session.get('debug'))
-			console.log('recent call to updateEmptyPlaces ', moment().valueOf() - Session.get('updatePlaces') - timelimit, ' was ', moment(Session.get('updatePlaces')).format("MM/DD HH:mm:ss.SSS"), ' now ', moment().format("MM/DD HH:mm:ss.SSS"));
+			console.log('recent call to updateEmptyPlaces ', moment().valueOf() - Session.get('updatePlaces') - 60000, ' was ', moment(Session.get('updatePlaces')).format("MM/DD HH:mm:ss.SSS"), ' now ', moment().format("MM/DD HH:mm:ss.SSS"));
 		return;
 	}
 	var initiator = 'updateEmptyPlaces function';

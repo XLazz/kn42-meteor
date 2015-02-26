@@ -1,3 +1,41 @@
+<template name="claimPlace">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12">
+				<div style="height: 240px">
+					{{> showMapClaim}}
+				</div>
+			</div>
+		</div>			
+		<div class="row bottom">
+			<div class="col-xs-12 col-sm-12 col-md-12">
+				{{#autoForm id="claimPlaceForm" type="insert" template="bootstrap3-horizontal" collection="ClaimedPlaces"}}
+					<div class="col-xs-6 col-sm-6 col-md-6 inline">
+						{{> afFieldInput name="name" placeholder="Name your place" }}
+					</div>
+					<div class="col-xs-3 col-sm-3 col-md-3 inline">
+						{{> afFieldInput name="publicPlace"}}
+					</div>
+					<div class="col-xs-3 col-sm-3 col-md-3 inline">
+						<button type="submit" class="btn btn-primary">Ok</button>
+					</div>
+					<div class="form-group">
+						{{> afFieldInput name="userId" type="hidden" value=userId}}
+						{{> afFieldInput name="created" type="hidden" value=created}}
+						{{> afFieldInput name="place_id" type="hidden" value=place_id}}
+						{{> afFieldInput name="coords.latitude" type="hidden" value=coords.latitude}}
+						{{> afFieldInput name="coords.longitude" type="hidden" value=coords.longitude}}
+						{{> afFieldInput name="coords.latitude_harsh" type="hidden" value=coords.latitude_harsh}}
+						{{> afFieldInput name="coords.longitude_harsh" type="hidden" value=coords.longitude_harsh}}
+						{{> afFieldInput name="type" type=selectedType options=sTypes}}
+					</div>
+				{{/autoForm}}
+			</div>
+		</div>
+	</div>
+<!-- {{> quickForm collection="ClaimedPlaces" id="claimPlace" type="insert"}} -->
+</template>
+
 <template name="claimedPlaces">
 	<div class="content-scrollable">
 		<div class="container-fluid">
@@ -15,14 +53,16 @@
 	<!-- 						<label>Claimed on {{claimed.created}} with {{claimed}}</label><br />
 					<textarea style="width:100%" name="text" rows="2" placeholder="Set here what you want to show about your claimed place ...">{{claimed.name}}</textarea> -->
 					{{#with claimed}}
-						{{#autoForm id="claimedPlaceForm" doc=this type="update" collection="ClaimedPlaces" schema="Schemas.ClaimForm"}}
-							<div class="form-group">
-								{{> afFieldInput name="name" placeholder="Name your place"}}
+						{{#autoForm id="claimedPlaceForm" doc=this type="update"  autosave=true template="bootstrap3-horizontal" collection="ClaimedPlaces" schema="Schemas.ClaimForm"}}
+							<div class="col-xs-9 col-sm-9 col-md-9 inline">
+								{{> afFieldInput name="name" placeholder="Name your place" }}
 							</div>
-							{{> afQuickField name="public"}}
-							<div class="form-group">
-								<button type="submit" class="btn btn-primary">Submit</button>
+							<div class="col-xs-3 col-sm-3 col-md-3 inline">
+								{{> afFieldInput name="publicPlace"}}
 							</div>
+<!-- 							<div class="col-xs-3 col-sm-3 col-md-3 inline">
+								<button type="submit" class="btn btn-primary">Ok</button>
+							</div> -->
 						{{/autoForm}}
 					{{/with}}
 				</div>

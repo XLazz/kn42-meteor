@@ -55,6 +55,7 @@ Meteor.publish(null, function() {
 Meteor.publish('PlaceServices', function(userId) {
 	return PlaceServices.find();
 });
+
 Meteor.publish('GeoLog', function(userId) {
 	return GeoLog.find({userId:this.userId},{sort: {timestamp:-1}, limit:40});
 });
@@ -94,6 +95,9 @@ Meteor.publish('DriveTracks', function(userId) {
 Meteor.publish('Friends', function(userId) {
 	return Friends.find({userId:this.userId});
 });
+Meteor.publish('FitnessRoutes', function(userId) {
+	return FitnessRoutes.find();
+});
 Meteor.publish('FitnessActivities', function(userId) {
 	return FitnessActivities.find();
 });
@@ -122,14 +126,15 @@ Meteor.publish('downloadPlaces', function(userId, limit) {
 				console.log('got empty item on downloadPlaces ');
 //				return;
 			} else {
-				
+				item.timestamp = parseInt(item.timestamp);
+				item.timestampEnd = parseInt(item.timestampEnd);
 				if (!item.timestamp || item.timestamp == 0) 
 					item.timestamp = moment(item.started).valueOf();
 				if (!item.timestampEnd || item.timestampEnd == 0)
 					if (item.finished) {
 						item.timestampEnd = moment(item.finished).valueOf();
 					} else {
-						item.timestampEnd = item.timestamp + 60;
+						item.timestampEnd = item.timestamp + 60000;
 					}
 						
 				if (item.status == 'confirmed')
@@ -158,7 +163,8 @@ Meteor.publish('downloadPlaces', function(userId, limit) {
 //					finished: item.finished,
 					timestamp: parseInt(item.timestamp),
 					timestampEnd: parseInt(item.timestampEnd),
-					status: item.status
+					status: item.status,
+					origin: 'downloadPlaces'
 				};
 				console.log('inserting item for user 1 userId ', userId, item.user_history_location_id, item.place_id, item.timestamp, item.timestampEnd );
 				//console.log('inserting item for user ', userId, _id, item.user_history_location_id);

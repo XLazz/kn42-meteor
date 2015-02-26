@@ -152,7 +152,8 @@ Meteor.methods({
 							place.timestampEnd = 1000*(item.createdAt)+60000;
 							place.location = {coords:{latitude: item.venue.location.lat, longitude: item.venue.location.lng}};
 							place.started = moment(place.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS");
-							place.status = 'confirmed';	
+							place.status = 'confirmed';
+							place.origin = 'checkinsFsqr';
 
 							console.log('checkins Fsqr http call 4 adding item to UserPlaces ', i, item.id, item.venue.name, place.timestamp, place.started  );
 							var userPlaceId = UserPlaces.insert(place);

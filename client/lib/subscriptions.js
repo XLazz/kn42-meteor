@@ -32,6 +32,7 @@ Tracker.autorun(function () {
 		Meteor.subscribe('Drives', userId);
 		Meteor.subscribe('DriveTracks', userId);
 		Meteor.subscribe('Friends', userId);
+		Meteor.subscribe('FitnessRoutes');
 		Meteor.subscribe('FitnessActivities');
 		Meteor.subscribe('FitnessTracks',userId);
 		Meteor.subscribe('Tracks',userId);

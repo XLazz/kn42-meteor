@@ -376,10 +376,24 @@ Template.showMapFit.helpers({
 				if ((!doc.calories) || (!doc.calories == 0))
 					checkCalories(doc._id);
 				doc.distance = truncateDecimals(doc.distance, 3);
+				doc.date = moment(doc.timestamp).format("YYYY/MM/DD");
 				return doc;
 			}
 		});
+		var fitnessRoute = FitnessRoutes.findOne({fitnessTrackId:track._id});
+		if (fitnessRoute) {
+			track.fitnessRouteId = fitnessRoute._id;
+			track.publicRoute = fitnessRoute.publicRoute;
+			track.name = fitnessRoute.name;
+		}
+		console.log(' fitnessTrack', fitnessTrackId, fitnessRoute, track, this);
 		return track;
+	},
+	fitnessRoute: function() {
+		
+		var fitnessRoute = FitnessRoutes.findOne({fitnessTrackId:Session.get('fitnessTrackId')});
+		console.log('fitnessRoute', this._id, this, fitnessRoute);
+		return fitnessRoute;
 	},
   fitnessMapOptions: function() {
     // Make sure the maps API has loaded
@@ -445,4 +459,10 @@ Template.showMapFit.helpers({
 			
 		}
   }
+});
+
+Template.showMapFit.events({
+  'submit form': function(event) {
+//    event.preventDefault();
+  },
 });

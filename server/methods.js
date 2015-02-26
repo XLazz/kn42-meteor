@@ -275,7 +275,7 @@ Meteor.methods({
 		return found;
 	},
 	
-	'getPlaces': function(userId, userLocation, radius, elsewhere ){
+	getPlaces: function(userId, userLocation, radius, elsewhere ){
 		if (!userLocation)
 			return;
 		if (!radius)

@@ -129,11 +129,50 @@
 					</div>
 				</div>	
 			{{/each}} -->
+			
 			<div class="row setlocations" id="">
 				<div class="col-xs-12 col-sm-12 col-md-12" > 
-					Route: {{fitnessTrack.distance}}m in {{fitnessTrack.timespent}}, {{fitnessTrack.calories}}cal
+					{{#with fitnessTrack}}
+						Route: {{distance}}m in {{timespent}}, {{calories}}cal
+					{{/with}}
 				</div>
 			</div>	
+			<div class="row setlocations" id="">
+					{{#with fitnessRoute}}
+						{{#autoForm id="rememberRouteForm4" collection="FitnessRoutes"  doc=this type="update" template="bootstrap3-horizontal" autosave=true schema="Schemas.FitnessRoutes" }}
+							<div class="col-xs-9 col-sm-9 col-md-9 inline">
+								{{> afFieldInput name="routeName" label=false placeholder="Name your route"}}
+							</div>
+							<div class="col-xs-3 col-sm-3 col-md-3 inline">
+								{{> afFieldInput name="publicRoute" }}
+							</div>
+						{{/autoForm}}
+					{{/with}}
+					
+					{{#with fitnessTrack}}
+						{{#unless fitnessRouteId}} 
+							{{#autoForm id="rememberRouteForm" type="insert" collection="FitnessRoutes" template="bootstrap3-horizontal" schema="Schemas.FitnessRoutes"}}
+								<div class="col-xs-6 col-sm-6 col-md-6 inline">
+									{{> afFieldInput name="routeName" label=false placeholder="Name your route" template="bootstrap3-horizontal" input-col-class="col-xs-7 col-sm-7 col-md-7 inline"  }}
+								</div>
+								<div class="col-xs-3 col-sm-3 col-md-3 inline">
+									{{> afFieldInput name="publicRoute" template="bootstrap3-horizontal" input-col-class="col-xs-3 col-sm-3 col-md-3 inline"}}
+								</div>
+								<div class="col-xs-2 col-sm-2 col-md-2 inline">
+									<button type="submit" class="btn btn-primary ">Ok</button>
+								</div>
+								<div class="form-group">
+									{{> afFieldInput name="fitnessTrackId" type="hidden" value=_id}}
+									{{> afFieldInput name="userId" type="hidden" value=userId}}
+									{{> afFieldInput name="date" type="hidden" value=timestamp}}						
+									{{> afFieldInput name="activityId" type="hidden" value=activityId}}
+									{{> afFieldInput name="distance" type="hidden" value=distance}}
+								</div>
+							{{/autoForm}}
+						{{/unless}}
+					{{/with}}
+
+			</div>			
 		</div>
 	</div>
 	<input type="button" class="button cancel btn btn-danger btn-down" value="Cancel" />
