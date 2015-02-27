@@ -5,6 +5,8 @@ calculateDistanceLoc = function(coords1, coords2) {
 	return distance;
 };
 
+
+
 calculateDistance = function(lat1, lon1, lat2, lon2) {
 	// if (Session.get('debug')) 
 		// console.log('calculateDistance function ', lat1, lon1, lat2, lon2);	

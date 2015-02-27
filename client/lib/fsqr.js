@@ -30,64 +30,6 @@ ifCheckedName = function(){
 	if (venueFsqr)
 		return venueFsqr;	
 }
-/* 
-CheckedFsqr = function(userPlaceId){
-	var userPlace.foursquareChk =  fsqrByChk.findOne(userPlaceId);
-	console.log('function checkedFsqr 1 ', userPlace);
-	if (!userPlace)  
-		return ;
-	
-	if (userPlace.foursquareChk) {
-		var checkedFsqr = VenuesCheckins.findOne({
-				id: userPlace.foursquareChk
-			},{	
-				limit: 1, sort: {createdAt: -1},
-				transform: function(doc){
-	//				doc.timestamp = doc.timestamp+300*60;
-					doc.createdDate = moment(doc.createdAt*1000).format("MM/DD/YY HH:mm");
-					console.log('checkedFsqr inside ', doc);
-					var venueFsqr = VenuesFsqr.findOne({id: doc.venueId});
-					if (venueFsqr) {
-						doc.name = venueFsqr.name;
-						return doc;
-					}
-				}
-			}
-		);
-//		console.log('function checkedFsqr 1 ', userPlace, checkedFsqr);
-		if (checkedFsqr)
-			return checkedFsqr;				
-	}
-	
-	if (!userPlace.timestampEnd)
-		userPlace.timestampEnd = moment().valueOf();
-		
-	var checkedFsqr = VenuesCheckins.findOne({
-			userId: Meteor.userId(),	
-			createdAt: { $gt: userPlace.timestamp/1000, $lt: userPlace.timestampEnd/1000}	
-		},{	
-			limit: 1, sort: {createdAt: -1},
-			transform: function(doc){
-				var timestamp = moment(userPlace.timestamp).format("MM/DD/YY HH:mm");
-				var timestampEnd = moment(userPlace.timestampEnd).format("MM/DD/YY HH:mm");
-				doc.date = moment(doc.createdAt*1000).format("MM/DD/YY HH:mm");
-				var venueFsqr = VenuesFsqr.findOne({id: doc.venueId});
-				if (venueFsqr)
-					doc.name = venueFsqr.name;
-//				console.log('inside  VenuesCheckins.findOne ', timestamp, timestampEnd, doc.date, doc);
-//				doc.timestamp = doc.timestamp+300*60;
-				return doc;
-			}
-		}
-	);
-
-//	console.log('function checkedFsqr 2 ', userPlace, checkedFsqr);
-	if (checkedFsqr) {
-		UserPlaces.update(userPlaceId, {$set: {foursquareChk: checkedFsqr.id}});
-		return checkedFsqr;
-	}
-}
- */
 
 CheckinFsqr = function(userLocationId, limit, radius_search ){
 	if (!userLocationId)  
@@ -164,6 +106,21 @@ loadFsqr = function(location, userPlaceId){
 				console.error('Meteor.call venuesFsqr err ', err);
 			if (results) {
 				results.response.userPlaceId = userPlaceId;
+				var special = {}
+				results.response.venues.forEach(function (item, index, array) {
+					console.log('fsqr venue', item);
+					if (parseInt(item.specials.count) > 1){
+						// we got special
+						console.log('special for Fsqr ', item.id, item.name, item.specials.count);
+						special.id = item.id;
+						special.name = item.name;
+						special.specials = item.specials;
+						special.timestamp = moment().valueOf();
+						var id = SpecialOffers.insert(special);
+						Session.set('specials', specials);
+						return special;
+					}
+				});
 				Session.set('venueFsqr', results.response);
 				Session.set('venue', false);
 				if  (Session.get('debug'))

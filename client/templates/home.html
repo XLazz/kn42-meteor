@@ -40,12 +40,12 @@
 			{{/if}}	
 		</div>
 
-		{{#if debug}}
+		{{#if special}}
 			<div class="callout-news">
 				<span class="white fa fa-gift"></span> <span class="title-callout">Special offers</span>
 			</div>
-			<div class="container-fluid">		
-				offers are coming
+			<div class="container-fluid special">		
+				You ve got a special!
 			</div>
 		{{/if}}
 	</div>
@@ -281,4 +281,25 @@
 	{{> venuesSelected}}
 </template>
 
-
+<template name="specials">
+	<div class="topdiv">
+		Specials
+	</div>
+	<div class="content-scrollable">
+		<div class="container-fluid">
+			<div class="row setlocations" id="">
+				<div class="col-xs-12 col-sm-12 col-md-12" > 
+					{{#with special}}
+						{{id}} {{name}} {{specials.count}}
+						{{#with specials}}
+							{{#each items}}
+								Got: {{title}} {{id}} {{type}} {{description}} {{message}}
+							{{/each}}
+						{{/with}}
+					{{/with}}
+				</div>
+			</div>		
+		</div>
+	</div>
+	<input type="button" class="button cancel btn btn-danger btn-down" value="Close" />
+</template>

@@ -1,6 +1,8 @@
 var FEATURED_COUNT = 4;
 var i = 0;
 
+var SpecialOffers = new Meteor.Collection(null);
+
 findExperiences = function(){
 	var services = PlaceServices.findOne({
 		place_id: Session.get('currentPlace')
@@ -36,17 +38,34 @@ Template.homeinside.helpers({
   latestNews: function() {
     return News.latest();
   },
-});
-
-Template.home.events({
-
-});
-
-Template.homeinside.helpers({
 	ifUser: function (){
 		var userId = Meteor.userId();
 		return userId;
 	},
+	special: function() {
+		var offers = SpecialOffers.findOne();
+		if ( Meteor.userId())
+			console.log('offers ', offers);
+		return offers;	
+	}
+});
+
+Template.homeinside.events({
+	'click .goprofile': function(event, template) {
+		Router.go('about');
+	},
+	'click .change': function (event, template) {
+		var place_id = $(event.currentTarget).attr("id");
+		Session.set('radius', 50);
+		console.log('changing place ', place_id);
+		return Session.set('changeplace', true);
+	},
+	"click .expselect": function (event, template) {
+		Session.set('showexp', true);
+	},	
+	'click .special': function (event, template) {
+		Overlay.show('specials');	
+	}
 });
 
 Template.homelocation.helpers({
@@ -78,11 +97,11 @@ Template.homelocation.helpers({
 			var userPlace = UserPlaces.findOne(Session.get('userPlaceId'));
 		} else {		
 			var userPlace = UserPlaces.findOne({userId:userId}, {sort: {timestamp: -1}});
-			var userPlaceId = userPlace._id;
-			Session.set('userPlaceId', userPlace._id);
+			if (userPlace) {
+				var userPlaceId = userPlace._id;
+				Session.set('userPlaceId', userPlace._id);
+			} 
 		} 	
-		if (!userPlace) 
-			return currentlocation.status = '...updating';	
 		
 		if (Session.get('debug'))
 			console.log('currentlocation 1.1 ', moment().format("MM/DD HH:mm:ss.SSS"), ' location ', Session.get('locationId'), ' userPlace ', userPlace );
@@ -94,7 +113,20 @@ Template.homelocation.helpers({
 			Session.set('locationId', location._id);		
 		} 
 		if (!location) 
-		return currentlocation.status = '...updating';	
+			return currentlocation.status = '...no data. Please turn on service';	
+	
+		if (!userPlace) {
+			return currentlocation.status = '...updating';	
+			var params = {
+				radius: radius,
+				location: userPlace.location
+			}
+			var initiator = 'homelocation helpers';
+			var gotPlaces = Meteor.call('getGLoc', userId, params, initiator, function(err, results){
+				console.log('selectPlace helpers getGLoc results ', results.results);	
+				return results;
+			});
+		}
 	
 		if (Session.get('debug'))
 			console.log('currentlocation 1.2 ', moment().format("MM/DD HH:mm:ss.SSS"), ' location.stationary ', location.stationary, location.location.distance, location.location.coords.speed, userPlace );
@@ -201,100 +233,13 @@ Template.homelocation.helpers({
 		return place;
 	},	
 	
-/* 	checkedFsqr: function(){
-		if (!this.timestampEnd)
-			this.timestampEnd = moment().valueOf();
-		var timestampFsqr;
-		var nameFsqr;
-		console.log('checkin fsqr ', timestamp, timestampEnd);
-		var checkedFsqr = VenuesCheckins.findOne({
-				userId:this.userId,	
-				createdAt: { $gt: this.timestamp/1000+300*60, $lt: this.timestampEnd/1000+300*60}	
-			},{	
-				limit: 1, sort: {createdAt: -1},
-				transform: function(doc){
-	//				doc.timestamp = doc.timestamp+300*60;
-					doc.date = moment(doc.createdAt*1000).format("MM/DD/YY HH:mm");
-					var venue = VenuesFsqr.findOne({venueId:doc.venueId});
-					doc.name = venue.name;
-					console.log('checkin fsqr 2 ', timestamp, timestampEnd, doc.createdAt, doc.date, doc.name);
-					return doc;
-				}
-			}
-		);
-		console.log('checkedFsqr ', this, checkedFsqr);
-		if (checkedFsqr)
-			return checkedFsqr;		
-	},
-	
-	checkinFsqr: function(){
-		var userPlaceId = this._id;
-		if (!userPlaceId)  
-			return ;
-		var userPlace =  UserPlaces.findOne(userPlaceId);
-		if (!userPlace.location)  	
-			return ;	
-		if (!userPlace.location.coords)  
-			return ;				
-		console.log('checkinFsqr 1 ', userPlace.location.coords);
-		var coords = userPlace.location.coords;
-//		var userPlace = GeoLog.findOne({userId: userId}, {sort: {created: -1}}).location;
-
-		var radius_search = 0.1;
-		latup = coords.latitude + radius_search;
-		latdown = coords.latitude - radius_search;
-		lngup = coords.longitude + radius_search;
-		lngdown = coords.longitude - radius_search;
-		var checkinFsqr = VenuesCache.findOne({'location.lat': { $gt: latdown, $lt: latup }, 'location.lng': { $gt: lngdown, $lt: lngup }});
-		console.log('checkinFsqr 2 ', this, checkinFsqr);
-		if (checkinFsqr)
-			return checkinFsqr;		
-	}, */
-	
 	findFsqr: function(){
 		var userPlace = this._id;
 //		var venue = loadFsqr(userPlace);
 		console.log(' findFsqr ', venue);
 		return venue;
 	},
-	
-/* 	currentplace: function(){
-		userPlace = Session.get('userPlace');
-		if (!userPlace)
-			return;
-		if (!userPlace.user_history_location_id)
-			return;
-		var place = Places.findOne({place_id: userPlace.place_id});
 		
-		if (!place) {
-			place = MerchantsCache.findOne({place_id: userPlace.place_id});
-		}
-		if (!place) {
-			console.log('no content, going for call to getPlaces');
-			Meteor.call( 'getPlaces', Meteor.userId(), userPlace, 50, function(err, results){
-				console.log('Meteor.call getPlaces', results);
-				return {'currentplace': results};
-			});
-			return place;
-		}
-		
-		if (!userPlace.name) {
-			userPlaces.update({_id: userPlace._id}, {$set:{name: place.name}});
-		}
-			
-		place.timespent = moment(userPlace.started).fromNow();
-		console.log('currentplace started ', userPlace.started );
-		return place;
-	}, */
-	
-/* 	placeconfirmed: function(){
-		currentPlace = userPlaces.findOne({user_history_location_id: Session.get('userPlace').user_history_location_id, confirmed: 1});
-		if (currentPlace) {
-			console.log('experiences placeconfirmed ', currentPlace.place_id);
-			return currentPlace;
-		}
-	}, */
-	
 	service: function(){
 		if (!Meteor.userId()) {return;};
 		var lastGeoLog = GeoLog.findOne({userId: Meteor.userId(), place_id: {$not: {$size: 0}}}, {sort: {timestamp: -1}});
@@ -357,21 +302,6 @@ Template.homelocation.events({
 		var venue = loadFsqr(this.location);
 		return venue;
 	},
-});
-
-Template.homeinside.events({
-	'click .goprofile': function(event, template) {
-		Router.go('about');
-	},
-	'click .change': function (event, template) {
-		var place_id = $(event.currentTarget).attr("id");
-		Session.set('radius', 50);
-		console.log('changing place ', place_id);
-		return Session.set('changeplace', true);
-	},
-	"click .expselect": function (event, template) {
-		Session.set('showexp', true);
-	},	
 });
 
 Template.selectExperience.helpers({
@@ -659,3 +589,25 @@ UI.registerHelper('ifConfirmed2', function () {
 		return Session.get('geoback')
 	},
 }); */
+
+
+Template.specials.helpers({
+	special: function(){
+		var special = SpecialOffers.find({},{sort: {timestamp: -1}});
+		console.log('specials ', special);
+		return special;
+		//return Session.get('special');
+	}
+});
+
+Template.specials.events({
+	'click .cancel': function(event, template) {
+		console.log('selectPlace click .cancel ', this);
+		// Session.set("showCreateDialog", false);
+		var radius = 50;
+		Session.set('radius', radius);
+		Session.set('searching', false);
+		Session.set('changeplace', false);
+		Overlay.hide();
+	},
+});
