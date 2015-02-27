@@ -41,7 +41,7 @@ Meteor.methods({
 		console.log('empty places', UserPlaces.find({place_id: {$exists: false}}).count(), 'filled', UserPlaces.find({place_id: {$exists: true}}).count());
 		
 		var userPlaces = UserPlaces.find({userId: userId, place_id: {$exists: false}}, {limit: 50, sort:{timestamp: -1}	}	);
-		if (!userPlaces) {
+		if (!userPlaces.count()) {
 			userPlaces = 'all filled up';
 			return userPlaces;
 		}
@@ -54,6 +54,8 @@ Meteor.methods({
 		var i = 0;
 		var name = '';
 		var place;
+		if (!userPlaces)
+			return;
 		userPlaces.forEach(function (item, index, array) {
 			// console.log('');
 			// if  (ifDebug)
