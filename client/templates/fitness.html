@@ -10,8 +10,7 @@
       </div>
       <div class="description-about">
       </div>
-			{{> routes}}
-		
+				{{> routes}}
     </div>
   </div>
 </template>
@@ -21,94 +20,113 @@
 		{{#unless ifFitness}}
 			<div class="row ">
 				<div class="col-xs-6 col-sm-6 col-md-6 center">
-					<button class="btn btn-large btn-secondary findfit">Find a route</button>				
+					<button class="btn btn-large btn-secondary findroute">Find a route</button>				
 				</div>
 				<div class="col-xs-6 col-sm-6 col-md-6 center">
-					<button class="btn btn-large btn-secondary juststart">Just start</button>				
+					{{#if noRecent}}
+						<button class="btn btn-large btn-secondary inline cancelfit">Cancel</button>
+					{{/if}}				
 				</div>
 			</div>
-			{{#if ifFindFit}}
-				{{#Animate}}
-					<div class="row showactiv loading animate">
-						<div class="col-xs-12 col-sm-12 col-md-12">
-							<div class="alert alert-info" role="alert">We will show the nearest fitness route</div>
-							{{#each activities}}
-								<div class="row showactiv loading animate" id="{{_id}}">
-									<div class="col-xs-12 col-sm-12 col-md-12">
-										<span class="label {{#if selected}} label-primary {{else}} label-info {{/if}} fitActivity" id="{{_id}}">{{activity}}</span>							
-									</div>
-								</div>
-							{{/each}}
-						</div>
+			<div class="row loading animate">
+				{{#each activities}}
+					<div class="col-xs-4 col-sm-4 col-md-4 showactiv" id="{{_id}}">
+						<span class="label {{#if selected}} label-primary {{else}} label-info {{/if}} fitActivity" id="{{_id}}"><img src="icon/{{icon}}" width="80%" alt="{{activity}}" /> {{selected}}</span>							
 					</div>
-	<!-- 				<div class="row findroute loading animate">
-						<div class="col-xs-12 col-sm-12 col-md-12 center">
-							<button class="btn btn-large btn-secondary findfit">Select Activities</button>
-							<div class="alert alert-info kninfo" role="alert">We will show the nearest fitness route</div>
-						</div>
-					</div> -->
-				{{/Animate}}
+				{{/each}}
+				
+			</div>
+			{{#if findRoute}}
+				{{> selectRoutes}}
 			{{/if}}
 		{{/unless}}
 		<div class="row ">
 			<div class="col-xs-12 col-sm-12 col-md-12 center">
-				{{#if fitActivity}}
-					{{#unless ifFitness}}
-						<button class="btn btn-large btn-secondary inline startfit">Start</button>
-					{{/unless}}
-				{{/if}}
 				{{#if ifFitness}}
 					<button class="btn btn-large btn-secondary inline stopfit">Stop</button>
-				{{/if}}
-				{{#unless fitActivity}}
-					<div class="alert alert-info kninfo" role="alert">
-						With start button we change the gps request frequency to 10 sec, and stop finding the place.
-					</div>			
-				{{/unless}}
-				
+				{{else}}
+					{{#if readyFit}}
+						{{#unless ifFitness}}
+							<button class="btn btn-large btn-secondary inline startfit">Start</button>
+							<div class="alert alert-info kninfo" role="alert">
+								With start button we change the gps request frequency to 10 sec, and stop finding the place.
+							</div>		
+						{{/unless}}
+					{{/if}}
+	
+				{{/if}}	
 			</div>
 		</div>
 		{{#if ifFitness}}
-			{{#Animate}}
+<!-- 			{{#Animate}} -->
 				<!-- Current track here -->
-				<div class="row showlog loading animate">
-					<div class="col-xs-6 col-sm-6 col-md-6">
-						<img src="/img/app/animated-green-runner.gif" /><br />
-						{{track.fitnessTrackIdd}}
-					</div>
-					<div class="col-xs-6 col-sm-6 col-md-6">
-						{{#each track}}
-							<div class="row showlog loading animate" id="{{_id}}">
-								<div class="col-xs-12 col-sm-12 col-md-12">
-									<span class="label label-primary">{{time}} {{location.coords.speed}}m/s <!-- {{location.distance}}km --></span>	
-								</div>
-							</div>
-						{{/each}}
-					</div>
-				</div>
-			{{/Animate}}
-		{{else}}
+				{{> currentTrack}}
+<!-- 			{{/Animate}} -->
+		{{else}}		
+			{{#unless noRecent}}
 			<!-- Previous tracks -->
-			<div class="row showtrack loading animate" >
-				<div class="col-xs-12 col-sm-12 col-md-12">
-					Recent tracks
-				</div>
-			</div>
-			{{#each userTracks}}
-				{{#if show}}
-					<div class="row showtrack loading animate" id="{{_id}}">
-						<div class="col-xs-2 col-sm-2 col-md-2">				
-							<i class="fa fa-bicycle"></i>
-						</div>
-						<div class="col-xs-10 col-sm-10 col-md-10 showMap" id="{{_id}}">
-							<span class="label label-primary">{{date}} {{trackActivity.activity}} {{duration}}</span><br/>
-							<span class="label label-primary"> {{distance}}m {{calories}}cal</span>
-						</div>
-					</div>
-				{{/if}}
-			{{/each}}
+				{{> recentTracks}}
+			{{/unless}}
 		{{/if}}
 	</div>
+</template>
+
+<template name="currentTrack">
+	<div class="row showlog loading animate">
+		<div class="col-xs-6 col-sm-6 col-md-6">
+			<img src="/img/app/sport-graphics-running-881880.gif" /><br />
+			{{track.fitnessTrackIdd}}
+		</div>
+		<div class="col-xs-6 col-sm-6 col-md-6">
+			{{#each track}}
+				<div class="row showlog loading animate" id="{{_id}}">
+					<div class="col-xs-12 col-sm-12 col-md-12">
+						<span class="label label-primary">{{time}} {{location.coords.speed}}m/s <!-- {{location.distance}}km --></span>	
+					</div>
+				</div>
+			{{/each}}
+		</div>
+	</div>
+</template>
+
+<template name="recentTracks">
+	<div class="row showtrack loading animate" >
+		<div class="col-xs-12 col-sm-12 col-md-12">
+			Recent tracks
+		</div>
+	</div>
+	{{#each userTracks}}
+		<div class="row showtrack loading animate" id="{{_id}}">
+			<div class="col-xs-2 col-sm-2 col-md-2">				
+				<i class="fa fa-bicycle"></i>
+			</div>
+			<div class="col-xs-10 col-sm-10 col-md-10 showMap" id="{{_id}}">
+				<span class="label {{#if selected}} label-primary {{else}} label-info {{/if}}">{{date}} {{trackActivity.activity}} {{duration}}</span>
+				<span class="label {{#if selected}} label-primary {{else}} label-info {{/if}}"> {{distance}}m {{calories}}cal</span>
+			</div>
+		</div>
+	{{/each}}
+</template>
+
+<template name="selectRoutes">
+	<div class="row showtrack loading animate" >
+		<div class="col-xs-12 col-sm-12 col-md-12">
+			Select routes
+		</div>
+	</div>
+	{{#each routes}}
+		<div class="row showtrack loading animate " >
+			<div class="col-xs-2 col-sm-2 col-md-2 showMap selectroute" id="{{fitnessTrackId}}">				
+				<img src="/img/app/map.png" width="48px" />
+			</div>
+			<div class="col-xs-3 col-sm-3 col-md-3 setfitnessTrackId selectroute" id="{{fitnessTrackId}}">
+				<img src="/icon/{{activity.icon}}" width="48px" /> <span class="label {{#if selected}} label-primary {{else}} label-info {{/if}}"></span>
+			</div>
+			<div class="col-xs-7 col-sm-7 col-md-7 setfitnessTrackId selectroute" id="{{fitnessTrackId}}">
+				<span class="label {{#if selected}} label-primary {{else}} label-info {{/if}}">{{routeName}} {{distance}}m {{calories}}cal</span>
+			</div>
+		</div>
+	{{/each}}
 </template>
 
 <template name="showMapFit">
@@ -146,6 +164,9 @@
 							<div class="col-xs-3 col-sm-3 col-md-3 inline">
 								{{> afFieldInput name="publicRoute" }}
 							</div>
+							<div class="form-group">
+								{{> afFieldInput name="timestamp" type="hidden" value=timestamp}}	
+							</div>
 						{{/autoForm}}
 					{{/with}}
 					
@@ -164,7 +185,7 @@
 								<div class="form-group">
 									{{> afFieldInput name="fitnessTrackId" type="hidden" value=_id}}
 									{{> afFieldInput name="userId" type="hidden" value=userId}}
-									{{> afFieldInput name="date" type="hidden" value=timestamp}}						
+									{{> afFieldInput name="timestamp" type="hidden" value=timestamp}}	
 									{{> afFieldInput name="activityId" type="hidden" value=activityId}}
 									{{> afFieldInput name="distance" type="hidden" value=distance}}
 								</div>
@@ -175,6 +196,6 @@
 			</div>			
 		</div>
 	</div>
-	<input type="button" class="button cancel btn btn-danger btn-down" value="Cancel" />
+	<input type="button" class="button cancel btn btn-danger btn-down" value="Close" />
 </template>
 

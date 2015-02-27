@@ -130,19 +130,20 @@ Template.driving.events({
 			Session.set('watchGPS', false);
 		}
 		var driveTrackId = Session.get('driveTrackId');
+		var driveTrack = DriveTracks.findOne(driveTrackId);
 		var timestampEnd = moment().valueOf();
 
-		if ((timestampEnd - geoLoc.timestamp) > 300000) {
+		if ((timestampEnd - driveTrack.timestamp) > 300000) {
 			DriveTracks.update(driveTrackId,{$set:{timestampEnd: timestampEnd}});
-			var geoLoc = Drives.findOne({driveTrackId: driveTrackId},{sort: {timestamp:1}});
+//			var geoLoc = Drives.findOne({driveTrackId: driveTrackId},{sort: {timestamp:1}});
 			/* 		var geolog = GeoLog.findOne({fitnessTrackId: fitnessTrack._id});
 			GeoLog.update(geolog._id,{$set:{fitness: 'end'}}); */
-			console.log('stopfit ', driveTrackId, geoLoc);
+			console.log('stopfit ', driveTrackId, driveTrack);
 			var userPlaceId = UserPlaces.insert({
 				userId: userId,
-				location: geoLoc.location,
-				started:  moment(geoLoc.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS"),
-				timestamp:  geoLoc.timestamp,
+				location: driveTrack.location,
+				started:  moment(driveTrack.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS"),
+				timestamp:  driveTrack.timestamp,
 				timestampEnd: timestampEnd,
 				status: 'driving',
 				fitnessId: driveTrackId,

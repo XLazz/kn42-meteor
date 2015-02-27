@@ -119,6 +119,7 @@ Template.fitness.helpers({
 
 Template.routes.helpers({
 	debug: function () {
+		console.log('sessions ', Session.get('findfit'), Session.get('fitActivity'), Session.get('fitness'), Session.get('selectRoute'), Session.get('findRoute'));
 		return Session.get('debug');
 	},
 	ifFindFit: function () {
@@ -130,8 +131,19 @@ Template.routes.helpers({
 //		console.log(' findfit ', Session.get('findfit'));
 		return Session.get('fitness');
 	},
+	selectRoute: function(){
+		return Session.get('selectRoute');
+	},
+	findRoute: function(){
+		return Session.get('findRoute');
+	},
+	readyFit: function(){
+		console.log('justStart', Session.get('justStart'), 'selectRoute',  Session.get('selectRoute') , 'fitActivity',  Session.get('fitActivity'));
+		if (((Session.get('justStart')) || ( Session.get('selectRoute') )) && (Session.get('fitActivity')))
+			return true;
+	},
 	fitActivity: function(){
-		return Session.get('fitActivity')
+		return Session.get('fitActivity');
 	},
 	activities: function(){
 		var fitActivity = Session.get('fitActivity');
@@ -156,7 +168,11 @@ Template.routes.helpers({
 		}
 		if (Meteor.userId()) {return 'true'};
 	},
-	
+	noRecent: function(){
+		console.log('justStart', Session.get('justStart'), 'selectRoute',  Session.get('selectRoute') , 'fitActivity',  Session.get('fitActivity'), 'findRoute', Session.get('findRoute'));
+		if (Session.get('justStart') || ( Session.get('selectRoute') ) || (Session.get('fitActivity')) || (Session.get('findRoute')))
+			return true;
+	},
 	track: function(){
 //		console.log(' track fitness fitnessTrack ', Session.get('fitnessTrack'));
 /* 		if (!Session.get('fitnessTrackId')){
@@ -221,18 +237,26 @@ Template.routes.helpers({
 });
 
 Template.routes.events({
-	"click .findfit": function (event, template) {
+	"click .findroute": function (event, template) {
 		if (!Meteor.userId()) {
 			return;
 		}
+		Session.set('justStart', false);
 		Session.set('findfit', true);
+		Session.set('findRoute', true);
+		console.log('sessions ', Session.get('findfit'), Session.get('fitActivity'), Session.get('fitness'), Session.get('selectRoute'), Session.get('findRoute'));
 		return;
 	},
 	"click .juststart": function (event, template) {
 		if (!Meteor.userId()) {
 			return;
 		}
+		Session.set('fitActivity', false);
+		Session.set('justStart', true);
+		Session.set('selectRoute', false);
 		Session.set('findfit', true);
+		Session.set('findRoute', false);
+		console.log('sessions ', Session.get('findfit'), Session.get('fitActivity'), Session.get('fitness'), Session.get('selectRoute'), Session.get('findRoute'));
 		return;
 	},
 	"click .startfit": function (event, template) {
@@ -273,26 +297,28 @@ Template.routes.events({
 		if (!Meteor.userId()) {
 			return;
 		}
+
 		var userId = Meteor.userId();
 		if (Session.get('watchGPS')) {
 			Meteor.clearInterval(Session.get('watchGPS'));
 			Session.set('watchGPS', false);
 		}
 		var fitnessTrackId = Session.get('fitnessTrackId');
+		var fitnessTrack = FitnessTracks.findOne(fitnessTrackId);
 		var timestampEnd = moment().valueOf();
 
-		if ((timestampEnd - geoLoc.timestamp) > 60000) {
+		if ((timestampEnd - fitnessTrack.timestamp) > 60000) {
 			// if more than 1 mins, finalise it
 			FitnessTracks.update(fitnessTrackId,{$set:{timestampEnd: timestampEnd}});
-			var geoLoc = Tracks.findOne({fitnessTrackId: fitnessTrackId},{sort: {timestamp:1}});
+//			var geoLoc = Tracks.findOne({fitnessTrackId: fitnessTrackId},{sort: {timestamp:1}});
 			/* 		var geolog = GeoLog.findOne({fitnessTrackId: fitnessTrack._id});
 			GeoLog.update(geolog._id,{$set:{fitness: 'end'}}); */
-			console.log('stopfit ', fitnessTrackId, geoLoc);
+			console.log('stopfit ', fitnessTrackId);
 			var userPlaceId = UserPlaces.insert({
 				userId: userId,
-				location: geoLoc.location,
-				started:  moment(geoLoc.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS"),
-				timestamp:  geoLoc.timestamp,
+				location: fitnessTrack.location,
+				started:  moment(fitnessTrack.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS"),
+				timestamp:  fitnessTrack.timestamp,
 				timestampEnd: timestampEnd,
 				status: 'fitness',
 				fitnessId: fitnessTrackId,
@@ -304,6 +330,10 @@ Template.routes.events({
 		}
 		
 		Session.set('userPlaceId', userPlaceId);
+		Session.set('justStart', false);
+		Session.set('selectRoute', false);
+		Session.set('fitActivity', false);
+		Session.set('findRoute', false);
 		Session.set('fitness', false);
 		Session.set('fitActivity', false);
 		Session.set('interval', 1000000);
@@ -313,14 +343,23 @@ Template.routes.events({
 		console.log('stopfit userPlaceId ', userPlaceId, 'fitnessTrackId', fitnessTrackId);
 		return;
 	},
+	'click .cancelfit': function(event, template){
+		Session.set('justStart', false);
+		Session.set('selectRoute', false);
+		Session.set('fitActivity', false);
+		Session.set('findRoute', false);
+		console.log('justStart', Session.get('justStart'), 'selectRoute',  Session.get('selectRoute') , 'fitActivity',  Session.get('fitActivity'), 'findRoute', Session.get('findRoute'));
+	},
 	"click .fitActivity": function (event, template) {
 		if (!Meteor.userId()) {
 			return;
 		}
 //		var fitActivity = template.find('.fitActivity').id;
-		var fitActivity = $(event.target).attr('id');
+		var fitActivity = event.currentTarget.id;
 		console.log('click .fitActivity ',  fitActivity, $(event.target));
 		Session.set('fitActivity', fitActivity);
+		if (!Session.get('findRoute'))
+			Session.set('justStart', true);
 		return;
 	},
 	'click .showMap': function (event, template) {
@@ -330,8 +369,129 @@ Template.routes.events({
 		//		var fitActivity = template.find('.fitActivity').id;
 		var fitnessTrackId = $(event.currentTarget).attr('id');
 		console.log('click .showMap ',  fitnessTrackId, $(event.currentTarget));
-		Session.set('fitnessTrackId', fitnessTrackId);
+		if (fitnessTrackId)
+			Session.set('fitnessTrackId', fitnessTrackId);
 		Overlay.show('showMapFit');	
+		return;
+	},
+});
+
+Template.currentTrack.helpers({
+	track: function(){
+		//		console.log(' track fitness fitnessTrack ', Session.get('fitnessTrack'));
+		/* 		if (!Session.get('fitnessTrackId')){
+			var fitnessTrackId = FitnessTracks.findOne({userId:Meteor.userId()},{sort:{created: -1}, limit: 1, fields:{_id:1}});
+			console.log(' track fitness last ', fitnessTrackId);
+			Session.set('fitnessTrackId', fitnessTrackId);
+		} */ 
+		if (!Session.get('fitnessTrackId'))
+		return;
+		
+		var track = Tracks.find({userId: Meteor.userId(), fitnessTrackId: Session.get('fitnessTrackId') }, {
+			sort: {created: -1}, limit:10,
+			transform: function(doc){	
+				doc.time = moment(doc.timestamp).format("hh:mm:ss");
+				if (!doc.location.coords.speed)
+				doc.location.distance = 0;
+				console.log('checking calories', doc.calories, doc.location.distance, doc.location.speed, doc);
+				//					doc.location.distance = truncateDecimals(doc.location.distance, 3);
+				//					doc.location.coords.speed = truncateDecimals(doc.location.coords.speed, 2);
+				return doc;
+			}
+		});
+		Session.set('lastTrack', track);
+		track.fitnessTrackId = Session.get('fitnessTrackId');
+		//			console.log(' track fitness ', track);
+		return track;
+		
+	},	
+});
+
+Template.recentTracks.helpers({
+	
+	userTracks: function(){
+		var fitnessTrackId = Session.get('fitnessTrackId');
+		console.log('userTracks', fitnessTrackId, Meteor.userId());
+		var userTracks = FitnessTracks.find(
+			{
+				userId: Meteor.userId()
+			},{	
+				sort:{timestamp: -1},
+				transform: function(cursor){
+					cursor.date = moment(cursor.timestamp).format("MM/DD/YY HH:mm");
+					cursor.duration = moment.duration(cursor.timestampEnd - cursor.timestamp).humanize();
+					cursor.dur_sec = cursor.timestampEnd - cursor.timestamp;
+					if (cursor.dur_sec > 60000) {
+						cursor.show = true;
+						if ((!cursor.calories) || (cursor.calories == 0))
+						checkCalories(cursor._id);
+					}
+					if (!cursor.distance)
+						cursor.distance = checkDistance(cursor._id);
+					if (cursor._id == fitnessTrackId) 
+						cursor.selected = true;
+					cursor.activity = FitnessActivities.findOne(cursor.activityId,{fields: {icon:1, name:1}});
+					return cursor;
+				}
+			}
+		);
+		console.log('userTracks', userTracks);
+		return userTracks;
+	},	
+});
+
+Template.selectRoutes.helpers({
+	routes: function(){
+		var selectRoute = Session.get('selectRoute');
+		var routes = FitnessRoutes.find(
+			{userId: Meteor.userId()
+			},{
+				sort:{timestamp: -1},
+				transform: function(cursor){
+					if (cursor.fitnessTrackId == selectRoute) 
+						cursor.selected = true;
+					cursor.activity = FitnessActivities.findOne(cursor.activityId,{fields: {icon:1, name:1}});
+					return cursor;	
+				}
+			}
+		);
+		console.log('selectRoutes 2 ', routes.fetch());
+		return routes;
+	},		
+});
+
+Template.selectRoutes.events({
+	'click .showMap': function (event, template) {
+		if (!Meteor.userId()) {
+			return;
+		}
+		//		var fitActivity = template.find('.fitActivity').id;
+		var fitnessTrackId = event.delegateTarget.id;
+		console.log('click .showMap ',  fitnessTrackId, event.delegateTarget.id, event.target.id, event.currentTarget.id);
+		if (fitnessTrackId)
+			Session.set('fitnessTrackId', fitnessTrackId);
+		Overlay.show('showMapFit');	
+		return;
+	},	
+	'click .setfitnessTrackId': function (event, template) {
+		if (!Meteor.userId()) {
+			return;
+		}
+		//		var fitActivity = template.find('.fitActivity').id
+		var fitnessTrackId = event.currentTarget.id;
+		console.log('click .setfitnessTrackId ',  fitnessTrackId, event.delegateTarget.id, event.target.id, event.currentTarget.id);
+		if (fitnessTrackId)
+			Session.set('fitnessTrackId', fitnessTrackId);
+		return;
+	},	
+	"click .selectroute": function (event, template) {
+		if (!Meteor.userId()) {
+			return;
+		}
+		console.log('selectroute', event.currentTarget.id, event.currentTarget);
+		Session.set('selectRoute', event.currentTarget.id);
+		Session.set('findfit', true);
+		Session.set('findRoute', true);
 		return;
 	},
 });
