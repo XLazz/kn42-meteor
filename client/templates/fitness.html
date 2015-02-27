@@ -109,31 +109,34 @@
 </template>
 
 <template name="selectRoutes">
-	<div class="row showtrack loading animate" >
-		<div class="col-xs-12 col-sm-12 col-md-12">
-			Select routes
+
+	{{#if ifRoutes}}
+		<div class="row showtrack loading animate" >
+			<div class="col-xs-12 col-sm-12 col-md-12">
+				Select routes
+			</div>
 		</div>
-	</div>
-	{{#unless routes}}
-	<div class="row showtrack loading animate " >
-		<div class="col-xs-2 col-sm-2 col-md-2 ">
-			No saved routes yet. You can select any of your recent fitness routes and save it for the future reuse
-		</div>
-	</div>
-	{{/unless}}
-	{{#each routes}}
+		{{#each routes}}
+			<div class="row showtrack loading animate " >
+				<div class="col-xs-2 col-sm-2 col-md-2 showMap selectroute" id="{{fitnessTrackId}}">				
+					<img src="/img/app/map.png" width="48px" />
+				</div>
+				<div class="col-xs-3 col-sm-3 col-md-3 setfitnessTrackId selectroute" id="{{fitnessTrackId}}">
+					<img src="/icon/{{activity.icon}}" width="48px" /> <span class="label {{#if selected}} label-primary {{else}} label-info {{/if}}"></span>
+				</div>
+				<div class="col-xs-7 col-sm-7 col-md-7 setfitnessTrackId selectroute" id="{{fitnessTrackId}}">
+					<span class="label {{#if selected}} label-primary {{else}} label-info {{/if}}">{{routeName}} {{distance}}m {{calories}}cal</span>
+				</div>
+			</div>
+		{{/each}}
+	{{else}}
 		<div class="row showtrack loading animate " >
-			<div class="col-xs-2 col-sm-2 col-md-2 showMap selectroute" id="{{fitnessTrackId}}">				
-				<img src="/img/app/map.png" width="48px" />
-			</div>
-			<div class="col-xs-3 col-sm-3 col-md-3 setfitnessTrackId selectroute" id="{{fitnessTrackId}}">
-				<img src="/icon/{{activity.icon}}" width="48px" /> <span class="label {{#if selected}} label-primary {{else}} label-info {{/if}}"></span>
-			</div>
-			<div class="col-xs-7 col-sm-7 col-md-7 setfitnessTrackId selectroute" id="{{fitnessTrackId}}">
-				<span class="label {{#if selected}} label-primary {{else}} label-info {{/if}}">{{routeName}} {{distance}}m {{calories}}cal</span>
+			<div class="col-xs-12 col-sm-12 col-md-12 ">
+				No saved routes yet. You can select any of your recent fitness routes and save it for the future reuse
 			</div>
 		</div>
-	{{/each}}
+	{{/if}}
+
 </template>
 
 <template name="showMapFit">

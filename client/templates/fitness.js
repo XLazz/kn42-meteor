@@ -458,6 +458,10 @@ Template.selectRoutes.helpers({
 		console.log('selectRoutes 2 ', routes.fetch());
 		return routes;
 	},		
+	ifRoutes: function(){
+		var routes = FitnessRoutes.findOne(	{userId: Meteor.userId()});
+		return routes;
+	},	
 });
 
 Template.selectRoutes.events({
