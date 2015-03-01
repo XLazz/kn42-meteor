@@ -112,24 +112,27 @@ Template.homelocation.helpers({
 			var location = GeoLog.findOne({userId:userId}, {sort: {timestamp: -1}});
 			if ((!location) || (!Session.set('geoback'))){
 				startGeo();
-				return;
+				return currentlocation.status = '...no data. Please turn on service';
 			}
 			Session.set('locationId', location._id);		
 		} 
 		if (!location) 
 			return currentlocation.status = '...no data. Please turn on service';	
 	
-		if (!userPlace) {
-			return currentlocation.status = '...updating';	
+		if ((userPlace) && (!userPlace.place_id)) {
 			var params = {
-				radius: radius,
-				location: userPlace.location
+				radius: 20,
+				location: userPlace.location,
+				geoId: location._id,
+				userPlaceId: userPlace._id
 			}
 			var initiator = 'homelocation helpers';
+			console.log('currentlocation 1.15 selectPlace calloing getGLoc with ', params, initiator);	
 			var gotPlaces = Meteor.call('getGLoc', userId, params, initiator, function(err, results){
 				console.log('selectPlace helpers getGLoc results ', results.results);	
 				return results;
 			});
+			return currentlocation.status = '...updating place';	
 		}
 	
 		if (Session.get('debug'))

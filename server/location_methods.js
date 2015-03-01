@@ -52,6 +52,11 @@ Meteor.methods({
 					GeoLog.upsert(params.geoId, {$set: {stationary_place_id: response.results[i].place_id}});
 				}
 			}
+			if (params.userPlaceId) {
+				if (i == 1) {
+					UserPlaces.update(params.userPlaceId, {$set: {place_id: response.results[i].place_id}});
+				}
+			}
 		}
 //		ifStationary (userId, params.geoId);
 		return response;

@@ -35,14 +35,17 @@ Meteor.methods({
 	updatePlaces: function(userId, ifDebug){
 			
 		// 1st check with no place_id
-		if (ifUpdating)
+		if (moment().valueOf() < ifUpdating + 60000) {
+			console.log('ifUpdating in progress, exiting ', ifUpdating);
 			return;
-		ifUpdating = true;
+		}
+		ifUpdating = moment().valueOf();
 		console.log('empty places', UserPlaces.find({place_id: {$exists: false}}).count(), 'filled', UserPlaces.find({place_id: {$exists: true}}).count());
 		
 		var userPlaces = UserPlaces.find({userId: userId, place_id: {$exists: false}}, {limit: 50, sort:{timestamp: -1}	}	);
 		if (!userPlaces.count()) {
 			userPlaces = 'all filled up';
+			ifUpdating = false;
 			return userPlaces;
 		}
 		if (ifDebug)
@@ -54,7 +57,7 @@ Meteor.methods({
 		var i = 0;
 		var name = '';
 		var place;
-		if (!userPlaces)
+		if (!userPlaces) 
 			return;
 		userPlaces.forEach(function (item, index, array) {
 			// console.log('');

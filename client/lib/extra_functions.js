@@ -426,12 +426,12 @@ getGLoc = function(){
 
 updateEmptyPlaces = function(){
 //	console.log('updateEmptyPlaces function 1 ', moment().format("MM/DD HH:mm:ss.SSS"));
-	var timelimit = 3000;
+	var timelimit = 1000;
 	if (!Session.get('updatePlaces'))
 		Session.set('updatePlaces', 0);
-	if ((moment().valueOf() - Session.get('updatePlaces') < 60000 )) {
+	if ((moment().valueOf() > Session.get('updatePlaces') + 2000 )) {
 		if (Session.get('debug'))
-			console.log('recent call to updateEmptyPlaces ', moment().valueOf() - Session.get('updatePlaces') - 60000, ' was ', moment(Session.get('updatePlaces')).format("MM/DD HH:mm:ss.SSS"), ' now ', moment().format("MM/DD HH:mm:ss.SSS"));
+			console.log('recent call to updateEmptyPlaces ', Session.get('updatePlaces') - moment().valueOf() , ' was ', moment(Session.get('updatePlaces')).format("MM/DD HH:mm:ss.SSS"), ' now ', moment().format("MM/DD HH:mm:ss.SSS"));
 		return;
 	}
 	var initiator = 'updateEmptyPlaces function';

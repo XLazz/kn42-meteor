@@ -58,7 +58,7 @@
 					<div>lng: {{location.coords.longitude}} lat: {{location.coords.latitude}}</div>
 					<div>location {{location_id}} id {{_id}} place {{place_id}} {{device}}</div>
 					<div>
-						{{#if location.coords.speed}} {{location.coords.speed}}m/s {{/if}} accuracy: {{location.coords.accuracy}} int: {{interval}} {{fitness}} {{driving}} {{#if confirmed}} confirmed: {{confirmed}} {{/if}} {{#if travel}} {{travel}} {{/if}};
+						{{#if location.coords.speed}} {{location.coords.speed}}m/s {{/if}} accuracy: {{location.coords.accuracy}} distance: {{location.distance}} int: {{interval}} {{fitness}} {{driving}} {{#if confirmed}} confirmed: {{confirmed}} {{/if}} {{#if travel}} {{travel}} {{/if}};
 					</div>
 					<div>{{#if stationary}} stationary at  {{userPlace.place_id}}  {{userPlace.name}} {{/if}} </div>
 					<div>
