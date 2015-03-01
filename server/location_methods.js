@@ -30,7 +30,7 @@ Meteor.methods({
 			
 		if (!response.results)
 			console.error('GetGoogleLoc empty call, increase radius?');
-		
+		var ifAuto;
 		for (var i = 0; i < response.results.length; i++) {		
 //			console.log('inserting merchants 0 step ', i, ' response ', response.results[i].name);
 			if (!MerchantsCache.findOne({place_id: response.results[i].place_id, 'coords.latitude': coords.latitude,  'coords.longitude': coords.longitude})) { 			
@@ -52,10 +52,17 @@ Meteor.methods({
 					GeoLog.upsert(params.geoId, {$set: {stationary_place_id: response.results[i].place_id}});
 				}
 			}
-			if (params.userPlaceId) {
-				if (i == 1) {
+			if ((params.userPlaceId) && (!ifAuto)) {
+				ifAuto = AutoPlaces.findOne({userId:userId, place_id:response.results[i].place_id});
+				if (ifAuto) {
 					UserPlaces.update(params.userPlaceId, {$set: {place_id: response.results[i].place_id}});
 				}
+			}
+		}
+		
+		if ((params.userPlaceId) && (!ifAuto)) {
+			if (i == 1) {
+				UserPlaces.update(params.userPlaceId, {$set: {place_id: response.results[i].place_id}});
 			}
 		}
 //		ifStationary (userId, params.geoId);

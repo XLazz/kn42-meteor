@@ -69,7 +69,7 @@ Meteor.methods({
 			if (response.results.length == 0)
 				return;
 			response.results.forEach(function (item, index, array) {
-				var ifAuto = AutoPlaces.findOne({place_id:item.place_id});
+				var ifAuto = AutoPlaces.findOne({userId:userId, place_id:item.place_id});
 				if (ifAuto) {
 					if (ifDebug)
 						console.log('userPlaces 0.5 ifAuto ', item.place_id, item.name);
@@ -136,7 +136,7 @@ Meteor.methods({
 			if (response.results.length == 0)
 			return;
 			var place = response.results.forEach(function (item, index, array) {
-				var ifAuto = AutoPlaces.findOne({place_id:item.place_id});
+				var ifAuto = AutoPlaces.findOne({userId:userId, place_id:item.place_id});
 				if (ifAuto) {
 					if (ifDebug)
 					console.log('userPlaces 0.5 ifAuto ', item.place_id, item.name);
