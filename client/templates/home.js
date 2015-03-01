@@ -128,10 +128,10 @@ Template.homelocation.helpers({
 			}
 			var initiator = 'homelocation helpers';
 			console.log('currentlocation 1.15 selectPlace calloing getGLoc with ', params, initiator);	
-			var gotPlaces = Meteor.call('getGLoc', userId, params, initiator, function(err, results){
+/* 			var gotPlaces = Meteor.call('getGLoc', userId, params, initiator, function(err, results){
 				console.log('selectPlace helpers getGLoc results ', results.results);	
 				return results;
-			});
+			}); */
 			return currentlocation.status = '...updating place';	
 		}
 	
