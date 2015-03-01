@@ -6,10 +6,7 @@ Meteor.startup(function () {
 	
 	if (!Meteor.user())
 		return;
-	Session.set('geoback', true );
-	Session.set('interval', 1000000);
-	UpdateGeo();
-	PollingGeo();
+	startGeo();
 	console.log(' setting initial sessiong geoback ', Meteor.user().profile.geoback);
 	if (!UserPlaces.findOne({userId: Meteor.userId()})) {
 		console.log('autostart getPlaces ', Session.get('getPlaces'), Session.get('getPlacesNotReady'));

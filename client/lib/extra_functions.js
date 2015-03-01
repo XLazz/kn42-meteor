@@ -1,11 +1,16 @@
+startGeo = function(){
+	Session.set('geoback', true );
+	Session.set('interval', 1000000);
+	UpdateGeo();
+	PollingGeo();	
+}
+
 calculateDistanceLoc = function(coords1, coords2) {
 	// if (Session.get('debug')) 
 		// console.log('calculateDistanceLoc ', coords1, coords2);
 	var distance = calculateDistance(coords1.latitude, coords1.longitude, coords2.latitude, coords2.longitude);
 	return distance;
 };
-
-
 
 calculateDistance = function(lat1, lon1, lat2, lon2) {
 	// if (Session.get('debug')) 

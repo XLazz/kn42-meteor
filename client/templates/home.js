@@ -110,6 +110,10 @@ Template.homelocation.helpers({
 			var location = GeoLog.findOne(Session.get('locationId'));	
 		} else {
 			var location = GeoLog.findOne({userId:userId}, {sort: {timestamp: -1}});
+			if (!location) {
+				startGeo();
+				return;
+			}
 			Session.set('locationId', location._id);		
 		} 
 		if (!location) 
