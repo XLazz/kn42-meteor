@@ -110,7 +110,7 @@ Template.homelocation.helpers({
 			var location = GeoLog.findOne(Session.get('locationId'));	
 		} else {
 			var location = GeoLog.findOne({userId:userId}, {sort: {timestamp: -1}});
-			if ((!location) || (!Session.set('geoback')){
+			if ((!location) || (!Session.set('geoback'))){
 				startGeo();
 				return;
 			}
