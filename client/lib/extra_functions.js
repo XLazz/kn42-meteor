@@ -424,14 +424,43 @@ getGLoc = function(){
 
 };
 
+updateOnePlace = function(userPlaceId){
+	var userPlace = UserPlaces.findOne(userPlaceId);
+	console.log('updateOnePlace 1  ', userPlace);	
+	// if (userPlace)
+		// if (userPlace.place_id) {
+			// return;
+		// }
+	var params = {};
+	params.radius = 20;
+	params.location = userPlace.location;
+//		geoId: Session.get('locationId'),
+	params.userPlaceId = userPlaceId;
+	
+	var initiator = 'updateOnePlace';
+	console.log('updateOnePlace 2 with  ', params, initiator);	
+	if (moment().valueOf() < Session.get('updatePlaces')  + 4000 ) 
+		return;
+
+	Session.set('updatePlaces', moment().valueOf());
+	Meteor.setTimeout(function(){
+		Meteor.call('getGLoc', Meteor.userId(), params, initiator, function(err, results){
+			console.log('updateOnePlace getGLoc results ', results);	
+			// return results;
+			Session.set('updatePlaces', 0);
+		});
+	}, 3000);	
+	
+};	
+		
 updateEmptyPlaces = function(){
 //	console.log('updateEmptyPlaces function 1 ', moment().format("MM/DD HH:mm:ss.SSS"));
 	var timelimit = 1000;
 	if (!Session.get('updatePlaces'))
 		Session.set('updatePlaces', 0);
-	if ((moment().valueOf() > Session.get('updatePlaces') + 2000 )) {
+	if ((moment().valueOf() < Session.get('updatePlaces')  + 2000 )) {
 		if (Session.get('debug'))
-			console.log('recent call to updateEmptyPlaces ', Session.get('updatePlaces') - moment().valueOf() , ' was ', moment(Session.get('updatePlaces')).format("MM/DD HH:mm:ss.SSS"), ' now ', moment().format("MM/DD HH:mm:ss.SSS"));
+			console.log('recent call to updateEmptyPlaces ', moment().valueOf() - Session.get('updatePlaces') - 2000 , ' was ', moment(Session.get('updatePlaces')).format("MM/DD HH:mm:ss.SSS"), ' now ', moment().format("MM/DD HH:mm:ss.SSS"));
 		return;
 	}
 	var initiator = 'updateEmptyPlaces function';

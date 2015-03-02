@@ -36,15 +36,23 @@
 </template>
 
 <template name="showlocations">
-	{{#each locations}}
+	{{#each places}}
 
 		<div class="row">
 			<div class="selectplace col-xs-8 col-sm-8 col-md-8" id="{{_id}}">
 				{{#if stationary}}
 					<div>
-						{{name}} 
+						{{#if name}}
+							{{name}} 
+						{{else}}
+							{{#if geoMerchant}}
+								{{geoMerchant.name}}
+							{{else}}
+								{{ifUpdating}}
+							{{/if}}
+						{{/if}}
 					</div>
-					<div style="font-size: smaller">		
+					<div id="fsqr" style="font-size: smaller">		
 						{{#if foursquareChk}}
 							<div style="width: auto; white-space: normal" id="{{checkedFsqr.venueId}}">
 								<i class="fa fa-foursquare"></i> 
@@ -54,10 +62,10 @@
 								{{/if}} 
 							</div>
 						{{/if}}
-						<div>
+						<div id="vicinity">
 							{{vicinity}} 
 						</div>
-						<div>
+						<div id="status">
 							{{status}} since {{timestart}} 
 							{{#if timespent}} for {{timespent}} {{/if}}	
 							{{#if progress}} {{progress}} {{/if}}
@@ -79,7 +87,7 @@
 					</div>
 				{{/if}}
 				{{#if ifDebug}} 
-					<div style="font-size:60%">
+					<div id="debug" style="font-size:60%">
 						place_id {{place_id}}<br/>
 						fsqr {{foursquareChk}}<br/>
 						{{timestamp}} finished: {{finished}}<br/>

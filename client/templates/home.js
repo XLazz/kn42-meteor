@@ -138,7 +138,7 @@ Template.homelocation.helpers({
 		if (Session.get('debug'))
 			console.log('currentlocation 1.2 ', moment().format("MM/DD HH:mm:ss.SSS"), ' location.stationary ', location.stationary, location.location.distance, location.location.coords.speed, userPlace );
 		
-		if (location.stationary) {	
+		if ((location.stationary) && (userPlace)) {	
 			userPlace.showbut = true;
 			if (location.stationary)
 				userPlace.stationary = location.stationary;
@@ -204,38 +204,18 @@ Template.homelocation.helpers({
 
 		return currentlocation;
 	},
-	
-	geoPlace: function() {
-		console.log('geoPlace 1 ', moment().format("MM/DD HH:mm:ss.SSS"), this.place_id, this);
-		var place;
-		// We use this helper inside the {{#each posts}} loop, so the context
-		// will be a post object. Thus, we can use this.authorId.
-		place = Places.findOne({place_id: this.place_id});
-		if (!place) {
-			var place = MerchantsCache.findOne({'place_id': this.place_id});
-			console.log('geoPlace 1.5 ', moment().format("MM/DD HH:mm:ss.SSS"), this.place_id, place);
-			if (place) {
-				place.updated =  moment().valueOf();
-				Places.insert(place);
-			}
-		}
-//		console.log('geoPlace ', this.place_id, place);
-/* 		if ((!Session.get('userPlace')) && place) {
-			Session.set('userPlace', place);
-		} */
-		console.log('geoPlace 2 ', moment().format("MM/DD HH:mm:ss.SSS"), this.place_id, place);
-		return place;
-	},
 
 	geoMerchant: function() {
 		var userId = Meteor.userId();
+		if (!this.place_id)
+			return;
 		// We use this helper inside the {{#each posts}} loop, so the context
 		// will be a post object. Thus, we can use this.authorId.
 		var place = MerchantsCache.findOne({'place_id': this.place_id});
-		if (!place) {
+/* 		if (!place) {
 //			if (!this.place_id)
 				updateEmptyPlaces();
-		} 
+		}  */
 		console.log('geoMerchant ', moment().format("MM/DD HH:mm:ss.SSS"), this, this.place_id, place);
 		return place;
 	},	
@@ -268,10 +248,12 @@ Template.homelocation.helpers({
 	showexpselect: function(){
 		return Session.get('showexp');
 	},
-	
-	updating: function() {
-		updateEmptyPlaces();
-		return Session.get('updatePlaces');
+		
+	ifUpdating: function(){
+		if (Session.get('userPlaceId')) 
+			updateOnePlace(Session.get('userPlaceId'));
+
+		return '...updating place';		
 	},
 	
 	exp1: function(){

@@ -7,7 +7,7 @@ Meteor.methods({
 			console.error('Called getGLoc, but ', userId, params.location, params.geoId, initiator, params);
 			return;
 		}
-		console.log('Called getGLoc 2 ', userId, 'geoId ', params.geoId, initiator);
+		console.log('Called getGLoc 2 ', userId, 'userPlaceId ', params.userPlaceId, initiator);
 		if (!params.location.coords) {
 			console.error('Called getGLoc, but location.coords ', params.location.coords, params.location, initiator);
 			return;		
@@ -24,7 +24,7 @@ Meteor.methods({
 		}
 		var response = GetGoogleLoc(userId, coords, params.radius, name);
 
-//		console.log('GetGoogleLoc called google ', userId, coords, response.results.length);
+//		console.log('getGLoc GetGoogleLoc called google ', userId, params.userPlaceId, coords, response.results.length);
 		if (!response) 
 			return;
 			
@@ -42,29 +42,21 @@ Meteor.methods({
 					{	$set: response.results[i]	}
 				);	
 			}
-			if (params.geoId) {
-				if (i == 0) {
-	//				console.log('upserting GeoLog for geoId ', params.geoId, ' with place_id ', response.results[i].place_id); 
-					GeoLog.upsert(params.geoId, {$set: {place_id: response.results[i].place_id}});
-				}
-				if (i == 1) {
-	//				console.log('upserting GeoLog for geoId ', params.geoId, ' with stat place_id ', response.results[i].place_id); 
-					GeoLog.upsert(params.geoId, {$set: {stationary_place_id: response.results[i].place_id}});
-				}
+			if (response.results.length == 1)
+				UserPlaces.update(params.userPlaceId, {$set: {place_id: response.results[0].place_id}});
+			if (i == 1) {
+//				console.log('upserting GeoLog for geoId ', params.geoId, ' with stat place_id ', response.results[i].place_id); 
+//				GeoLog.upsert(params.geoId, {$set: {stationary_place_id: response.results[i].place_id}});
+				UserPlaces.update(params.userPlaceId, {$set: {place_id: response.results[i].place_id}});
 			}
 			if ((params.userPlaceId) && (!ifAuto)) {
 				ifAuto = AutoPlaces.findOne({userId:userId, place_id:response.results[i].place_id});
 				if (ifAuto) {
 					UserPlaces.update(params.userPlaceId, {$set: {place_id: response.results[i].place_id}});
-				}
+				} 
 			}
 		}
 		
-		if ((params.userPlaceId) && (!ifAuto)) {
-			if (i == 1) {
-				UserPlaces.update(params.userPlaceId, {$set: {place_id: response.results[i].place_id}});
-			}
-		}
 //		ifStationary (userId, params.geoId);
 		return response;
 	},
