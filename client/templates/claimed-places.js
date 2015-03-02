@@ -42,15 +42,11 @@ Template.claimPlace.helpers({
 	},
 });
 
-/* Template.claimPlace.events({
+Template.claimPlace.events({
 	'submit form': function(event){
-		onSuccess: function(operation, result, template) {
-			Overlay.hide();
-		}, 
-		
-//		event.preventDefault();
+		Overlay.hide();
 	},
-}); */
+});
 
 AutoForm.addHooks("claimPlace", {
   onError: function () {
@@ -127,6 +123,7 @@ Template.claimedPlaces.helpers({
 Template.claimedPlaces.events({
   'submit form': function(event) {
     event.preventDefault();
+		Overlay.hide();
 
 /*     var text = $(event.target).find('[name=text]').val();
     ClaimedPlaces.insert({ name: text, date: new Date });

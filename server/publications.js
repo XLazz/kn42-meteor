@@ -1,11 +1,11 @@
 Meteor.startup(function() {
-	GeoLog._ensureIndex({ "timestamp": 1},{ unique: true, dropDups: true } );
-	UserPlaces._ensureIndex({ "timestamp": 1}, { unique: true, dropDups: true } );
-	PlaceServices._ensureIndex( { types: 1 }, { unique: true, dropDups: true } );
-	Places._ensureIndex({ "updated": 1});
-	Drives._ensureIndex({ "timestamp": 1});
-	Tracks._ensureIndex({ "timestamp": 1});
-	VenuesCheckins._ensureIndex({ "createdAt": 1});
+	GeoLog._ensureIndex({ timestamp: 1},{ unique: true, dropDups: true } );
+	UserPlaces._ensureIndex({ timestamp: 1}, { unique: true, dropDups: true } );
+	PlaceServices._ensureIndex( { type: 1 }, { unique: true, dropDups: true } );
+	Places._ensureIndex({ updated: 1});
+	Drives._ensureIndex({ timestamp: 1});
+	Tracks._ensureIndex({ timestamp: 1});
+	VenuesCheckins._ensureIndex({ createdAt: 1});
 });
 		
 /* Meteor.publish('bookmarkCounts', function() {
@@ -75,7 +75,7 @@ Meteor.publish('AutoPlaces', function(userId) {
 	return AutoPlaces.find({userId:this.userId});
 });
 Meteor.publish('MerchantsCache', function(userId) {
-	return MerchantsCache.find({}, {fields:{_id:1, 'address': 1, updated: 1, place_id: 1, name:1, icon:1, vicinity:1, coords:1}, sort: {updated: -1}, limit: 100});
+	return MerchantsCache.find({}, {fields:{_id:1, 'address': 1, updated: 1, place_id: 1, name:1, icon:1, vicinity:1, coords:1, types: 1}, sort: {updated: -1}, limit: 100});
 });
 Meteor.publish('VenuesCache', function(userId, limit) {
 	return VenuesCache.find({}, {sort: {updated: -1},limit: limit});

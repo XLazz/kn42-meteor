@@ -1,12 +1,3 @@
-//Let's get getPlaces when location set
-/* LoadPlaces = function(userPlace){
-	var userPlace = Session.get('userPlace');
-	userId = Meteor.userId();
-	radius = Session.get('radius');
-	Meteor.call( 'getPlaces', userId, userPlace, radius, function(err,results){
-//			console.log('gotPlaces inside MerchantsCache http call for 2 ', userPlace, results);
-	});
-}; */
 
 Template.lifelog.helpers({
 	ifDebug: function(){
@@ -210,9 +201,8 @@ Template.showlocations.helpers({
 		return showBut;
 	},
 	geoMerchant: function() {
-		if (Session.get('debug'))
-			console.log('locations helper geoMerchant 1 ', moment().format("MM/DD HH:mm:ss.SSS"));
-		var userId = Meteor.userId();
+		// if (Session.get('debug'))
+			// console.log('locations helper geoMerchant 1 ', moment().format("MM/DD HH:mm:ss.SSS"));
 		var place = MerchantsCache.findOne({'place_id': this.place_id});
 		return place;
 	},	
@@ -222,22 +212,8 @@ Template.showlocations.helpers({
 /* 		if (Session.get('userPlaceId')) 
 		var userPlace = UserPlaces.findOne(Session.get('userPlaceId')); */
 		console.log('ifUpdating lifelog 1  ', this);	
-		updateOnePlace(this._id);
-/* 		if (userPlace)
-		if (userPlace.place_id) 
-		return;
-		var params = {
-			radius: 20,
-			location: userPlace.location,
-			geoId: Session.get('locationId'),
-			userPlaceId: userPlace._id
-		}
-		var initiator = 'homelocation helpers';
-		console.log('ifUpdating 2  with  ', params, initiator);	
-		Meteor.call('getGLoc', userId, params, initiator, function(err, results){
-			console.log('selectPlace helpers getGLoc results ', results.results);	
-			// return results;
-		}); */
+		if ((this._id) && (this.place_id))
+			updateOnePlace(this._id);
 		return '...updating place';		
 	},
 	

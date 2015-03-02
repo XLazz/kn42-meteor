@@ -14,49 +14,51 @@ Meteor.methods({
 		}
 
 		var coords = params.location.coords;
-
-/* 		if (MerchantsCache.findOne({'coords.latitude': coords.latitude,  'coords.longitude': coords.longitude}))
-			return; */
-		if (!params.name) {
-			var name = '';
-		} else {
-			var name = params.name;
-		}
-		var response = GetGoogleLoc(userId, coords, params.radius, name);
+		if (!params.name) 
+			params.name = '';
+		var response = GetGoogleLoc(userId, coords, params.radius, params.name);
 
 //		console.log('getGLoc GetGoogleLoc called google ', userId, params.userPlaceId, coords, response.results.length);
-		if (!response) 
-			return;
 			
-		if (!response.results)
+		if ((!response) && (!response.results))
 			console.error('GetGoogleLoc empty call, increase radius?');
 		var ifAuto;
+		var place_id;
+
+		
 		for (var i = 0; i < response.results.length; i++) {		
-//			console.log('inserting merchants 0 step ', i, ' response ', response.results[i].name);
+			console.log('inserting merchants 0 step ', i, ' response ', response.results[i].name);
 			if (!MerchantsCache.findOne({place_id: response.results[i].place_id, 'coords.latitude': coords.latitude,  'coords.longitude': coords.longitude})) { 			
-				response.results[i].coords = coords;
-				response.results[i].updated = moment().valueOf(),
-				console.log('inserting merchants 1 ', response.results[i].place_id, response.results[i].name);
+				console.log('upserting merchants 1 ', response.results[i].place_id, response.results[i].name);
 				MerchantsCache.upsert(
 					{ 'place_id': response.results[i].place_id	},
-					{	$set: response.results[i]	}
+					{	$set: 
+						{
+							coords: coords,
+							place_id: response.results[i].place_id,
+							icon: response.results[i].icon,
+							name: response.results[i].name,
+							vicinity: response.results[i].vicinity,
+							types: response.results[i].types,
+							updated: moment().valueOf()
+						}
+					}
 				);	
-			}
-			if (response.results.length == 1)
-				UserPlaces.update(params.userPlaceId, {$set: {place_id: response.results[0].place_id}});
-			if (i == 1) {
-//				console.log('upserting GeoLog for geoId ', params.geoId, ' with stat place_id ', response.results[i].place_id); 
-//				GeoLog.upsert(params.geoId, {$set: {stationary_place_id: response.results[i].place_id}});
-				UserPlaces.update(params.userPlaceId, {$set: {place_id: response.results[i].place_id}});
 			}
 			if ((params.userPlaceId) && (!ifAuto)) {
 				ifAuto = AutoPlaces.findOne({userId:userId, place_id:response.results[i].place_id});
 				if (ifAuto) {
-					UserPlaces.update(params.userPlaceId, {$set: {place_id: response.results[i].place_id}});
+					place_id = response.results[i].place_id;
 				} 
 			}
 		}
-		
+		if (response.results.length == 1) {
+			place_id = response.results[0].place_id;
+		} else {
+			if (!ifAuto)
+				place_id = response.results[1].place_id;
+		}
+		UserPlaces.update(params.userPlaceId, {$set: {place_id: place_id}});
 //		ifStationary (userId, params.geoId);
 		return response;
 	},
@@ -118,101 +120,136 @@ Meteor.methods({
 		return response;
 	},
 	
-	googleMaps: function(params) {
-		var result = GoogleMaps.getDistance("Melbourne", "Sydney");
-		console.log(result);
+	updatePlaces: function(userId, ifDebug){		
+		// 1st check with no place_id
+		if (moment().valueOf() < ifUpdating + 60000) {
+			console.log('ifUpdating in progress, exiting ', ifUpdating);
+			return;
+		}
+		ifUpdating = moment().valueOf();
+		console.log('empty places', UserPlaces.find({place_id: {$exists: false}}).count(), 'filled', UserPlaces.find({place_id: {$exists: true}}).count());
 		
-		var content;
-		var data = GoogleMaps.distance(
-				"100 East Main Street, Louisville KY, 40202",
-				"1500 Bardstown Rd, Louisville, KY 40205",
-				function (error, data, content) {
-					console.log('transit data ', data, ' content ', content);
-					if (error) {
-						console.log(error);
+		var userPlaces = UserPlaces.find({userId: userId, place_id: {$exists: false}}, {limit: 50, sort:{timestamp: -1}	}	);
+		if (!userPlaces.count()) {
+			userPlaces = 'all filled up';
+			ifUpdating = false;
+			return userPlaces;
+		}
+		if (ifDebug)
+		console.log('userPlaces with empty place_id. userId: ', userId, ' these many ',  userPlaces.count());
+		userPlaces = userPlaces.fetch();
+		var radius = 50;
+		//		response = GetGoogleLoc(userId,  userPlaces.fetch()[0].location.coords, radius, name);
+		//		console.log('userPlaces  ', response);
+		var i = 0;
+		var name = '';
+		var place;
+		if (!userPlaces) 
+		return;
+		userPlaces.forEach(function (item, index, array) {
+			// console.log('');
+			// if  (ifDebug)
+			// console.log('updatePlaces calling GetGoogleLoc 1 item#', i++, userId, item.location.coords, radius, ifDebug);
+			var response = GetGoogleLoc(userId, item.location.coords, radius, name, ifDebug);
+			if  (ifDebug)
+			console.log('updatePlaces calling GetGoogleLoc 2 item#', i,  'for item ', item._id, 'place_id', item.place_id, '# of google responses', response.results.length);
+			if (response.results.length == 0)
+			return;
+			response.results.forEach(function (item, index, array) {
+				var ifAuto = AutoPlaces.findOne({userId:userId, place_id:item.place_id});
+				if (ifAuto) {
+					if (ifDebug)
+					console.log('userPlaces 0.5 ifAuto ', item.place_id, item.name);
+					place = item;
+					return place;
+				}
+			});
+			if  (ifDebug)
+			if (place)
+			console.log('userPlaces 0.6 ', item._id, item.started, place.name, place.place_id);
+			if (!place) {
+				if ((response.results) && (item._id)) {
+					if (response.results[1]) {
+						place = response.results[1];
+						if (ifDebug)
+						console.log('userPlaces 1 ', item._id, item.started, place.name, place.place_id);
+					} else {
+						place = response.results[0];
+						if (ifDebug)
+						console.log('userPlaces 2 ', item._id, item.started, place.name, place.place_id);
 					}
-					console.log(data.rows[0].elements[0]);
-					return {results: result, data: data, content: content};
-				},
-				'false',
-				'transit',
-				result
-		);
-	},
-
-	googleMapsPlaces: function(params) {
-		params.google_server_key = 'AIzaSyAQH9WdmrwMKphSHloMai5iYlcS5EsXMQA';
-		console.log('googleMapsPlaces 0 ', params, result);
-		var result = GoogleMaps.places(
-		params.latlng,
-		params.radius,
-		params.google_server_key,
-		function (error, data) {
-			console.log('places ');
-			if (error) {
-				console.error(error);
-				return;
+				}
 			}
-			data.foursquareId = params.foursquareId
-			updatePlace(data);
-			return data;
-		},
-		params.sensor,
-		params.types,
-		params.lang,
-		params.name,
-		params.rankby, 
-		params.pagetoken
-		);
-		console.log('googleMapsPlaces 1 ', result);
-		return result;
-	},
-
-	googleMapsReverse: function(userId, gps, initiator) {	
-		var google_server_key = 'AIzaSyAQH9WdmrwMKphSHloMai5iYlcS5EsXMQA';
-		GoogleMaps.config({
-			'google-private-key': google_server_key,
-			'stagger-time': 200,
-			'encode-polylines': true,
-			'secure': false,
-			'proxy': null,
+			place.updated = moment().valueOf();
+			UserPlaces.update(item._id, {$set: {place_id: place.place_id}});
+			if (!Places.findOne({place_id: place.place_id}))
+			Places.insert(place);
+			
 		});
-		GoogleMaps.distance(
-    "100 East Main Street, Louisville KY, 40202",
-    "1500 Bardstown Rd, Louisville, KY 40205",
-    function (error, data) {
-      console.log('transit', data);
-      if (error) {
-        console.log(error);
-				return;
-      }
-      console.log(data.rows[0].elements[0]);
-      /* expect = {
-        distance: { text: '5.4 km', value: 5447 },
-        duration: { text: '9 mins', value: 552 },
-        status: 'OK'
-      } */
-    },
-    'false',
-    'transit'
-		);
-		var place = GoogleMaps.reverseGeocode(gps, function (error, result) {
-			console.log('result');
-			if (error) {
-				console.error(error);
-				return;
-			}
-//			console.log(result.rows[0].elements[0]);
-			/* expect = {
-				distance: { text: '5.4 km', value: 5447 },
-				duration: { text: '9 mins', value: 552 },
-				status: 'OK'
-			} */
-			return result;
-		});
+		ifUpdating = false;
 	},	
-	
-	
 
-	
+	updatePlaceNames: function(userId, ifDebug){		
+		return; //doesnt work yet
+		// 1st check with no place_id
+		if (ifUpdating)
+		return;
+		ifUpdating = true;
+		console.log('empty places', UserPlaces.find({place_id: {$exists: false}}).count(), 'filled', UserPlaces.find({place_id: {$exists: true}}).count());
+		
+		var userPlaces = UserPlaces.find({userId: userId, place_id: {$exists: false}}, {limit: 50, sort:{timestamp: -1}	}	);
+		if (!userPlaces) {
+			userPlaces = 'all filled up';
+			return userPlaces;
+		}
+		if (ifDebug)
+		console.log('userPlaces with empty place_id. userId: ', userId, ' these many ',  userPlaces.count());
+		userPlaces = userPlaces.fetch();
+		var radius = 50;
+		//		response = GetGoogleLoc(userId,  userPlaces.fetch()[0].location.coords, radius, name);
+		//		console.log('userPlaces  ', response);
+		var i = 0;
+		var name = '';
+		userPlaces.forEach(function (item, index, array) {
+			console.log('');
+			if  (ifDebug)
+			console.log('updatePlaces calling GetGoogleLoc 1 item#', i++, userId, item.location.coords, radius, ifDebug);
+			var response = GetGoogleLoc(userId, item.location.coords, radius, name, ifDebug);
+			if  (ifDebug)
+			console.log('updatePlaces calling GetGoogleLoc 2 item#', i,  'for item ', item._id, 'place_id', item.place_id, '# of google responses', response.results.length);
+			if (response.results.length == 0)
+			return;
+			var place = response.results.forEach(function (item, index, array) {
+				var ifAuto = AutoPlaces.findOne({userId:userId, place_id:item.place_id});
+				if (ifAuto) {
+					if (ifDebug)
+					console.log('userPlaces 0.5 ifAuto ', item.place_id, item.name);
+					return item;
+				}
+			});
+			if  (ifDebug)
+			if (place)
+			console.log('userPlaces 0.6 ', item._id, item.started, place.name, place.place_id);
+			if (!place) {
+				if ((response.results) && (item._id)) {
+					if (response.results[1]) {
+						place = response.results[1];
+						if (ifDebug)
+						console.log('userPlaces 1 ', item._id, item.started, place.name, place.place_id);
+					} else {
+						place = response.results[0];
+						if (ifDebug)
+						console.log('userPlaces 2 ', item._id, item.started, place.name, place.place_id);
+					}
+				}
+				place.updated = moment().valueOf();
+				UserPlaces.update(item._id, {$set: {place_id: place.place_id}});
+				if (!Places.findOne({place_id: place.place_id}))
+				Places.insert(place);
+			}
+		});
+		ifUpdating = false;
+		//		Meteor.users.upsert(userId, {$set: user_details});
+		
+	},
 });

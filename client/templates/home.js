@@ -407,13 +407,12 @@ Template.buttons.events({
 			} else {
 				var merchant = MerchantsCache.findOne({place_id:this.place_id}, {fields:{_id:0}});
 				if (merchant) {
-					console.log(merchant.name);
-					console.log(place.name);
-					place.name = merchant.name;
+					console.log('click .confirm inserting merchant ', merchant.name, merchant);
 					Places.insert(merchant);
+					place.name = merchant.name;
 				}
 			}		
-			console.log('click .confirm buttons confirming userPlace ', place.name );
+			console.log('click .confirm buttons confirming userPlace 2 ', place.name );
 	//		console.log('click .confirm buttons confirming userPlace ', place.place_id, place.name );
 			if (!place.name) {
 				alert('Cant confirm Unknown. Please click on Change button first');
@@ -518,9 +517,9 @@ Template.claimIt.events({
 		var myTypes = Places.find({},{fields:{types:1}});
 		console.log(' types ', myTypes.fetch());
 		myTypes.forEach(function (item, index, array) {
-//			console.log(' adding types ', item);
-			if (item[0]) {
-//				console.log(' foreach 1 ', item.types );
+			console.log(' adding types ', item);
+			if (item.types) {
+				console.log(' foreach 1 ', item.types );
 				item.types.forEach(function (item2, index, array) {
 
 					var myId = PlaceServices.findOne({type:item2});
