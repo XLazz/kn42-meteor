@@ -90,10 +90,10 @@ truncateDecimals = function (number, digits) {
 };
 
 submitCoords = function(userId, geoId, location ){
-	Meteor.call('submitCoords',  userId, geoId, location, function(err,results){
+/* 	Meteor.call('submitCoords',  userId, geoId, location, function(err,results){
 		console.log('submitCoords to php, gor results ', userId,  results);
 		console.log('submitCoords to php, gor results ', userId, ' results.location_id ', results.location_id, ' coords ', location.coords, ' geoId ', geoId);			
-	});
+	}); */
 }
 
 PollingGeo = function(){
@@ -427,7 +427,10 @@ getGLoc = function(){
 updateOnePlace = function(userPlaceId){
 	var userPlace = UserPlaces.findOne(userPlaceId);
 	console.log('updateOnePlace 1  ', userPlace);	
-	// if (userPlace)
+	if (!Session.get('geoback')) 
+		startGeo();
+	if (!userPlace)
+		return;
 		// if (userPlace.place_id) {
 			// return;
 		// }
@@ -442,8 +445,10 @@ updateOnePlace = function(userPlaceId){
 	if (moment().valueOf() < Session.get('updatePlaces')  + 4000 ) 
 		return;
 
+	
 	Session.set('updatePlaces', moment().valueOf());
 	Meteor.setTimeout(function(){
+		console.log('updateOnePlace getGLoc calling ');	
 		Meteor.call('getGLoc', Meteor.userId(), params, initiator, function(err, results){
 			console.log('updateOnePlace getGLoc results ', results);	
 			// return results;

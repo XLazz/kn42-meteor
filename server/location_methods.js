@@ -1,3 +1,5 @@
+ifUpdating = 0;
+
 Meteor.methods({
 
 	getGLoc: function(userId, params, initiator){

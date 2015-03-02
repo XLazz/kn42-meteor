@@ -95,6 +95,10 @@ Template.homelocation.helpers({
 
 		if (Session.get('userPlaceId')) {
 			var userPlace = UserPlaces.findOne(Session.get('userPlaceId'));
+			if (!userPlace) {
+				Session.set('userPlaceId', false);
+				return currentlocation;
+			}
 		} else {		
 			var userPlace = UserPlaces.findOne({userId:userId}, {sort: {timestamp: -1}});
 			if (userPlace) {
@@ -119,6 +123,9 @@ Template.homelocation.helpers({
 		if (!location) 
 			return currentlocation.status = '...no data. Please turn on service';	
 	
+		if (!userPlace)
+			return currentlocation;
+		
 		if ((userPlace) && (!userPlace.place_id)) {
 			var params = {
 				radius: 20,
@@ -370,6 +377,8 @@ Template.buttons.helpers({
 			console.log('buttonsPlace helper 1 ', moment().format("MM/DD HH:mm:ss.SSS"), ' this ', this, ' userplace ', Session.get('userPlaceId'));
 //			console.log('buttons location ', Session.get('userPlace').place_id, ' confirmed ', place.confirmed, place._id, place.name);
 		var userPlace = UserPlaces.findOne(Session.get('userPlaceId'));
+		if (!userPlace)
+			return;
 		if (userPlace.status == 'confirmed')
 			userPlace.confirmed = true;
 		if (userPlace.status == 'travel')
