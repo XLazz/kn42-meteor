@@ -111,7 +111,7 @@ Template.homelocation.helpers({
 		} else {
 			var location = GeoLog.findOne({userId:userId}, {sort: {timestamp: -1}});
 			if ((!location) || (!Session.set('geoback'))){
-				startGeo();
+//				startGeo();
 				return currentlocation.status = '...no data. Please turn on service';
 			}
 			Session.set('locationId', location._id);		
