@@ -32,6 +32,10 @@ Meteor.publish('recipe', function(name) {
   ];
 }); */
 
+Meteor.publish('news', function() {
+  return News.find({}, {sort: {date: -1}, limit: 1});
+});
+
 // autopublish the user's bookmarks and admin status
 Meteor.publish(null, function() {
 /*   return Meteor.users.find(this.userId, {

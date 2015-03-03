@@ -5,6 +5,7 @@ fsqrHandle = Meteor.subscribe('VenuesCheckins', userId, 100);
 Tracker.autorun(function () {
     Meteor.subscribe('userData', userId);
 		Meteor.subscribe("userinfo");
+		Meteor.subscribe('news',userId);
 		Meteor.subscribe('GeoLog',userId);
 		
 		Meteor.subscribe('autoPlacesByUser');
