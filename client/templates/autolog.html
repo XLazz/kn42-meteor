@@ -38,15 +38,17 @@
 				<!-- Current track here -->
 				<div class="row showlog loading animate">
 					<div class="col-xs-4 col-sm-4 col-md-4">
-						<img src="/img/app/graphics-car-932475.gif" width="80%"/>
-<!-- 						<img src="img/app/car.png" /><br /> -->
-						{{track.drivingTrackId}}
+						<img src="/img/app/graphics-car-932475.gif" width="80%"/><br/>
+<!-- 						<img src="img/app/car.png" /><br /> -->'
+						{{#with driveTrack}}
+							{{_id}} Started on {{created}} <!-- distance {{distance}} points {{count}} -->
+						{{/with}}
 					</div>
 					<div class="col-xs-8 col-sm-8 col-md-8">
 						{{#each drive}}
 							<div class="row showlog loading animate" id="{{_id}}">
 								<div class="col-xs-12 col-sm-12 col-md-12">
-									<span class="label label-primary">{{time}} {{location.coords.speed}} {{location.distance}} km</span>							
+									<span class="label label-primary">{{time}} {{speed}}m/s  {{speedKm}}km/h {{location.distance}} km</span>							
 								</div>
 							</div>
 						{{/each}}
@@ -68,7 +70,7 @@
 						<br /> -->
 					</div>
 					<div class="col-xs-8 col-sm-8 col-md-8 showMap" id="{{_id}}">
-						<span class="label label-primary">{{date}} {{trackActivity.activity}} </span> <span class="label label-primary">{{duration}} {{distance}}km</span>
+						<span class="label label-primary">{{date}} </span> <span class="label label-primary">{{duration}} {{distance}}km points {{count}}</span>
 					</div>
 				</div>
 			{{/each}}
@@ -87,6 +89,13 @@
 			<div class="map-container">
 				{{> googleMap name="driveMap" options=driveMapOptions}}
 			</div>
+			<div class="row setlocations" id="">
+				<div class="col-xs-12 col-sm-12 col-md-12" style="font-size:70%"> 
+					{{#with driveTrack}}
+						{{_id}} Started on {{created}} distance {{distance}} points {{count}}
+					{{/with}}
+				</div>
+			</div>	
 			{{#each track}}
 				<div class="row setlocations" id="">
 					<div class="col-xs-12 col-sm-12 col-md-12" style="font-size:70%"> 
@@ -94,11 +103,6 @@
 					</div>
 				</div>	
 			{{/each}}
-			<div class="row setlocations" id="">
-				<div class="col-xs-12 col-sm-12 col-md-12" style="font-size:70%"> 
-					Track total: {{driveTrack.distance}}km
-				</div>
-			</div>	
 		</div>
 	</div>
 	<input type="button" class="button cancel btn btn-danger btn-down" value="Close" />

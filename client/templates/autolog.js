@@ -5,9 +5,9 @@ checkDistanceDrive = function(driveTrackId){
 	var i = 0;
 	var fitnessTrack = DriveTracks.findOne(driveTrackId);
 //	console.log('distance fitnessTrack ', fitnessTrack);
-	if (fitnessTrack.distance) {
+/* 	if (fitnessTrack.distance) {
 		return fitnessTrack.distance;
-	}
+	} */
 	var cursor = Drives.find({driveTrackId: driveTrackId});
 	if (Session.get('debug'))
 		console.log ('checking distance for 1 ', driveTrackId, cursor.count());
@@ -24,7 +24,7 @@ checkDistanceDrive = function(driveTrackId){
 		old_loc = item;
 		i++;
 	});
-	distance = Math.round(distance * 10) /10;
+	distance = Math.round(distance * 10 / 1000) /10; //make it in km
 	DriveTracks.update(driveTrackId,{$set:{distance: distance}});
 	return distance;
 }
@@ -57,7 +57,11 @@ Template.driving.helpers({
 			transform: function(doc){	
 				doc.time = moment(doc.timestamp).format("hh:mm:ss");
 				if (!doc.location.coords.speed)
-				doc.location.distance = 0;
+					doc.location.distance = 0;
+				if (doc.location.coords.speed) {
+					doc.speed = Math.round(doc.location.coords.speed * 10)/10;
+					doc.speedKm = Math.round(doc.location.coords.speed * 1000 * 10)/60/60/10;
+				}
 				return doc;
 			}
 		});
@@ -71,9 +75,11 @@ Template.driving.helpers({
 			{userId: Meteor.userId()},{
 				sort:{timestamp: -1},
 				transform: function(doc){
+					var drive = Drives.find({driveTrackId:doc._id});
+					doc.count = drive.count();
 					doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm");
 					doc.duration = moment.duration(doc.timestampEnd - doc.timestamp).humanize();
-					doc.dur_sec = doc.timestampEnd - doc.timestamp;
+					doc.dur_sec = doc.timestampEnd - doc.timestamp;		
 					return doc;
 				}
 			}
@@ -82,7 +88,10 @@ Template.driving.helpers({
 	},
 	driveTrack: function(){
 		console.log('driveTrackId ', this._id);
-		var driveTrack = DriveTracks.findOne({driveTrackId: this._id});
+		var cursor = Drives.find({driveTrackId:this._id});
+		var driveTrack = DriveTracks.findOne(this._id);
+		
+		driveTrack.count = cursor.count();
 		return driveTrack;
 	},
 	
