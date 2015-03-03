@@ -331,7 +331,8 @@ UpdateGeoDB = function(geolocation, uuid, device){
 
 ifStationary = function(location, oldLocation, userPlace){
 	
-
+	if ((!location) || (!oldLocation))
+		return;
 	var distance;
 	location.stationary = true;
 	if (location.location.coords.speed > 5)
@@ -343,9 +344,10 @@ ifStationary = function(location, oldLocation, userPlace){
 		if (oldLocation.stationary) {
 			if (!userPlace)
 				return;
-			distance = calculateDistance(location.location.coords.latitude, location.location.coords.longitude, userPlace.location.coords.latitude, userPlace.location.coords.longitude);
 			if (Session.get('debug')) 
-				console.log('if location.stationary 1. going with userplace ', location.stationary, ' distance ', distance, oldLocation.stationary);
+			console.log('if location.stationary 1. going with userplace loc: ', location, ' distance ', distance);
+			console.log('if location.stationary 1.1 going with userplace oldLoc: ', oldLocation, ' distance ', distance );
+			distance = calculateDistance(location.location.coords.latitude, location.location.coords.longitude, userPlace.location.coords.latitude, userPlace.location.coords.longitude);
 		} else {
 			distance = calculateDistance(location.location.coords.latitude, location.location.coords.longitude, oldLocation.location.coords.latitude, oldLocation.location.coords.longitude);	
 			if (Session.get('debug')) 

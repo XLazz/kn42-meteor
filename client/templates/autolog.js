@@ -53,7 +53,7 @@ Template.driving.helpers({
 			return;
 		
 		var track = Drives.find({userId: Meteor.userId(), driveTrackId: Session.get('driveTrackId') }, {
-			sort: {created: -1}, limit:10,
+			sort: {timestamp: -1}, limit:10,
 			transform: function(doc){	
 				doc.time = moment(doc.timestamp).format("hh:mm:ss");
 				if (!doc.location.coords.speed)
@@ -88,10 +88,12 @@ Template.driving.helpers({
 	},
 	driveTrack: function(){
 		console.log('driveTrackId ', this._id);
-		var cursor = Drives.find({driveTrackId:this._id});
 		var driveTrack = DriveTracks.findOne(this._id);
-		
-		driveTrack.count = cursor.count();
+		if (!driveTrack)
+			return;
+		var cursor = Drives.find({driveTrackId:this._id});
+		if (cursor)
+			driveTrack.count = cursor.count();
 		return driveTrack;
 	},
 	
@@ -123,7 +125,7 @@ Template.driving.events({
 		Session.set('driveTrackId', driveTrackId);
 		Session.set('driving', true);
 		Session.set('geoback', true );
-		Session.set('interval', 10000);
+		Session.set('interval', 15000);
 		UpdateGeo();
 		PollingGeo();
 		console.log(' click startdriving ', driveTrackId);
@@ -142,7 +144,7 @@ Template.driving.events({
 		var driveTrack = DriveTracks.findOne(driveTrackId);
 		var timestampEnd = moment().valueOf();
 
-		if ((timestampEnd - driveTrack.timestamp) > 300000) {
+		if ((timestampEnd - driveTrack.timestamp) > 60000) {
 			DriveTracks.update(driveTrackId,{$set:{timestampEnd: timestampEnd}});
 //			var geoLoc = Drives.findOne({driveTrackId: driveTrackId},{sort: {timestamp:1}});
 			/* 		var geolog = GeoLog.findOne({fitnessTrackId: fitnessTrack._id});
@@ -160,6 +162,7 @@ Template.driving.events({
 			});
 		} else {
 			DriveTracks.remove(driveTrackId);
+			Drives.remove({driveTrackId:driveTrackId});
 		}
 		Session.set('userPlaceId', userPlaceId);
 		Session.set('driving', false);
