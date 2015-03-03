@@ -60,7 +60,7 @@ Template.driving.helpers({
 					doc.location.distance = 0;
 				if (doc.location.coords.speed) {
 					doc.speed = Math.round(doc.location.coords.speed * 10)/10;
-					doc.speedKm = Math.round(doc.location.coords.speed * 1000 * 10)/60/60/10;
+					doc.speedKm = Math.round(doc.location.coords.speed / 1000 * 3600 * 10)/10;
 				}
 				return doc;
 			}
@@ -204,16 +204,18 @@ Template.showMapDrv.helpers({
 				sort: {created: -1},
 				transform: function(doc){	
 					doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm:ss");
-					doc.location.coords.speed = Math.round(doc.location.coords.speed * 1000 / 60 / 60 * 100) / 100 
+					doc.location.coords.speed = Math.round(doc.location.coords.speed / 1000 * 60 * 60 * 100) / 100;
 					return doc;
 				}
 			}
-		);		
+		);
 		return track;
 	},
 	driveTrack: function(){
 		var driveTrackId = Session.get('driveTrackId');
 		var track = DriveTracks.findOne(driveTrackId);
+		var cursor = Drives.find({driveTrackId:Session.get('driveTrackId')});
+		track.count = cursor.count();
 		console.log('drvTrack track ', track);
 		return track;
 	},
