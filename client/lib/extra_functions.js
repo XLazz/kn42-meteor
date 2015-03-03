@@ -441,7 +441,7 @@ updateOnePlace = function(userPlaceId){
 	params.userPlaceId = userPlaceId;
 	
 	var initiator = 'updateOnePlace';
-	console.log('updateOnePlace 2 with  ', params, initiator);	
+	console.log('updateOnePlace 2 with  ', params, initiator, moment().valueOf() - Session.get('updatePlaces')  - 4000);	
 	if (moment().valueOf() < Session.get('updatePlaces')  + 4000 ) 
 		return;
 

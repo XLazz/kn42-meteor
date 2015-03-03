@@ -92,17 +92,29 @@ Template.homelocation.helpers({
 
 		var place;
 		var autoPlace;
-
+		var location;
+		var userPlace
+		
+		if (Session.get('locationId')) {
+			location = GeoLog.findOne(Session.get('locationId'));	
+		} else {
+			location = GeoLog.findOne({userId:userId}, {sort: {timestamp: -1}});
+			if ((!location) || (!Session.set('geoback'))){
+				//				startGeo();
+				return currentlocation.status = '...no data. Please turn on service';
+			}
+			Session.set('locationId', location._id);		
+		} 
+		
 		if (Session.get('userPlaceId')) {
-			var userPlace = UserPlaces.findOne(Session.get('userPlaceId'));
+			userPlace = UserPlaces.findOne(Session.get('userPlaceId'));
 			if (!userPlace) {
 				Session.set('userPlaceId', false);
 				return currentlocation;
 			}
 		} else {		
-			var userPlace = UserPlaces.findOne({userId:userId}, {sort: {timestamp: -1}});
+			userPlace = UserPlaces.findOne({userId:userId}, {sort: {timestamp: -1}});
 			if (userPlace) {
-				var userPlaceId = userPlace._id;
 				Session.set('userPlaceId', userPlace._id);
 			} 
 		} 	
@@ -110,16 +122,6 @@ Template.homelocation.helpers({
 		if (Session.get('debug'))
 			console.log('currentlocation 1.1 ', moment().format("MM/DD HH:mm:ss.SSS"), ' location ', Session.get('locationId'), ' userPlace ', userPlace );
 			
-		if (Session.get('locationId')) {
-			var location = GeoLog.findOne(Session.get('locationId'));	
-		} else {
-			var location = GeoLog.findOne({userId:userId}, {sort: {timestamp: -1}});
-			if ((!location) || (!Session.set('geoback'))){
-//				startGeo();
-				return currentlocation.status = '...no data. Please turn on service';
-			}
-			Session.set('locationId', location._id);		
-		} 
 		if (!location) 
 			return currentlocation.status = '...no data. Please turn on service';	
 	
@@ -257,9 +259,17 @@ Template.homelocation.helpers({
 	},
 		
 	ifUpdating: function(){
-		if (Session.get('userPlaceId')) 
+		if ((Session.get('userPlaceId')) && (Session.get('locationId'))) {
+//			if (Session.get('debug'))
+				console.log('ifUpdating calling ',  Session.get('userPlaceId'), UserPlaces.findOne(Session.get('userPlaceId')), Session.get('locationId'), GeoLog.findOne(Session.get('locationId')));	
 			updateOnePlace(Session.get('userPlaceId'));
-
+		} else {
+			var location = GeoLog.findOne({userId:userId}, {sort: {timestamp: -1}});
+			if (location)
+				Session.set('locationId', location._id);		
+			if (!Session.get('geoback'))
+				startGeo();
+		}
 		return '...updating place';		
 	},
 	
