@@ -146,13 +146,14 @@ Template.driving.events({
 
 		if ((timestampEnd - driveTrack.timestamp) > 60000) {
 			DriveTracks.update(driveTrackId,{$set:{timestampEnd: timestampEnd}});
+			var drive = Drives.findOne({driveTrackId: driveTrackId},{sort:{timestamp: -1}});
 //			var geoLoc = Drives.findOne({driveTrackId: driveTrackId},{sort: {timestamp:1}});
 			/* 		var geolog = GeoLog.findOne({fitnessTrackId: fitnessTrack._id});
 			GeoLog.update(geolog._id,{$set:{fitness: 'end'}}); */
 			console.log('stopfit ', driveTrackId, driveTrack);
 			var userPlaceId = UserPlaces.insert({
 				userId: userId,
-				location: driveTrack.location,
+				location: drive.location,
 				started:  moment(driveTrack.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS"),
 				timestamp:  driveTrack.timestamp,
 				timestampEnd: timestampEnd,

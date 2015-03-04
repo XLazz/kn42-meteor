@@ -6,7 +6,7 @@ Meteor.methods({
 		var myError;
 		// userlocation.coords.latitude
 		if ((!userId) || (!params.location) ){
-			console.error('Called getGLoc, but ', userId, params.location, params.geoId, initiator, params);
+			console.error('Called getGLoc, but ', userId, params.location, params.geoId, 'initiator:', initiator, params);
 			return;
 		}
 		console.log('Called getGLoc 2 ', userId, 'userPlaceId ', params.userPlaceId, initiator);

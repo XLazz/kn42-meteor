@@ -433,12 +433,23 @@ updateOnePlace = function(userPlaceId){
 		startGeo();
 	if (!userPlace)
 		return;
+	if (!userPlace.location) {
+		if (Session.get('debug'))	{
+			console.log('userPlace ', userPlace);
+			console.log('userPlace.location ', userPlace._id, userPlace.timestamp, userPlace.location);
+		}
+		var location = GeoLog.findOne({userId:userId}, {sort: {timestamp: -1}});
+		userPlace.location = location.location;
+		if (!userPlace.location)
+			return;
+	}
 		// if (userPlace.place_id) {
 			// return;
 		// }
 	var params = {};
 	params.radius = 20;
 	params.location = userPlace.location;
+
 //		geoId: Session.get('locationId'),
 	params.userPlaceId = userPlaceId;
 	
