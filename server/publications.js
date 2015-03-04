@@ -38,7 +38,7 @@ Meteor.publish('news', function() {
 
 // autopublish the user's bookmarks and admin status
 Meteor.publish(null, function() {
-/*   return Meteor.users.find(this.userId, {
+  return Meteor.users.find(this.userId, {
     fields: {
       admin: 1,
 			profile: 1,
@@ -50,7 +50,7 @@ Meteor.publish(null, function() {
 			'services.foursquare.id': 1,
 			'services.foursquare.email': 1,
     }
-  }); */
+  });
 	return People.find();
 //	return Services.find();
 	return GeoLog.find({userId:this.userId},{sort: {timestamp:-1}, limit:50});
@@ -191,7 +191,7 @@ Meteor.publish('downloadPlaces', function(userId, limit) {
 /////////////////////////////////////////////////////////////	
 });
 
-Meteor.publish("userinfo", function () {
+Meteor.publish("userinfo", function (userId) {
 	return Meteor.users.find({_id: this.userId}, {fields: {profile: 1, services: 1, admin: 1}});
 });
 Meteor.publish('Contacts', function(userId) {

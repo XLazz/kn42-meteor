@@ -4,7 +4,7 @@ Meteor.subscribe('TracksByUser', userId, limit);
 fsqrHandle = Meteor.subscribe('VenuesCheckins', userId, 100);
 Tracker.autorun(function () {
     Meteor.subscribe('userData', userId);
-		Meteor.subscribe("userinfo");
+		Meteor.subscribe("userinfo", userId);
 		Meteor.subscribe('news',userId);
 		Meteor.subscribe('GeoLog',userId);
 		

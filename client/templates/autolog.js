@@ -150,7 +150,7 @@ Template.driving.events({
 //			var geoLoc = Drives.findOne({driveTrackId: driveTrackId},{sort: {timestamp:1}});
 			/* 		var geolog = GeoLog.findOne({fitnessTrackId: fitnessTrack._id});
 			GeoLog.update(geolog._id,{$set:{fitness: 'end'}}); */
-			console.log('stopfit ', driveTrackId, driveTrack);
+			console.log('stopdriving ', driveTrackId, driveTrack, drive);
 			var userPlaceId = UserPlaces.insert({
 				userId: userId,
 				location: drive.location,
@@ -201,7 +201,7 @@ Template.showMapDrv.helpers({
 		return Session.get('debug');
 	},
 	track: function () {
-		console.log(' drive  ', Session.get('driveTrackId'));
+//		console.log(' drive  ', Session.get('driveTrackId'));
 		var driveTrackId = Session.get('driveTrackId');
 		var track = Drives.find({driveTrackId:driveTrackId},
 			{
@@ -213,6 +213,9 @@ Template.showMapDrv.helpers({
 				}
 			}
 		);
+		if (track)
+			track.count = track.count();
+		console.log(' drive  ', Session.get('driveTrackId'), track);
 		return track;
 	},
 	driveTrack: function(){

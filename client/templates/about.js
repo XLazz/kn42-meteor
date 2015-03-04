@@ -217,8 +217,10 @@ Template.userSettings.helpers({
 	},
 	status: function(){
 		var status = Meteor.status();
-		console.log('meteor status ',  status);
+		if ((status.status == 'connected') || (status.status == 'connecting') || (status.status == 'waiting'))
+			status.disconnect = true;
 		status.server = status.status;
+		console.log('meteor status ',  status);
 		return status;
 	}
 });
