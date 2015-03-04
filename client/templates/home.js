@@ -106,18 +106,14 @@ Template.homelocation.helpers({
 			Session.set('locationId', location._id);		
 		} 
 		
-		if (Session.get('userPlaceId')) {
-			userPlace = UserPlaces.findOne(Session.get('userPlaceId'));
-			if (!userPlace) {
-				Session.set('userPlaceId', false);
-				return currentlocation;
-			}
-		} else {		
-			userPlace = UserPlaces.findOne({userId:userId}, {sort: {timestamp: -1}});
-			if (userPlace) {
-				Session.set('userPlaceId', userPlace._id);
-			} 
-		} 	
+		userPlace = UserPlaces.findOne({userId:userId}, {sort: {timestamp: -1}});
+		if (!userPlace) {
+			Session.set('userPlaceId', false);
+			return currentlocation;
+		} 
+		
+		Session.set('userPlaceId', userPlace._id);
+
 		
 		if (Session.get('debug'))
 			console.log('currentlocation 1.1 ', moment().format("MM/DD HH:mm:ss.SSS"), ' location ', Session.get('locationId'), ' userPlace ', userPlace );
@@ -260,7 +256,7 @@ Template.homelocation.helpers({
 		
 	ifUpdating: function(){
 		if ((Session.get('userPlaceId')) && (Session.get('locationId'))) {
-//			if (Session.get('debug'))
+			if (Session.get('debug'))
 				console.log('ifUpdating calling ',  Session.get('userPlaceId'), UserPlaces.findOne(Session.get('userPlaceId')), Session.get('locationId'), GeoLog.findOne(Session.get('locationId')), this);	
 			updateOnePlace(Session.get('userPlaceId'));
 		} else {

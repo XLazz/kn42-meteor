@@ -91,25 +91,25 @@ Meteor.publish('VenuesCheckins', function() {
   return VenuesCheckins.find({userId:this.userId});
 });
 Meteor.publish('Drives', function(userId) {
-	return Drives.find({userId:this.userId},{limit: 200});
+	return Drives.find({userId:this.userId},{sort: {timestamp:-1}, limit: 200});
 });
 Meteor.publish('DriveTracks', function(userId) {
-	return DriveTracks.find({userId:this.userId});
+return DriveTracks.find({userId:this.userId},{sort: {timestamp:-1}}});
 });
 Meteor.publish('Friends', function(userId) {
 	return Friends.find({userId:this.userId});
 });
 Meteor.publish('FitnessRoutes', function(userId) {
-	return FitnessRoutes.find();
+return FitnessRoutes.find({},{sort: {timestamp:-1}});
 });
 Meteor.publish('FitnessActivities', function(userId) {
 	return FitnessActivities.find();
 });
 Meteor.publish('FitnessTracks', function(userId) {
-	return FitnessTracks.find({userId:this.userId});
+	return FitnessTracks.find({userId:this.userId},{sort: {timestamp:-1}});
 });
 Meteor.publish('Tracks', function(userId) {
-	return Tracks.find({userId:this.userId},{limit: 100});
+	return Tracks.find({userId:this.userId},{sort: {timestamp:-1},limit: 100});
 });
 
 Meteor.publish('downloadPlaces', function(userId, limit) {

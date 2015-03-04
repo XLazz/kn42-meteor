@@ -428,7 +428,8 @@ getGLoc = function(){
 
 updateOnePlace = function(userPlaceId){
 	var userPlace = UserPlaces.findOne(userPlaceId);
-	console.log('updateOnePlace 1  ', userPlace);	
+	if  (Session.get('debug'))
+		console.log('updateOnePlace 1  ', userPlace);	
 	if (!Session.get('geoback')) 
 		startGeo();
 	if (!userPlace)
@@ -454,7 +455,8 @@ updateOnePlace = function(userPlaceId){
 	params.userPlaceId = userPlaceId;
 	
 	var initiator = 'updateOnePlace';
-	console.log('updateOnePlace 2 with  ', params, initiator, moment().valueOf() - Session.get('updatePlaces')  - 4000);	
+	if  (Session.get('debug'))
+		console.log('updateOnePlace 2 with  ', params, initiator, moment().valueOf() - Session.get('updatePlaces')  - 4000);	
 	if (moment().valueOf() < Session.get('updatePlaces')  + 4000 ) 
 		return;
 

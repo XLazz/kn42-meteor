@@ -108,7 +108,8 @@ loadFsqr = function(location, userPlaceId){
 				results.response.userPlaceId = userPlaceId;
 				var special = {}
 				results.response.venues.forEach(function (item, index, array) {
-					console.log('fsqr venue', item);
+					if  (Session.get('debug'))
+						console.log('fsqr venue', item);
 					if (parseInt(item.specials.count) > 1){
 						// we got special
 						console.log('special for Fsqr ', item.id, item.name, item.specials.count);
