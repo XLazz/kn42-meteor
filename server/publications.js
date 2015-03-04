@@ -94,7 +94,7 @@ Meteor.publish('Drives', function(userId) {
 	return Drives.find({userId:this.userId},{sort: {timestamp:-1}, limit: 200});
 });
 Meteor.publish('DriveTracks', function(userId) {
-return DriveTracks.find({userId:this.userId},{sort: {timestamp:-1}}});
+return DriveTracks.find({userId:this.userId},{sort: {timestamp:-1}});
 });
 Meteor.publish('Friends', function(userId) {
 	return Friends.find({userId:this.userId});
