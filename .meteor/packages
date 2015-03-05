@@ -54,7 +54,6 @@ service-configuration
 request
 msamoylov:accounts-foursquare
 msamoylov:foursquare
-ipstas:connect-with
 joshowens:accounts-entry
 fortawesome:fontawesome
 reywood:publish-composite
@@ -73,3 +72,4 @@ dburles:google-maps
 servicelocale:googlemaps-api
 meteorhacks:kadira
 mixmax:smart-disconnect
+ipstas:oauth2-connect
