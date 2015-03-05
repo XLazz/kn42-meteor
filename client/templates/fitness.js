@@ -41,8 +41,8 @@ checkDistance = function(fitnessTrackId){
 		old_loc = item;
 		i++;
 	});
-	distance = Math.round(distance * 10) /10;
-	FitnessTracks.update(fitnessTrackId,{$set:{distance: distance}});
+	distance = Math.round(distance * 10) /10; //In metres
+//	FitnessTracks.update(fitnessTrackId,{$set:{distance: distance}});
 	return distance;
 }
 
@@ -207,6 +207,8 @@ Template.routes.helpers({
 
 				sort:{timestamp: -1},
 				transform: function(doc){
+					var track = Tracks.find({fitnessTrackId:doc._id});
+					doc.count = track.count();
 					doc.date = moment(doc.timestamp).format("MM/DD/YY HH:mm");
 					doc.duration = moment.duration(doc.timestampEnd - doc.timestamp).humanize();
 					doc.dur_sec = doc.timestampEnd - doc.timestamp;
@@ -418,6 +420,8 @@ Template.recentTracks.helpers({
 			},{	
 				sort:{timestamp: -1},
 				transform: function(cursor){
+					var track = Tracks.find({fitnessTrackId:cursor._id});
+					cursor.count = track.count();
 					cursor.date = moment(cursor.timestamp).format("MM/DD/YY HH:mm");
 					cursor.duration = moment.duration(cursor.timestampEnd - cursor.timestamp).humanize();
 					cursor.dur_sec = cursor.timestampEnd - cursor.timestamp;
@@ -589,22 +593,22 @@ Template.showMapFit.helpers({
 
 				var lineCoordinates = [];
 				track.forEach(function (item, index, array) {
-					/* 					var marker = new google.maps.Marker({
-						position: new google.maps.LatLng(item.location.coords.latitude,item.location.coords.longitude),
-						map: map.instance,
-						title: 'Speed: ' + item.location.coords.speed 
-					});	 */
 					lineCoordinates.push (new google.maps.LatLng(item.location.coords.latitude, item.location.coords.longitude));
-					if (Session.get('debug'))
+				});
+				//first place
+				var marker = new google.maps.Marker({
+					position: new google.maps.LatLng(mytrack[0].location.coords.latitude,mytrack[0].location.coords.longitude),
+					map: map.instance,
+				});	
+				if (Session.get('debug'))
 					console.log ('adding marker ', lineCoordinates);
-					var line = new google.maps.Polyline({
-						path: lineCoordinates,
-						geodesic: true,
-						strokeColor: '#FF0000',
-						strokeOpacity: 1.0,
-						strokeWeight: 2,
-						map: map.instance
-					});
+				var line = new google.maps.Polyline({
+					path: lineCoordinates,
+					geodesic: true,
+					strokeColor: '#FF0000',
+					strokeOpacity: 1.0,
+					strokeWeight: 2,
+					map: map.instance
 				});
 
       });

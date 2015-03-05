@@ -258,16 +258,15 @@ Template.showMapDrv.helpers({
 					lineCoordinates.push (new google.maps.LatLng(item.location.coords.latitude, item.location.coords.longitude));
 					if (Session.get('debug'))
 						console.log ('adding marker ', lineCoordinates);
-					var line = new google.maps.Polyline({
-						path: lineCoordinates,
-						geodesic: true,
-						strokeColor: '#FF0000',
-						strokeOpacity: 1.0,
-						strokeWeight: 2,
-						map: map.instance
-					});
 				});
-
+				var line = new google.maps.Polyline({
+					path: lineCoordinates,
+					geodesic: true,
+					strokeColor: '#FF0000',
+					strokeOpacity: 1.0,
+					strokeWeight: 2,
+					map: map.instance
+				});
 
 				
       });

@@ -30,9 +30,9 @@ calculateDistance = function(lat1, lon1, lat2, lon2) {
   return d;
 };
 
-calculateCalories = function(activity, distance, timediff){
+calculateCalories = function(activity, distance, interval){
 	activity = FitnessActivities.findOne(activity).activity;
-	if (timediff == 0) {
+	if (interval == 0) {
 		var calories = 0;
 		return calories;	
 	}
@@ -66,9 +66,10 @@ calculateCalories = function(activity, distance, timediff){
 */
 	var calories;
 	var weight = 70;
-	timediff = timediff / 1000 / 60; // from ms to min
-	var speed = distance / timediff;
-	console.log(' speed ', speed, timediff, distance);
+	timediff = interval / 1000 / 60; // from ms to min
+	var speed = distance / timediff; // m/min
+	if (Session.get('debug'))
+		console.log(' speed ', speed, interval/1000, distance);
 	var grade = 0; // assuming everything flat
 	if (activity == 'walking') 
 		calories = 0.005* ((0.1 * speed) + (1.8 * speed * grade) + 3.5) * weight * timediff;
