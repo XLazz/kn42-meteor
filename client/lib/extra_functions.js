@@ -344,9 +344,14 @@ ifStationary = function(location, oldLocation, userPlace){
 		if (oldLocation.stationary) {
 			if (!userPlace)
 				return;
-			if (Session.get('debug')) 
-			console.log('if location.stationary 1. going with userplace loc: ', location, ' distance ', distance);
-			console.log('if location.stationary 1.1 going with userplace oldLoc: ', oldLocation, ' distance ', distance );
+			if (!userPlace.location)
+				return;
+			if (Session.get('debug')) {
+				console.log('if location.stationary 1. going with userplace loc: ', location, ' distance ', distance);
+				console.log('if location.stationary 1.a going with userplace loc: ', location.location.coords, ' distance ', distance);
+				console.log('if location.stationary 1.1 going with userplace oldLoc: ', oldLocation, ' distance ', distance );
+				console.log('if location.stationary 1.1b going with userplace oldLoc: ', oldLocation.location.coords, ' distance ', distance );
+			}
 			distance = calculateDistance(location.location.coords.latitude, location.location.coords.longitude, userPlace.location.coords.latitude, userPlace.location.coords.longitude);
 		} else {
 			distance = calculateDistance(location.location.coords.latitude, location.location.coords.longitude, oldLocation.location.coords.latitude, oldLocation.location.coords.longitude);	
