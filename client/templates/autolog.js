@@ -144,6 +144,11 @@ Template.driving.events({
 		var driveTrack = DriveTracks.findOne(driveTrackId);
 		var timestampEnd = moment().valueOf();
 
+		if (!driveTrack) {
+			var driveTrack = DriveTracks.findOne({userId:userId},{sort:{timestamp:-1}});
+			var driveTrackId = driveTrack._id;
+		}
+		
 		if ((timestampEnd - driveTrack.timestamp) > 60000) {
 			DriveTracks.update(driveTrackId,{$set:{timestampEnd: timestampEnd}});
 			var drive = Drives.findOne({driveTrackId: driveTrackId},{sort:{timestamp: -1}});
